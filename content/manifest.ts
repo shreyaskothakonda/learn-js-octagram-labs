@@ -1,0 +1,36 @@
+import type { Track } from "./types";
+
+export const TOPICS: Record<Track, { topic: string; label: string }[]> = {
+  javascript: [
+    { topic: "Variables & Types", label: "Variables & Types" },
+    { topic: "Strings", label: "Strings" },
+    { topic: "Arrays", label: "Arrays" },
+    { topic: "Objects", label: "Objects" },
+    { topic: "Functions & Scope", label: "Functions & Scope" },
+    { topic: "Closures", label: "Closures" },
+    { topic: "Higher-Order Functions", label: "Higher-Order Functions" },
+    { topic: "Array Methods", label: "Array Methods (map/filter/reduce)" },
+    { topic: "Recursion", label: "Recursion" },
+    { topic: "ES6+", label: "ES6+" },
+    { topic: "Async & Promises", label: "Async & Promises" },
+    { topic: "Regex", label: "Regex" },
+    { topic: "Error Handling", label: "Error Handling" },
+    { topic: "DOM Manipulation", label: "DOM Manipulation" },
+  ],
+  "data-structures": [
+    { topic: "Arrays & Two-Pointers", label: "Arrays & Two-Pointers" },
+    { topic: "Hash Maps", label: "Hash Maps / Sets" },
+    { topic: "Stacks", label: "Stacks" },
+    { topic: "Queues", label: "Queues" },
+    { topic: "Linked Lists", label: "Linked Lists" },
+    { topic: "Trees", label: "Trees" },
+    { topic: "BST", label: "Binary Search Trees" },
+    { topic: "Graphs", label: "Graphs (BFS/DFS)" },
+    { topic: "Heaps", label: "Heaps" },
+    { topic: "Tries", label: "Tries" },
+    { topic: "Sorting", label: "Sorting" },
+    { topic: "Searching", label: "Searching" },
+    { topic: "Sliding Window", label: "Sliding Window" },
+    { topic: "Dynamic Programming", label: "Dynamic Programming" },
+  ],
+};
