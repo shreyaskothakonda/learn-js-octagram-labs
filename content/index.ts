@@ -6,6 +6,7 @@ import { jsModernProblems } from "./problems/js-modern";
 import { jsAsyncRegexErrorsProblems } from "./problems/js-async-regex-errors";
 import { jsDomProblems } from "./problems/js-dom";
 import { jsCourseExtraProblems } from "./problems/js-course-extra";
+import { jsCourseExtra2Problems } from "./problems/js-course-extra-2";
 import { reactProblems } from "./problems/react";
 import { dataStructureProblems } from "./problems/data-structures";
 import { algorithmProblems } from "./problems/algorithms";
@@ -18,6 +19,7 @@ const ALL: Problem[] = [
   ...jsAsyncRegexErrorsProblems,
   ...jsDomProblems,
   ...jsCourseExtraProblems,
+  ...jsCourseExtra2Problems,
   ...dataStructureProblems,
   ...algorithmProblems,
   ...reactProblems,
