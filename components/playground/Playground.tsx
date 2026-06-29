@@ -124,7 +124,7 @@ export function Playground({ problem, nextId, backHref }: { problem: Problem; ne
         <div className="flex-1 min-h-0">
           <Editor height="100%" defaultLanguage="javascript" theme={editorTheme}
             value={code} onChange={(v) => updateCode(v ?? "")}
-            options={{ minimap: { enabled: false }, fontSize: 14, scrollBeyondLastLine: false }} />
+            options={{ minimap: { enabled: false }, fontSize: 14, scrollBeyondLastLine: false, automaticLayout: true }} />
         </div>
         {solved && (
           <div className="flex items-center gap-3 px-3 py-2 border-t bg-green-500/15 text-sm">
