@@ -198,7 +198,7 @@ export const dataStructureProblems: Problem[] = [
     difficulty: "medium",
     title: "Evaluate Reverse Polish Notation",
     prompt:
-      "Implement `evalRPN(tokens)` that evaluates an expression in **Reverse Polish Notation**. Tokens are strings — numbers or one of `+`, `-`, `*`, `/`. Division truncates toward zero.\n\nExample: `evalRPN([\"2\",\"1\",\"+\",\"3\",\"*\"])` → `9`.",
+      "Implement `evalRPN(tokens)` that evaluates an expression in **Reverse Polish Notation**. Tokens are strings: either numbers or one of `+`, `-`, `*`, `/`. Division truncates toward zero.\n\nExample: `evalRPN([\"2\",\"1\",\"+\",\"3\",\"*\"])` → `9`.",
     kind: "function",
     starterCode: "function evalRPN(tokens) {\n  // your code here\n}",
     solution:
@@ -314,7 +314,7 @@ export const dataStructureProblems: Problem[] = [
     ],
     hints: [
       "The n-th from end has index `length - n` in the array.",
-      "Use two pointers separated by n steps to find this position in a single pass over a real linked list — here you can compute it directly from the array length.",
+      "Use two pointers separated by n steps to find this position in a single pass over a real linked list. Here you can compute it directly from the array length.",
     ],
   },
 ];

@@ -26,7 +26,7 @@ export default async function Dashboard() {
       </div>
       <h2 className="font-semibold mb-2">Recent attempts</h2>
       {(attempts ?? []).length === 0 ? (
-        <p className="text-sm text-gray-400">No attempts yet — solve a problem to see it here.</p>
+        <p className="text-sm text-gray-400">No attempts yet. Solve a problem to see it here.</p>
       ) : (
         <ul className="divide-y border rounded-lg">
           {(attempts ?? []).map((a) => (

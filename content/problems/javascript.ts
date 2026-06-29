@@ -336,12 +336,12 @@ export const javascriptProblems: Problem[] = [
     ],
     resources: [
       {
-        label: "MDN: Functions — first-class objects",
+        label: "MDN: Functions as first-class objects",
         url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions",
       },
     ],
     hints: [
-      "Functions are values — you can pass them as arguments.",
+      "Functions are values, so you can pass them as arguments.",
       "Use a simple for-loop to apply fn n times.",
     ],
   },

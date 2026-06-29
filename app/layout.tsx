@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Octagram Labs — Learn JavaScript",
+  metadataBase: new URL("https://learn.octagramlabs.com"),
+  title: "Octagram Labs: Learn JavaScript",
   description: "Practice JavaScript in the browser. Run code, pass tests, track progress.",
 };
 

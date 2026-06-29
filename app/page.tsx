@@ -5,12 +5,12 @@ export default function Home() {
   const js = getProblemsByTrack("javascript").length;
   const ds = getProblemsByTrack("data-structures").length;
   const cards = [
-    { href: "/learn/javascript", title: "JavaScript", desc: "Core language: arrays, closures, async, DOM & more.", count: js },
-    { href: "/learn/data-structures", title: "Data Structures in JS", desc: "Stacks, queues, linked lists, trees, graphs & more.", count: ds },
+    { href: "/learn/javascript", title: "JavaScript", desc: "Core language topics: arrays, closures, async, and the DOM.", count: js },
+    { href: "/learn/data-structures", title: "Data Structures in JS", desc: "Stacks, queues, linked lists, trees, graphs, and more.", count: ds },
   ];
   return (
     <main className="mx-auto max-w-4xl p-8">
-      <h1 className="text-4xl font-bold mb-2">Octagram Labs — Learn JavaScript</h1>
+      <h1 className="text-4xl font-bold mb-2">Octagram Labs: Learn JavaScript</h1>
       <p className="text-gray-500 mb-8">Practice in the browser. Run code, pass tests, track progress.</p>
       <div className="grid gap-4 sm:grid-cols-2">
         {cards.map((c) => (
