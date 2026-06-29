@@ -32,5 +32,8 @@ export const TOPICS: Record<Track, { topic: string; label: string }[]> = {
     { topic: "Searching", label: "Searching" },
     { topic: "Sliding Window", label: "Sliding Window" },
     { topic: "Dynamic Programming", label: "Dynamic Programming" },
+    { topic: "Recursion & Backtracking", label: "Recursion & Backtracking" },
+    { topic: "Greedy", label: "Greedy" },
+    { topic: "Bit Manipulation", label: "Bit Manipulation" },
   ],
 };

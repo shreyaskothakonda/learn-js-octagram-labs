@@ -1,8 +1,9 @@
 import type { Problem, Track } from "./types";
 import { javascriptProblems } from "./problems/javascript";
 import { dataStructureProblems } from "./problems/data-structures";
+import { algorithmProblems } from "./problems/algorithms";
 
-const ALL: Problem[] = [...javascriptProblems, ...dataStructureProblems];
+const ALL: Problem[] = [...javascriptProblems, ...dataStructureProblems, ...algorithmProblems];
 
 export function getAllProblems(): Problem[] {
   return ALL;
