@@ -26,16 +26,6 @@ export default function LoginPage() {
       setSent(true);
     }
   }
-  async function oauth(provider: "github" | "google") {
-    setError(null);
-    const { error } = await getSupabase().auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${location.origin}/auth/callback` },
-    });
-    if (error) {
-      setError(error.message);
-    }
-  }
 
   return (
     <div className="mx-auto max-w-sm p-8 space-y-4">
@@ -50,10 +40,6 @@ export default function LoginPage() {
           <button className="w-full rounded bg-blue-600 text-white py-2" type="submit">Send magic link</button>
         </form>
       )}
-      <div className="flex gap-2">
-        <button onClick={() => oauth("github")} className="flex-1 rounded border py-2">GitHub</button>
-        <button onClick={() => oauth("google")} className="flex-1 rounded border py-2">Google</button>
-      </div>
     </div>
   );
 }
