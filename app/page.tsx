@@ -46,7 +46,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl p-8">
+    <main className="mx-auto w-full max-w-5xl p-8">
       <h1 className="text-4xl font-bold mb-2">
         Octagram Labs: Learn JavaScript
       </h1>

@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (error) setError(error.message); else setSent(true);
   }
   return (
-    <div className="mx-auto max-w-sm p-8 space-y-4">
+    <div className="mx-auto w-full max-w-sm p-8 space-y-4">
       <h1 className="text-2xl font-bold">Sign in</h1>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       {sent ? (

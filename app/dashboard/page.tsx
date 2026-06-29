@@ -44,7 +44,7 @@ export default async function Dashboard() {
   const recent = (attempts ?? []).slice(0, 15);
 
   return (
-    <main className="mx-auto max-w-5xl p-8 space-y-8">
+    <main className="mx-auto w-full max-w-5xl p-8 space-y-8">
       <h1 className="text-2xl font-bold">Your progress</h1>
 
       <div className="grid grid-cols-3 gap-4">
