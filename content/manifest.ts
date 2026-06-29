@@ -39,4 +39,14 @@ export const TOPICS: Record<Track, { topic: string; label: string }[]> = {
     { topic: "Greedy", label: "Greedy" },
     { topic: "Bit Manipulation", label: "Bit Manipulation" },
   ],
+  react: [
+    { topic: "Immutable Arrays", label: "Immutable Arrays" },
+    { topic: "Immutable State", label: "Immutable State" },
+    { topic: "Reducers", label: "Reducers" },
+    { topic: "Rendering Lists", label: "Rendering Lists" },
+    { topic: "Derived State", label: "Derived State" },
+    { topic: "Props & Classes", label: "Props & Classes" },
+    { topic: "Events & Forms", label: "Events & Forms" },
+    { topic: "Hooks Logic", label: "Hooks Logic" },
+  ],
 };

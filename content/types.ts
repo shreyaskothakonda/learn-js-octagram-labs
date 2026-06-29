@@ -1,4 +1,4 @@
-export type Track = "javascript" | "data-structures";
+export type Track = "javascript" | "data-structures" | "react";
 export type Difficulty = "easy" | "medium" | "hard";
 export type ProblemKind = "function" | "dom";
 
