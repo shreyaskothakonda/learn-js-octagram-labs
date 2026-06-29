@@ -2,11 +2,9 @@
 
 1. Create a project at supabase.com.
 2. In Project Settings → API Keys, copy the Project URL and the **publishable** key
-   into `.env.local`. (Supabase's newer key format is `sb_publishable_…`; the legacy
-   "anon" JWT key still works too. Either way, put the value under the env name the app
-   reads, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.)
+   (format `sb_publishable_…`) into `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`  ← set this to your publishable (or anon) key
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    The publishable key is safe to expose in the browser; never put the secret/service_role
    key in any `NEXT_PUBLIC_` variable.
 3. In the SQL Editor, run `supabase/migrations/0001_init.sql`. This creates the
