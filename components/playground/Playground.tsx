@@ -30,27 +30,33 @@ export function Playground({ problem }: { problem: Problem }) {
 
   async function onRun() {
     setBusy(true);
-    setResult(await execute(true));
-    setBusy(false);
+    try {
+      setResult(await execute(true));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function onSubmit() {
     setBusy(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
-    const r = await execute(false);
-    setResult(r);
-    const passedCount = r.caseResults.filter((c) => c.passed).length;
-    const total = r.caseResults.length;
     try {
-      await recordAttempt({
-        problemId: problem.id, code,
-        passed: total > 0 && passedCount === total && !r.error,
-        testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs,
-      });
-    } catch { /* non-blocking: results stay visible */ }
-    setBusy(false);
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
+      const r = await execute(false);
+      setResult(r);
+      const passedCount = r.caseResults.filter((c) => c.passed).length;
+      const total = r.caseResults.length;
+      try {
+        await recordAttempt({
+          problemId: problem.id, code,
+          passed: total > 0 && passedCount === total && !r.error,
+          testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs,
+        });
+      } catch { /* non-blocking: results stay visible */ }
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -64,8 +70,8 @@ export function Playground({ problem }: { problem: Problem }) {
         <div className="flex gap-2 p-2 border-t">
           <button disabled={busy} onClick={onRun} className="rounded border px-4 py-1.5 text-sm">Run</button>
           <button disabled={busy} onClick={onSubmit} className="rounded bg-blue-600 text-white px-4 py-1.5 text-sm">Submit</button>
-          <button onClick={() => setCode(problem.starterCode)} className="rounded border px-4 py-1.5 text-sm">Reset</button>
-          <button onClick={() => setCode(problem.solution)} className="ml-auto rounded border px-4 py-1.5 text-sm">Show Solution</button>
+          <button disabled={busy} onClick={() => setCode(problem.starterCode)} className="rounded border px-4 py-1.5 text-sm">Reset</button>
+          <button disabled={busy} onClick={() => setCode(problem.solution)} className="ml-auto rounded border px-4 py-1.5 text-sm">Show Solution</button>
         </div>
       </div>
       <ResultsTabs problem={problem} result={result} srcdoc={srcdoc} />
