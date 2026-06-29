@@ -21,6 +21,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function bubbleSort(arr) {\n  // your code here\n}`,
     solution: `function bubbleSort(arr) {\n  const a = arr.slice();\n  for (let i = 0; i < a.length; i++) {\n    for (let j = 0; j < a.length - 1 - i; j++) {\n      if (a[j] > a[j + 1]) { const t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; }\n    }\n  }\n  return a;\n}`,
     testCases: [{ input: [[5, 2, 4, 1]], expected: [1, 2, 4, 5] }, { input: [[]], expected: [] }, { input: [[3, 3, 1]], expected: [1, 3, 3], hidden: true }],
+    hints: [
+      "Repeatedly swap adjacent out-of-order pairs.",
+      "After each pass the largest remaining value bubbles to the end.",
+    ],
+    pitfalls: [
+      "Sorting in place mutates the caller's array; copy first if that matters.",
+    ],
+    explanation: "Bubble sort makes repeated passes swapping neighbors. O(n^2) time, O(1) extra space.",
     resources: [R.sort],
   },
   {
@@ -31,6 +39,15 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function mergeSort(arr) {\n  // your code here\n}`,
     solution: `function mergeSort(arr) {\n  if (arr.length <= 1) return arr.slice();\n  const mid = Math.floor(arr.length / 2);\n  const left = mergeSort(arr.slice(0, mid));\n  const right = mergeSort(arr.slice(mid));\n  const out = [];\n  let i = 0, j = 0;\n  while (i < left.length && j < right.length) out.push(left[i] <= right[j] ? left[i++] : right[j++]);\n  while (i < left.length) out.push(left[i++]);\n  while (j < right.length) out.push(right[j++]);\n  return out;\n}`,
     testCases: [{ input: [[5, 2, 9, 1, 5, 6]], expected: [1, 2, 5, 5, 6, 9] }, { input: [[1]], expected: [1] }, { input: [[4, 3, 2, 1]], expected: [1, 2, 3, 4], hidden: true }],
+    hints: [
+      "Split the array in half and sort each half.",
+      "Merge two sorted halves into one.",
+    ],
+    pitfalls: [
+      "Forgetting the base case of length 0 or 1.",
+      "An incorrect merge that drops the tail of one half.",
+    ],
+    explanation: "Merge sort divides, sorts recursively, and merges. O(n log n) time, O(n) space.",
     resources: [R.sort],
   },
   {
@@ -41,6 +58,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function quickSort(arr) {\n  // your code here\n}`,
     solution: `function quickSort(arr) {\n  if (arr.length <= 1) return arr.slice();\n  const [pivot, ...rest] = arr;\n  const less = rest.filter((x) => x < pivot);\n  const more = rest.filter((x) => x >= pivot);\n  return [...quickSort(less), pivot, ...quickSort(more)];\n}`,
     testCases: [{ input: [[3, 6, 1, 8, 2]], expected: [1, 2, 3, 6, 8] }, { input: [[]], expected: [] }, { input: [[2, 1]], expected: [1, 2], hidden: true }],
+    hints: [
+      "Pick a pivot and partition into less and greater.",
+      "Recurse on each partition.",
+    ],
+    pitfalls: [
+      "A bad pivot on already-sorted input degrades to O(n^2).",
+    ],
+    explanation: "Quicksort partitions around a pivot and recurses. Average O(n log n), worst O(n^2).",
     resources: [R.sort],
   },
   {
@@ -51,6 +76,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function sortColors(arr) {\n  // your code here\n}`,
     solution: `function sortColors(arr) {\n  let low = 0, mid = 0, high = arr.length - 1;\n  while (mid <= high) {\n    if (arr[mid] === 0) { [arr[low], arr[mid]] = [arr[mid], arr[low]]; low++; mid++; }\n    else if (arr[mid] === 1) { mid++; }\n    else { [arr[mid], arr[high]] = [arr[high], arr[mid]]; high--; }\n  }\n  return arr;\n}`,
     testCases: [{ input: [[2, 0, 2, 1, 1, 0]], expected: [0, 0, 1, 1, 2, 2] }, { input: [[2, 0, 1]], expected: [0, 1, 2] }, { input: [[0]], expected: [0], hidden: true }],
+    hints: [
+      "Three pointers track the 0, 1, and 2 regions.",
+      "Swap values to their correct region in one pass.",
+    ],
+    pitfalls: [
+      "Advancing the mid pointer after swapping from the high side can skip an unprocessed value.",
+    ],
+    explanation: "The Dutch national flag scan sorts three values in a single O(n) pass, O(1) space.",
     resources: [R.sort],
   },
   {
@@ -61,6 +94,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function merge(intervals) {\n  // your code here\n}`,
     solution: `function merge(intervals) {\n  const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);\n  const out = [];\n  for (const [s, e] of sorted) {\n    if (out.length && s <= out[out.length - 1][1]) out[out.length - 1][1] = Math.max(out[out.length - 1][1], e);\n    else out.push([s, e]);\n  }\n  return out;\n}`,
     testCases: [{ input: [[[1, 3], [2, 6], [8, 10], [15, 18]]], expected: [[1, 6], [8, 10], [15, 18]] }, { input: [[[1, 4], [4, 5]]], expected: [[1, 5]] }, { input: [[[1, 4], [2, 3]]], expected: [[1, 4]], hidden: true }],
+    hints: [
+      "Sort intervals by start first.",
+      "Extend the last merged interval when the next overlaps.",
+    ],
+    pitfalls: [
+      "Comparing against the wrong end when deciding to merge.",
+    ],
+    explanation: "Sorting by start then merging overlapping ends gives the result in O(n log n) time.",
     resources: [R.sort],
   },
   {
@@ -71,6 +112,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function findKthLargest(nums, k) {\n  // your code here\n}`,
     solution: `function findKthLargest(nums, k) {\n  return nums.slice().sort((a, b) => b - a)[k - 1];\n}`,
     testCases: [{ input: [[3, 2, 1, 5, 6, 4], 2], expected: 5 }, { input: [[3, 2, 3, 1, 2, 4, 5, 5, 6], 4], expected: 4 }, { input: [[1], 1], expected: 1, hidden: true }],
+    hints: [
+      "Sorting descending puts the k-th largest at index k-1.",
+      "A heap or quickselect is faster but sorting is simplest.",
+    ],
+    pitfalls: [
+      "Off-by-one between k and the zero-based index.",
+    ],
+    explanation: "Sorting descending and indexing k-1 is O(n log n); quickselect would be O(n) average.",
     resources: [R.sort],
   },
 
@@ -83,6 +132,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function search(nums, target) {\n  // your code here\n}`,
     solution: `function search(nums, target) {\n  let lo = 0, hi = nums.length - 1;\n  while (lo <= hi) {\n    const mid = (lo + hi) >> 1;\n    if (nums[mid] === target) return mid;\n    if (nums[mid] < target) lo = mid + 1; else hi = mid - 1;\n  }\n  return -1;\n}`,
     testCases: [{ input: [[-1, 0, 3, 5, 9, 12], 9], expected: 4 }, { input: [[-1, 0, 3, 5, 9, 12], 2], expected: -1 }, { input: [[5], 5], expected: 0, hidden: true }],
+    hints: [
+      "Halve the search range each step.",
+      "Compare the middle to the target.",
+    ],
+    pitfalls: [
+      "An inclusive/exclusive bound mistake causes an infinite loop or missed element.",
+    ],
+    explanation: "Binary search halves the range each step. O(log n) time, O(1) space.",
     resources: [R.search],
   },
   {
@@ -93,6 +150,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function searchInsert(nums, target) {\n  // your code here\n}`,
     solution: `function searchInsert(nums, target) {\n  let lo = 0, hi = nums.length;\n  while (lo < hi) {\n    const mid = (lo + hi) >> 1;\n    if (nums[mid] < target) lo = mid + 1; else hi = mid;\n  }\n  return lo;\n}`,
     testCases: [{ input: [[1, 3, 5, 6], 5], expected: 2 }, { input: [[1, 3, 5, 6], 2], expected: 1 }, { input: [[1, 3, 5, 6], 7], expected: 4, hidden: true }],
+    hints: [
+      "Binary search for the leftmost position not less than target.",
+      "The final low index is the insert point.",
+    ],
+    pitfalls: [
+      "Returning mid instead of the converged low for the insert position.",
+    ],
+    explanation: "A lower-bound binary search finds the index or insertion point in O(log n).",
     resources: [R.search],
   },
   {
@@ -103,6 +168,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function searchRange(nums, target) {\n  // your code here\n}`,
     solution: `function searchRange(nums, target) {\n  const bound = (isFirst) => {\n    let lo = 0, hi = nums.length - 1, res = -1;\n    while (lo <= hi) {\n      const mid = (lo + hi) >> 1;\n      if (nums[mid] === target) { res = mid; if (isFirst) hi = mid - 1; else lo = mid + 1; }\n      else if (nums[mid] < target) lo = mid + 1; else hi = mid - 1;\n    }\n    return res;\n  };\n  return [bound(true), bound(false)];\n}`,
     testCases: [{ input: [[5, 7, 7, 8, 8, 10], 8], expected: [3, 4] }, { input: [[5, 7, 7, 8, 8, 10], 6], expected: [-1, -1] }, { input: [[], 0], expected: [-1, -1], hidden: true }],
+    hints: [
+      "Run two binary searches: one biased left, one biased right.",
+      "Keep searching the same side after a match to find the boundary.",
+    ],
+    pitfalls: [
+      "A single search finds some match but not necessarily the first or last.",
+    ],
+    explanation: "Two boundary binary searches locate the first and last index in O(log n) time.",
     resources: [R.search],
   },
   {
@@ -113,6 +186,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function search(nums, target) {\n  // your code here\n}`,
     solution: `function search(nums, target) {\n  let lo = 0, hi = nums.length - 1;\n  while (lo <= hi) {\n    const mid = (lo + hi) >> 1;\n    if (nums[mid] === target) return mid;\n    if (nums[lo] <= nums[mid]) {\n      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1; else lo = mid + 1;\n    } else {\n      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1; else hi = mid - 1;\n    }\n  }\n  return -1;\n}`,
     testCases: [{ input: [[4, 5, 6, 7, 0, 1, 2], 0], expected: 4 }, { input: [[4, 5, 6, 7, 0, 1, 2], 3], expected: -1 }, { input: [[1], 0], expected: -1, hidden: true }],
+    hints: [
+      "One half is always sorted; decide which.",
+      "Search the half that could contain the target.",
+    ],
+    pitfalls: [
+      "Misjudging which half is sorted at the rotation point.",
+    ],
+    explanation: "Modified binary search checks which half is ordered and narrows accordingly. O(log n) time.",
     resources: [R.search],
   },
   {
@@ -123,6 +204,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function mySqrt(x) {\n  // your code here\n}`,
     solution: `function mySqrt(x) {\n  if (x < 2) return x;\n  let lo = 1, hi = x, ans = 1;\n  while (lo <= hi) {\n    const mid = Math.floor((lo + hi) / 2);\n    if (mid * mid <= x) { ans = mid; lo = mid + 1; } else hi = mid - 1;\n  }\n  return ans;\n}`,
     testCases: [{ input: [4], expected: 2 }, { input: [8], expected: 2 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Binary search the answer between 1 and x.",
+      "Track the largest mid whose square does not exceed x.",
+    ],
+    pitfalls: [
+      "mid * mid can be compared safely here, but watch the loop bounds.",
+    ],
+    explanation: "Binary searching the integer square root runs in O(log x) time.",
     resources: [R.search],
   },
   {
@@ -133,6 +222,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function findMin(nums) {\n  // your code here\n}`,
     solution: `function findMin(nums) {\n  let lo = 0, hi = nums.length - 1;\n  while (lo < hi) {\n    const mid = (lo + hi) >> 1;\n    if (nums[mid] > nums[hi]) lo = mid + 1; else hi = mid;\n  }\n  return nums[lo];\n}`,
     testCases: [{ input: [[3, 4, 5, 1, 2]], expected: 1 }, { input: [[4, 5, 6, 7, 0, 1, 2]], expected: 0 }, { input: [[11, 13, 15, 17]], expected: 11, hidden: true }],
+    hints: [
+      "Compare the middle to the right end.",
+      "Discard the half that is strictly increasing without the min.",
+    ],
+    pitfalls: [
+      "Comparing to the left end instead, which fails for some rotations.",
+    ],
+    explanation: "Binary search comparing mid to the right end finds the rotation minimum in O(log n).",
     resources: [R.search],
   },
 
@@ -145,6 +242,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function maxSumK(nums, k) {\n  // your code here\n}`,
     solution: `function maxSumK(nums, k) {\n  let sum = 0;\n  for (let i = 0; i < k; i++) sum += nums[i];\n  let best = sum;\n  for (let i = k; i < nums.length; i++) { sum += nums[i] - nums[i - k]; best = Math.max(best, sum); }\n  return best;\n}`,
     testCases: [{ input: [[2, 1, 5, 1, 3, 2], 3], expected: 9 }, { input: [[2, 3, 4, 1, 5], 2], expected: 7 }, { input: [[1, 1, 1], 1], expected: 1, hidden: true }],
+    hints: [
+      "Sum the first window, then slide.",
+      "Add the entering element and subtract the leaving one.",
+    ],
+    pitfalls: [
+      "Recomputing each window from scratch makes it O(n*k).",
+    ],
+    explanation: "A fixed sliding window updates the sum in O(1) per step for O(n) total.",
     resources: [R.window],
   },
   {
@@ -155,6 +260,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function lengthOfLongestSubstring(s) {\n  // your code here\n}`,
     solution: `function lengthOfLongestSubstring(s) {\n  const seen = new Map();\n  let start = 0, best = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (seen.has(s[i]) && seen.get(s[i]) >= start) start = seen.get(s[i]) + 1;\n    seen.set(s[i], i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}`,
     testCases: [{ input: ["abcabcbb"], expected: 3 }, { input: ["bbbbb"], expected: 1 }, { input: ["pwwkew"], expected: 3, hidden: true }],
+    hints: [
+      "Track the last index of each character.",
+      "Move the window start past a repeat.",
+    ],
+    pitfalls: [
+      "Resetting the start too far back when a repeat is outside the current window.",
+    ],
+    explanation: "A variable window with last-seen indices finds the longest unique substring in O(n).",
     resources: [R.window],
   },
   {
@@ -165,6 +278,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function minSubArrayLen(target, nums) {\n  // your code here\n}`,
     solution: `function minSubArrayLen(target, nums) {\n  let start = 0, sum = 0, best = Infinity;\n  for (let end = 0; end < nums.length; end++) {\n    sum += nums[end];\n    while (sum >= target) { best = Math.min(best, end - start + 1); sum -= nums[start++]; }\n  }\n  return best === Infinity ? 0 : best;\n}`,
     testCases: [{ input: [7, [2, 3, 1, 2, 4, 3]], expected: 2 }, { input: [4, [1, 4, 4]], expected: 1 }, { input: [11, [1, 1, 1, 1, 1, 1, 1, 1]], expected: 0, hidden: true }],
+    hints: [
+      "Grow the window until the sum reaches the target.",
+      "Then shrink from the left while it still qualifies.",
+    ],
+    pitfalls: [
+      "Returning 0 versus the found length when no window qualifies.",
+    ],
+    explanation: "A grow-then-shrink window finds the minimal qualifying length in O(n).",
     resources: [R.window],
   },
   {
@@ -175,6 +296,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function longestKDistinct(s, k) {\n  // your code here\n}`,
     solution: `function longestKDistinct(s, k) {\n  const count = new Map();\n  let start = 0, best = 0;\n  for (let i = 0; i < s.length; i++) {\n    count.set(s[i], (count.get(s[i]) || 0) + 1);\n    while (count.size > k) {\n      const c = s[start++];\n      count.set(c, count.get(c) - 1);\n      if (count.get(c) === 0) count.delete(c);\n    }\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}`,
     testCases: [{ input: ["eceba", 2], expected: 3 }, { input: ["aa", 1], expected: 2 }, { input: ["abc", 0], expected: 0, hidden: true }],
+    hints: [
+      "Track counts of characters in the window.",
+      "Shrink while more than k distinct keys exist.",
+    ],
+    pitfalls: [
+      "Forgetting to delete a key when its count hits zero inflates the distinct count.",
+    ],
+    explanation: "A window keyed by character counts keeps at most k distinct in O(n).",
     resources: [R.window],
   },
   {
@@ -185,6 +314,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function longestOnes(nums, k) {\n  // your code here\n}`,
     solution: `function longestOnes(nums, k) {\n  let start = 0, zeros = 0, best = 0;\n  for (let end = 0; end < nums.length; end++) {\n    if (nums[end] === 0) zeros++;\n    while (zeros > k) { if (nums[start++] === 0) zeros--; }\n    best = Math.max(best, end - start + 1);\n  }\n  return best;\n}`,
     testCases: [{ input: [[1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0], 2], expected: 6 }, { input: [[0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1], 3], expected: 10 }, { input: [[0, 0, 0], 0], expected: 0, hidden: true }],
+    hints: [
+      "Count zeros in the window.",
+      "Shrink when zeros exceed k.",
+    ],
+    pitfalls: [
+      "Allowing more than k zeros in the window at once.",
+    ],
+    explanation: "A window bounded by at most k zeros gives the longest run of ones in O(n).",
     resources: [R.window],
   },
   {
@@ -195,6 +332,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function countAnagrams(s, p) {\n  // your code here\n}`,
     solution: `function countAnagrams(s, p) {\n  if (p.length > s.length) return 0;\n  const need = {}, win = {};\n  for (const c of p) need[c] = (need[c] || 0) + 1;\n  const key = (o) => Object.keys(o).filter((k) => o[k] > 0).sort().map((k) => k + o[k]).join();\n  let count = 0;\n  for (let i = 0; i < s.length; i++) {\n    win[s[i]] = (win[s[i]] || 0) + 1;\n    if (i >= p.length) { const c = s[i - p.length]; win[c]--; }\n    if (i >= p.length - 1 && key(win) === key(need)) count++;\n  }\n  return count;\n}`,
     testCases: [{ input: ["cbaebabacd", "abc"], expected: 2 }, { input: ["abab", "ab"], expected: 3 }, { input: ["aa", "bb"], expected: 0, hidden: true }],
+    hints: [
+      "Compare frequency signatures of the window and the pattern.",
+      "Slide a fixed-size window across the string.",
+    ],
+    pitfalls: [
+      "Rebuilding the full count each step instead of updating it.",
+    ],
+    explanation: "Comparing fixed-window character counts to the pattern counts finds anagram starts in O(n).",
     resources: [R.window],
   },
 
@@ -207,6 +352,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function fib(n) {\n  // your code here\n}`,
     solution: `function fib(n) {\n  let a = 0, b = 1;\n  for (let i = 0; i < n; i++) { [a, b] = [b, a + b]; }\n  return a;\n}`,
     testCases: [{ input: [10], expected: 55 }, { input: [0], expected: 0 }, { input: [1], expected: 1, hidden: true }],
+    hints: [
+      "Keep only the last two values.",
+      "Iterate up to n.",
+    ],
+    pitfalls: [
+      "Naive recursion recomputes subproblems exponentially.",
+    ],
+    explanation: "Bottom-up iteration with two rolling values is O(n) time, O(1) space.",
     resources: [R.dp],
   },
   {
@@ -217,6 +370,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function climbStairs(n) {\n  // your code here\n}`,
     solution: `function climbStairs(n) {\n  let a = 1, b = 1;\n  for (let i = 0; i < n; i++) { [a, b] = [b, a + b]; }\n  return a;\n}`,
     testCases: [{ input: [2], expected: 2 }, { input: [3], expected: 3 }, { input: [5], expected: 8, hidden: true }],
+    hints: [
+      "Ways to reach a step equal the sum of the two below.",
+      "This is Fibonacci shifted by one.",
+    ],
+    pitfalls: [
+      "Exponential recursion without memoization.",
+    ],
+    explanation: "Each step's count is the sum of the prior two, computed in O(n) time, O(1) space.",
     resources: [R.dp],
   },
   {
@@ -227,6 +388,15 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function coinChange(coins, amount) {\n  // your code here\n}`,
     solution: `function coinChange(coins, amount) {\n  const dp = new Array(amount + 1).fill(Infinity);\n  dp[0] = 0;\n  for (let a = 1; a <= amount; a++) {\n    for (const c of coins) if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);\n  }\n  return dp[amount] === Infinity ? -1 : dp[amount];\n}`,
     testCases: [{ input: [[1, 2, 5], 11], expected: 3 }, { input: [[2], 3], expected: -1 }, { input: [[1], 0], expected: 0, hidden: true }],
+    hints: [
+      "dp[a] is the fewest coins to make amount a.",
+      "Try each coin for every amount.",
+    ],
+    pitfalls: [
+      "Greedy largest-coin-first fails for arbitrary coin sets.",
+      "Forgetting the unreachable case returns the wrong answer.",
+    ],
+    explanation: "Bottom-up DP over amounts gives the minimum coins in O(amount * coins) time.",
     resources: [R.dp],
   },
   {
@@ -237,6 +407,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function rob(nums) {\n  // your code here\n}`,
     solution: `function rob(nums) {\n  let prev = 0, curr = 0;\n  for (const n of nums) { const next = Math.max(curr, prev + n); prev = curr; curr = next; }\n  return curr;\n}`,
     testCases: [{ input: [[1, 2, 3, 1]], expected: 4 }, { input: [[2, 7, 9, 3, 1]], expected: 12 }, { input: [[5]], expected: 5, hidden: true }],
+    hints: [
+      "At each house choose to rob it or skip it.",
+      "Track the best with and without the previous house.",
+    ],
+    pitfalls: [
+      "Robbing adjacent houses by not tracking the skip case.",
+    ],
+    explanation: "Rolling the best-including and best-excluding values yields the answer in O(n) time, O(1) space.",
     resources: [R.dp],
   },
   {
@@ -247,6 +425,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function lengthOfLIS(nums) {\n  // your code here\n}`,
     solution: `function lengthOfLIS(nums) {\n  if (nums.length === 0) return 0;\n  const dp = new Array(nums.length).fill(1);\n  for (let i = 1; i < nums.length; i++) {\n    for (let j = 0; j < i; j++) if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);\n  }\n  return Math.max(...dp);\n}`,
     testCases: [{ input: [[10, 9, 2, 5, 3, 7, 101, 18]], expected: 4 }, { input: [[0, 1, 0, 3, 2, 3]], expected: 4 }, { input: [[7, 7, 7, 7]], expected: 1, hidden: true }],
+    hints: [
+      "dp[i] is the longest increasing run ending at i.",
+      "Extend from any earlier smaller element.",
+    ],
+    pitfalls: [
+      "The O(n^2) DP is fine here; a patience-sorting variant is O(n log n).",
+    ],
+    explanation: "The per-index DP gives the LIS length in O(n^2) time.",
     resources: [R.dp],
   },
   {
@@ -257,6 +443,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function knapsack(weights, values, capacity) {\n  // your code here\n}`,
     solution: `function knapsack(weights, values, capacity) {\n  const dp = new Array(capacity + 1).fill(0);\n  for (let i = 0; i < weights.length; i++) {\n    for (let c = capacity; c >= weights[i]; c--) dp[c] = Math.max(dp[c], dp[c - weights[i]] + values[i]);\n  }\n  return dp[capacity];\n}`,
     testCases: [{ input: [[1, 3, 4, 5], [1, 4, 5, 7], 7], expected: 9 }, { input: [[1, 2, 3], [6, 10, 12], 5], expected: 22 }, { input: [[2], [3], 1], expected: 0, hidden: true }],
+    hints: [
+      "Iterate capacities from high to low for 0/1 items.",
+      "Each item is used at most once.",
+    ],
+    pitfalls: [
+      "Iterating capacity low-to-high reuses an item (that is the unbounded variant).",
+    ],
+    explanation: "A 1D DP filled from high capacity down keeps each item once. O(n * capacity) time.",
     resources: [R.dp],
   },
   {
@@ -267,6 +461,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function lcs(a, b) {\n  // your code here\n}`,
     solution: `function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}`,
     testCases: [{ input: ["abcde", "ace"], expected: 3 }, { input: ["abc", "abc"], expected: 3 }, { input: ["abc", "def"], expected: 0, hidden: true }],
+    hints: [
+      "Build a grid comparing prefixes.",
+      "Match extends the diagonal; mismatch takes the better neighbor.",
+    ],
+    pitfalls: [
+      "Confusing subsequence with substring (subsequence allows gaps).",
+    ],
+    explanation: "A 2D DP over prefixes gives the LCS length in O(m * n) time.",
     resources: [R.dp],
   },
   {
@@ -277,6 +479,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function minDistance(a, b) {\n  // your code here\n}`,
     solution: `function minDistance(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...new Array(b.length).fill(0)]);\n  for (let j = 0; j <= b.length; j++) dp[0][j] = j;\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}`,
     testCases: [{ input: ["horse", "ros"], expected: 3 }, { input: ["intention", "execution"], expected: 5 }, { input: ["", "a"], expected: 1, hidden: true }],
+    hints: [
+      "Costs are insert, delete, or replace.",
+      "Initialize the first row and column to index values.",
+    ],
+    pitfalls: [
+      "Forgetting the base cases for transforming to or from an empty string.",
+    ],
+    explanation: "Levenshtein DP over prefixes computes edit distance in O(m * n) time.",
     resources: [R.dp],
   },
   {
@@ -287,6 +497,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function uniquePaths(m, n) {\n  // your code here\n}`,
     solution: `function uniquePaths(m, n) {\n  const row = new Array(n).fill(1);\n  for (let i = 1; i < m; i++) {\n    for (let j = 1; j < n; j++) row[j] += row[j - 1];\n  }\n  return row[n - 1];\n}`,
     testCases: [{ input: [3, 7], expected: 28 }, { input: [3, 2], expected: 3 }, { input: [1, 1], expected: 1, hidden: true }],
+    hints: [
+      "Paths to a cell are paths from above plus from the left.",
+      "A single rolling row suffices.",
+    ],
+    pitfalls: [
+      "Recomputation without DP is exponential.",
+    ],
+    explanation: "Summing top and left contributions across a rolling row gives the count in O(m * n) time, O(n) space.",
     resources: [R.dp],
   },
   {
@@ -297,6 +515,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function maxProduct(nums) {\n  // your code here\n}`,
     solution: `function maxProduct(nums) {\n  let max = nums[0], min = nums[0], best = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    const n = nums[i];\n    const cands = [n, max * n, min * n];\n    max = Math.max(...cands);\n    min = Math.min(...cands);\n    best = Math.max(best, max);\n  }\n  return best;\n}`,
     testCases: [{ input: [[2, 3, -2, 4]], expected: 6 }, { input: [[-2, 0, -1]], expected: 0 }, { input: [[-2, 3, -4]], expected: 24, hidden: true }],
+    hints: [
+      "Track both the max and min product so far.",
+      "A negative can flip min into max.",
+    ],
+    pitfalls: [
+      "Tracking only the max misses sign flips from negative numbers.",
+    ],
+    explanation: "Carrying both running max and min handles sign changes in O(n) time, O(1) space.",
     resources: [R.dp],
   },
 
@@ -309,6 +535,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function numIslands(grid) {\n  // your code here\n}`,
     solution: `function numIslands(grid) {\n  if (!grid.length) return 0;\n  const R = grid.length, C = grid[0].length;\n  let count = 0;\n  const sink = (r, c) => {\n    if (r < 0 || r >= R || c < 0 || c >= C || grid[r][c] !== 1) return;\n    grid[r][c] = 0;\n    sink(r + 1, c); sink(r - 1, c); sink(r, c + 1); sink(r, c - 1);\n  };\n  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (grid[r][c] === 1) { count++; sink(r, c); }\n  return count;\n}`,
     testCases: [{ input: [[[1, 1, 0], [1, 0, 0], [0, 0, 1]]], expected: 2 }, { input: [[[1, 1, 1], [1, 1, 1]]], expected: 1 }, { input: [[[0]]], expected: 0, hidden: true }],
+    hints: [
+      "Scan the grid; each unvisited land cell starts an island.",
+      "Flood-fill to sink the whole island.",
+    ],
+    pitfalls: [
+      "Revisiting cells without marking them counts islands twice.",
+    ],
+    explanation: "DFS/flood-fill from each unvisited land cell counts components in O(rows * cols) time.",
     resources: [R.graph],
   },
   {
@@ -319,6 +553,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function bfs(adj, start) {\n  // your code here\n}`,
     solution: `function bfs(adj, start) {\n  const visited = new Array(adj.length).fill(false);\n  const queue = [start];\n  visited[start] = true;\n  const order = [];\n  while (queue.length) {\n    const node = queue.shift();\n    order.push(node);\n    for (const nb of adj[node]) if (!visited[nb]) { visited[nb] = true; queue.push(nb); }\n  }\n  return order;\n}`,
     testCases: [{ input: [[[1, 2], [0, 3], [0, 3], [1, 2]], 0], expected: [0, 1, 2, 3] }, { input: [[[1], [0]], 1], expected: [1, 0] }, { input: [[[]], 0], expected: [0], hidden: true }],
+    hints: [
+      "Use a queue and a visited set.",
+      "Enqueue unvisited neighbors in order.",
+    ],
+    pitfalls: [
+      "Marking visited on dequeue instead of enqueue can revisit nodes.",
+    ],
+    explanation: "BFS explores level by level with a queue. O(V + E) time.",
     resources: [R.graph],
   },
   {
@@ -329,6 +571,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function dfs(adj, start) {\n  // your code here\n}`,
     solution: `function dfs(adj, start) {\n  const visited = new Array(adj.length).fill(false);\n  const order = [];\n  const go = (node) => { visited[node] = true; order.push(node); for (const nb of adj[node]) if (!visited[nb]) go(nb); };\n  go(start);\n  return order;\n}`,
     testCases: [{ input: [[[1, 2], [0, 3], [0, 3], [1, 2]], 0], expected: [0, 1, 3, 2] }, { input: [[[1, 2], [], []], 0], expected: [0, 1, 2] }, { input: [[[]], 0], expected: [0], hidden: true }],
+    hints: [
+      "Recurse into unvisited neighbors in order.",
+      "Mark visited as you enter a node.",
+    ],
+    pitfalls: [
+      "Missing the visited check causes infinite loops on cycles.",
+    ],
+    explanation: "DFS follows each branch to its end before backtracking. O(V + E) time.",
     resources: [R.graph],
   },
   {
@@ -339,6 +589,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function countComponents(n, edges) {\n  // your code here\n}`,
     solution: `function countComponents(n, edges) {\n  const adj = Array.from({ length: n }, () => []);\n  for (const [a, b] of edges) { adj[a].push(b); adj[b].push(a); }\n  const visited = new Array(n).fill(false);\n  let count = 0;\n  const go = (u) => { visited[u] = true; for (const v of adj[u]) if (!visited[v]) go(v); };\n  for (let i = 0; i < n; i++) if (!visited[i]) { count++; go(i); }\n  return count;\n}`,
     testCases: [{ input: [5, [[0, 1], [1, 2], [3, 4]]], expected: 2 }, { input: [5, [[0, 1], [1, 2], [2, 3], [3, 4]]], expected: 1 }, { input: [3, []], expected: 3, hidden: true }],
+    hints: [
+      "Build an adjacency list, then explore each unvisited node.",
+      "Each new exploration is one component.",
+    ],
+    pitfalls: [
+      "Treating directed edges as one-way when the graph is undirected.",
+    ],
+    explanation: "Counting DFS launches over unvisited nodes gives the component count in O(V + E).",
     resources: [R.graph],
   },
   {
@@ -349,6 +607,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function hasPath(n, edges, src, dst) {\n  // your code here\n}`,
     solution: `function hasPath(n, edges, src, dst) {\n  const adj = Array.from({ length: n }, () => []);\n  for (const [a, b] of edges) { adj[a].push(b); adj[b].push(a); }\n  const visited = new Array(n).fill(false);\n  const go = (u) => {\n    if (u === dst) return true;\n    visited[u] = true;\n    for (const v of adj[u]) if (!visited[v] && go(v)) return true;\n    return false;\n  };\n  return go(src);\n}`,
     testCases: [{ input: [3, [[0, 1], [1, 2]], 0, 2], expected: true }, { input: [3, [[0, 1]], 0, 2], expected: false }, { input: [1, [], 0, 0], expected: true, hidden: true }],
+    hints: [
+      "Search outward from src for dst.",
+      "Track visited to avoid cycles.",
+    ],
+    pitfalls: [
+      "No visited set loops forever on cyclic graphs.",
+    ],
+    explanation: "DFS or BFS from the source reaches the destination if a path exists. O(V + E) time.",
     resources: [R.graph],
   },
   {
@@ -359,6 +625,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function canFinish(numCourses, prerequisites) {\n  // your code here\n}`,
     solution: `function canFinish(numCourses, prerequisites) {\n  const adj = Array.from({ length: numCourses }, () => []);\n  const indeg = new Array(numCourses).fill(0);\n  for (const [a, b] of prerequisites) { adj[b].push(a); indeg[a]++; }\n  const queue = [];\n  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) queue.push(i);\n  let seen = 0;\n  while (queue.length) { const u = queue.shift(); seen++; for (const v of adj[u]) if (--indeg[v] === 0) queue.push(v); }\n  return seen === numCourses;\n}`,
     testCases: [{ input: [2, [[1, 0]]], expected: true }, { input: [2, [[1, 0], [0, 1]]], expected: false }, { input: [1, []], expected: true, hidden: true }],
+    hints: [
+      "Detect a cycle in the prerequisite graph.",
+      "Topological sort via indegrees works well.",
+    ],
+    pitfalls: [
+      "Confusing the edge direction between course and prerequisite.",
+    ],
+    explanation: "Kahn's topological sort finishes all courses only if there is no cycle. O(V + E) time.",
     resources: [R.graph],
   },
   {
@@ -369,6 +643,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function floodFill(image, sr, sc, newColor) {\n  // your code here\n}`,
     solution: `function floodFill(image, sr, sc, newColor) {\n  const old = image[sr][sc];\n  if (old === newColor) return image;\n  const R = image.length, C = image[0].length;\n  const fill = (r, c) => {\n    if (r < 0 || r >= R || c < 0 || c >= C || image[r][c] !== old) return;\n    image[r][c] = newColor;\n    fill(r + 1, c); fill(r - 1, c); fill(r, c + 1); fill(r, c - 1);\n  };\n  fill(sr, sc);\n  return image;\n}`,
     testCases: [{ input: [[[1, 1, 1], [1, 1, 0], [1, 0, 1]], 1, 1, 2], expected: [[2, 2, 2], [2, 2, 0], [2, 0, 1]] }, { input: [[[0, 0, 0], [0, 0, 0]], 0, 0, 0], expected: [[0, 0, 0], [0, 0, 0]] }, { input: [[[1]], 0, 0, 5], expected: [[5]], hidden: true }],
+    hints: [
+      "Flood from the start pixel over the same original color.",
+      "Guard the case where the new color equals the old.",
+    ],
+    pitfalls: [
+      "Not guarding equal new and old color causes infinite recursion.",
+    ],
+    explanation: "Recursive flood fill repaints the connected region in O(rows * cols) time.",
     resources: [R.graph],
   },
 
@@ -381,6 +663,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function factorial(n) {\n  // your code here\n}`,
     solution: `function factorial(n) {\n  return n <= 1 ? 1 : n * factorial(n - 1);\n}`,
     testCases: [{ input: [5], expected: 120 }, { input: [0], expected: 1 }, { input: [1], expected: 1, hidden: true }],
+    hints: [
+      "Base case: 0 and 1 give 1.",
+      "Recurse n times n-1.",
+    ],
+    pitfalls: [
+      "No base case overflows the stack.",
+    ],
+    explanation: "Straightforward recursion in O(n) time.",
     resources: [R.back],
   },
   {
@@ -391,6 +681,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function power(x, n) {\n  // your code here\n}`,
     solution: `function power(x, n) {\n  if (n === 0) return 1;\n  const half = power(x, Math.floor(n / 2));\n  return n % 2 === 0 ? half * half : half * half * x;\n}`,
     testCases: [{ input: [2, 10], expected: 1024 }, { input: [3, 0], expected: 1 }, { input: [5, 1], expected: 5, hidden: true }],
+    hints: [
+      "Halve the exponent each step.",
+      "Square the half result, multiply by base if odd.",
+    ],
+    pitfalls: [
+      "Linear multiplication is O(n); fast exponentiation is O(log n).",
+    ],
+    explanation: "Exponentiation by squaring runs in O(log n) time.",
     resources: [R.back],
   },
   {
@@ -401,6 +699,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function subsets(nums) {\n  // your code here\n}`,
     solution: `function subsets(nums) {\n  const res = [];\n  const bt = (start, cur) => {\n    res.push(cur.slice());\n    for (let i = start; i < nums.length; i++) { cur.push(nums[i]); bt(i + 1, cur); cur.pop(); }\n  };\n  bt(0, []);\n  return res;\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]] }, { input: [[]], expected: [[]] }, { input: [[1]], expected: [[], [1]], hidden: true }],
+    hints: [
+      "At each index choose to include or skip.",
+      "Record the current subset at every node.",
+    ],
+    pitfalls: [
+      "A nondeterministic order makes results hard to compare; follow index order.",
+    ],
+    explanation: "Backtracking over include/skip choices enumerates all subsets. O(2^n) outputs.",
     resources: [R.back],
   },
   {
@@ -411,6 +717,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function permute(nums) {\n  // your code here\n}`,
     solution: `function permute(nums) {\n  const res = [];\n  const used = new Array(nums.length).fill(false);\n  const bt = (cur) => {\n    if (cur.length === nums.length) { res.push(cur.slice()); return; }\n    for (let i = 0; i < nums.length; i++) {\n      if (used[i]) continue;\n      used[i] = true; cur.push(nums[i]); bt(cur); cur.pop(); used[i] = false;\n    }\n  };\n  bt([]);\n  return res;\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]] }, { input: [[1]], expected: [[1]] }, { input: [[1, 2]], expected: [[1, 2], [2, 1]], hidden: true }],
+    hints: [
+      "Try each unused element in each position.",
+      "Mark elements used during a branch.",
+    ],
+    pitfalls: [
+      "Forgetting to unmark on backtrack produces missing permutations.",
+    ],
+    explanation: "Backtracking with a used set generates all permutations. O(n!) outputs.",
     resources: [R.back],
   },
   {
@@ -421,6 +735,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function combine(n, k) {\n  // your code here\n}`,
     solution: `function combine(n, k) {\n  const res = [];\n  const bt = (start, cur) => {\n    if (cur.length === k) { res.push(cur.slice()); return; }\n    for (let i = start; i <= n; i++) { cur.push(i); bt(i + 1, cur); cur.pop(); }\n  };\n  bt(1, []);\n  return res;\n}`,
     testCases: [{ input: [4, 2], expected: [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]] }, { input: [1, 1], expected: [[1]] }, { input: [3, 3], expected: [[1, 2, 3]], hidden: true }],
+    hints: [
+      "Build combinations by choosing increasing indices.",
+      "Stop when the combination reaches size k.",
+    ],
+    pitfalls: [
+      "Allowing earlier indices again produces duplicates.",
+    ],
+    explanation: "Backtracking with a rising start index yields all k-combinations.",
     resources: [R.back],
   },
   {
@@ -431,6 +753,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function generateParenthesis(n) {\n  // your code here\n}`,
     solution: `function generateParenthesis(n) {\n  const res = [];\n  const bt = (s, open, close) => {\n    if (s.length === 2 * n) { res.push(s); return; }\n    if (open < n) bt(s + "(", open + 1, close);\n    if (close < open) bt(s + ")", open, close + 1);\n  };\n  bt("", 0, 0);\n  return res;\n}`,
     testCases: [{ input: [3], expected: ["((()))", "(()())", "(())()", "()(())", "()()()"] }, { input: [1], expected: ["()"] }, { input: [2], expected: ["(())", "()()"], hidden: true }],
+    hints: [
+      "Add an open paren while some remain.",
+      "Add a close paren only when it would stay balanced.",
+    ],
+    pitfalls: [
+      "Closing more than has been opened produces invalid strings.",
+    ],
+    explanation: "Constrained backtracking on open/close counts produces all balanced strings.",
     resources: [R.back],
   },
 
@@ -443,6 +773,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function maxProfit(prices) {\n  // your code here\n}`,
     solution: `function maxProfit(prices) {\n  let min = Infinity, best = 0;\n  for (const p of prices) { min = Math.min(min, p); best = Math.max(best, p - min); }\n  return best;\n}`,
     testCases: [{ input: [[7, 1, 5, 3, 6, 4]], expected: 5 }, { input: [[7, 6, 4, 3, 1]], expected: 0 }, { input: [[1, 2]], expected: 1, hidden: true }],
+    hints: [
+      "Track the lowest price seen.",
+      "Update the best profit against it.",
+    ],
+    pitfalls: [
+      "Selling before buying; the buy must come first in time.",
+    ],
+    explanation: "A single pass tracking the running minimum gives the best profit in O(n) time.",
     resources: [R.greedy],
   },
   {
@@ -453,6 +791,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function canJump(nums) {\n  // your code here\n}`,
     solution: `function canJump(nums) {\n  let reach = 0;\n  for (let i = 0; i < nums.length; i++) {\n    if (i > reach) return false;\n    reach = Math.max(reach, i + nums[i]);\n  }\n  return true;\n}`,
     testCases: [{ input: [[2, 3, 1, 1, 4]], expected: true }, { input: [[3, 2, 1, 0, 4]], expected: false }, { input: [[0]], expected: true, hidden: true }],
+    hints: [
+      "Track the farthest index reachable.",
+      "If you ever fall behind it, you are stuck.",
+    ],
+    pitfalls: [
+      "Trying every jump path is exponential; the greedy reach is O(n).",
+    ],
+    explanation: "Carrying the farthest reach in one pass decides reachability in O(n) time.",
     resources: [R.greedy],
   },
   {
@@ -463,6 +809,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function canCompleteCircuit(gas, cost) {\n  // your code here\n}`,
     solution: `function canCompleteCircuit(gas, cost) {\n  let total = 0, tank = 0, start = 0;\n  for (let i = 0; i < gas.length; i++) {\n    const diff = gas[i] - cost[i];\n    total += diff; tank += diff;\n    if (tank < 0) { start = i + 1; tank = 0; }\n  }\n  return total >= 0 ? start : -1;\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], [3, 4, 5, 1, 2]], expected: 3 }, { input: [[2, 3, 4], [3, 4, 3]], expected: -1 }, { input: [[5], [4]], expected: 0, hidden: true }],
+    hints: [
+      "If total gas is at least total cost, a start exists.",
+      "Reset the start whenever the running tank goes negative.",
+    ],
+    pitfalls: [
+      "Returning the first non-negative station without the feasibility check.",
+    ],
+    explanation: "A single greedy pass identifies the unique start in O(n) time.",
     resources: [R.greedy],
   },
   {
@@ -473,6 +827,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function findContentChildren(g, s) {\n  // your code here\n}`,
     solution: `function findContentChildren(g, s) {\n  const gs = g.slice().sort((a, b) => a - b);\n  const ss = s.slice().sort((a, b) => a - b);\n  let i = 0, j = 0;\n  while (i < gs.length && j < ss.length) { if (ss[j] >= gs[i]) i++; j++; }\n  return i;\n}`,
     testCases: [{ input: [[1, 2, 3], [1, 1]], expected: 1 }, { input: [[1, 2], [1, 2, 3]], expected: 2 }, { input: [[10], [1]], expected: 0, hidden: true }],
+    hints: [
+      "Sort both greed and sizes.",
+      "Give the smallest sufficient cookie to each child.",
+    ],
+    pitfalls: [
+      "Matching without sorting wastes large cookies on small needs.",
+    ],
+    explanation: "Sorting and a two-pointer match maximizes content children in O(n log n) time.",
     resources: [R.greedy],
   },
   {
@@ -483,6 +845,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function eraseOverlapIntervals(intervals) {\n  // your code here\n}`,
     solution: `function eraseOverlapIntervals(intervals) {\n  if (!intervals.length) return 0;\n  const sorted = intervals.slice().sort((a, b) => a[1] - b[1]);\n  let end = sorted[0][1], removals = 0;\n  for (let i = 1; i < sorted.length; i++) {\n    if (sorted[i][0] < end) removals++;\n    else end = sorted[i][1];\n  }\n  return removals;\n}`,
     testCases: [{ input: [[[1, 2], [2, 3], [3, 4], [1, 3]]], expected: 1 }, { input: [[[1, 2], [1, 2], [1, 2]]], expected: 2 }, { input: [[[1, 2], [2, 3]]], expected: 0, hidden: true }],
+    hints: [
+      "Sort intervals by end time.",
+      "Keep an interval only when it starts at or after the last kept end.",
+    ],
+    pitfalls: [
+      "Sorting by start instead of end keeps the wrong intervals.",
+    ],
+    explanation: "Greedily keeping earliest-ending non-overlapping intervals minimizes removals in O(n log n) time.",
     resources: [R.greedy],
   },
 
@@ -495,6 +865,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function hammingWeight(n) {\n  // your code here\n}`,
     solution: `function hammingWeight(n) {\n  let count = 0;\n  while (n > 0) { count += n & 1; n = Math.floor(n / 2); }\n  return count;\n}`,
     testCases: [{ input: [11], expected: 3 }, { input: [128], expected: 1 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Check the lowest bit, then shift right.",
+      "Count the set bits.",
+    ],
+    pitfalls: [
+      "Using signed shifts on large values; here values are small non-negatives.",
+    ],
+    explanation: "Inspecting bits one at a time counts ones in O(number of bits) time.",
     resources: [R.bits],
   },
   {
@@ -505,6 +883,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function singleNumber(nums) {\n  // your code here\n}`,
     solution: `function singleNumber(nums) {\n  return nums.reduce((acc, n) => acc ^ n, 0);\n}`,
     testCases: [{ input: [[2, 2, 1]], expected: 1 }, { input: [[4, 1, 2, 1, 2]], expected: 4 }, { input: [[7]], expected: 7, hidden: true }],
+    hints: [
+      "XOR cancels equal pairs.",
+      "XOR everything together.",
+    ],
+    pitfalls: [
+      "Using a hash set works but uses extra space; XOR is O(1) space.",
+    ],
+    explanation: "XOR of all elements leaves the unique value, in O(n) time and O(1) space.",
     resources: [R.bits],
   },
   {
@@ -515,6 +901,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function missingNumber(nums) {\n  // your code here\n}`,
     solution: `function missingNumber(nums) {\n  let result = nums.length;\n  for (let i = 0; i < nums.length; i++) result ^= i ^ nums[i];\n  return result;\n}`,
     testCases: [{ input: [[3, 0, 1]], expected: 2 }, { input: [[0, 1]], expected: 2 }, { input: [[0]], expected: 1, hidden: true }],
+    hints: [
+      "XOR the index and value across the range.",
+      "The leftover is the missing number.",
+    ],
+    pitfalls: [
+      "Summation also works but can overflow for very large n; XOR avoids that.",
+    ],
+    explanation: "XOR-ing indices and values cancels present numbers, leaving the missing one. O(n) time, O(1) space.",
     resources: [R.bits],
   },
   {
@@ -525,6 +919,14 @@ export const algorithmProblems: Problem[] = [
     starterCode: `function isPowerOfTwo(n) {\n  // your code here\n}`,
     solution: `function isPowerOfTwo(n) {\n  return n > 0 && (n & (n - 1)) === 0;\n}`,
     testCases: [{ input: [1], expected: true }, { input: [16], expected: true }, { input: [3], expected: false, hidden: true }],
+    hints: [
+      "A power of two has exactly one set bit.",
+      "n & (n-1) clears the lowest set bit.",
+    ],
+    pitfalls: [
+      "Forgetting that zero and negatives are not powers of two.",
+    ],
+    explanation: "n > 0 and n & (n-1) === 0 detects a single set bit in O(1) time.",
     resources: [R.bits],
   },
 ];

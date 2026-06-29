@@ -21,6 +21,10 @@ export const dataStructureProblems: Problem[] = [
       { input: [[2, 3, 4], 6], expected: [0, 2], hidden: true },
       { input: [[-3, 0, 1, 4], 1], expected: [0, 3], hidden: true },
     ],
+    pitfalls: [
+      "A nested loop is O(n^2); the sorted order is what lets you avoid it.",
+    ],
+    explanation: "Two pointers start at the ends and move inward based on the sum versus target. O(n) time, O(1) space.",
     resources: [
       {
         label: "MDN: Arrays",
@@ -52,6 +56,11 @@ export const dataStructureProblems: Problem[] = [
       { input: [[4, 3, 2, 1, 4]], expected: 16, hidden: true },
       { input: [[1, 2, 1]], expected: 2, hidden: true },
     ],
+    pitfalls: [
+      "Brute force checks every pair in O(n^2).",
+      "Moving the taller side never increases the area, so always move the shorter one.",
+    ],
+    explanation: "Two pointers from both ends, always advancing the shorter wall, find the max area in O(n) time, O(1) space.",
     resources: [
       {
         label: "MDN: Math.min",
@@ -86,6 +95,10 @@ export const dataStructureProblems: Problem[] = [
       { input: [[]], expected: {} },
       { input: [[1, 2, 1, 3, 2, 1]], expected: { 1: 3, 2: 2, 3: 1 }, hidden: true },
     ],
+    pitfalls: [
+      "Counting with nested loops is O(n^2); a map makes it linear.",
+    ],
+    explanation: "A hash map tallies each value in one pass. O(n) time and space.",
     resources: [
       {
         label: "MDN: Map",
@@ -117,6 +130,11 @@ export const dataStructureProblems: Problem[] = [
       { input: [[3, 3], 6], expected: [0, 1], hidden: true },
       { input: [[1, 4, 3, 2], 5], expected: [0, 1], hidden: true },
     ],
+    pitfalls: [
+      "The brute-force pair check is O(n^2).",
+      "Look up the complement before inserting the current value to avoid using an element twice.",
+    ],
+    explanation: "Store each value-to-index as you scan and look up the complement. O(n) time and space.",
     resources: [
       {
         label: "MDN: Map",
@@ -148,6 +166,10 @@ export const dataStructureProblems: Problem[] = [
       { input: ["z"], expected: 0, hidden: true },
       { input: ["aab"], expected: 2, hidden: true },
     ],
+    pitfalls: [
+      "Returning the first not-yet-seen character is wrong; you need count exactly one.",
+    ],
+    explanation: "Count characters, then scan again for the first with count one. O(n) time and space.",
     resources: [
       {
         label: "MDN: Map",
@@ -180,6 +202,11 @@ export const dataStructureProblems: Problem[] = [
       { input: ["([)]"], expected: false, hidden: true },
       { input: ["{[]}"], expected: true, hidden: true },
     ],
+    pitfalls: [
+      "Forgetting to require an empty stack at the end accepts unclosed brackets.",
+      "Matching only by count ignores bracket type mismatches.",
+    ],
+    explanation: "Push openers, pop and check the matching type on closers, and require an empty stack at the end. O(n) time and space.",
     resources: [
       {
         label: "MDN: Array.prototype.push / pop",
@@ -209,6 +236,11 @@ export const dataStructureProblems: Problem[] = [
       { input: [["4", "13", "5", "/", "+"]], expected: 6 },
       { input: [["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]], expected: 22, hidden: true },
     ],
+    pitfalls: [
+      "Operand order matters for subtraction and division.",
+      "Division must truncate toward zero, not floor.",
+    ],
+    explanation: "A stack holds operands; each operator pops two and pushes the result. O(n) time and space.",
     resources: [
       {
         label: "MDN: Array.prototype.push / pop",
@@ -243,6 +275,10 @@ export const dataStructureProblems: Problem[] = [
       { input: [[42]], expected: { val: 42, next: null } },
       { input: [[]], expected: null, hidden: true },
     ],
+    pitfalls: [
+      "Losing the head reference while advancing the tail.",
+    ],
+    explanation: "Build nodes left to right, linking each to the next, and keep the head. O(n) time and space.",
     resources: [
       {
         label: "MDN: Objects",
@@ -274,6 +310,10 @@ export const dataStructureProblems: Problem[] = [
       { input: [{ val: 1, next: null }], expected: { val: 1, next: null } },
       { input: [null], expected: null, hidden: true },
     ],
+    pitfalls: [
+      "Reassigning next before saving the following node loses the rest of the list.",
+    ],
+    explanation: "Walk the list re-pointing each node to its predecessor, saving the next node first. O(n) time, O(1) extra space.",
     resources: [
       {
         label: "MDN: while statement",
@@ -306,6 +346,10 @@ export const dataStructureProblems: Problem[] = [
       { input: [[1, 2], 1], expected: [1], hidden: true },
       { input: [[1], 1], expected: [], hidden: true },
     ],
+    pitfalls: [
+      "Off-by-one when translating n-from-the-end into a forward index.",
+    ],
+    explanation: "With an array representation the n-th from the end is at index length minus n, removed in O(n) time.",
     resources: [
       {
         label: "MDN: Array.prototype.splice",
