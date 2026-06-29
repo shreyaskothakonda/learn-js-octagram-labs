@@ -18,6 +18,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function getType(value) {\n  // your code here\n}`,
     solution: `function getType(value) {\n  if (value === null) return "null";\n  if (Array.isArray(value)) return "array";\n  return typeof value;\n}`,
     testCases: [{ input: [[]], expected: "array" }, { input: [null], expected: "null" }, { input: [5], expected: "number", hidden: true }, { input: [{}], expected: "object", hidden: true }],
+    hints: [
+      "Check null before typeof, since typeof null is 'object'.",
+      "Use Array.isArray for arrays.",
+    ],
+    pitfalls: [
+      "typeof null returns 'object', a long-standing JavaScript quirk.",
+      "Arrays report typeof 'object', so they need a separate check.",
+    ],
+    explanation: "typeof cannot distinguish null or arrays from plain objects, so you special-case those two before falling back to typeof.",
     resources: [R.types],
   },
   {
@@ -28,6 +37,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function parity(n) {\n  // your code here\n}`,
     solution: `function parity(n) {\n  return n % 2 === 0 ? "even" : "odd";\n}`,
     testCases: [{ input: [4], expected: "even" }, { input: [7], expected: "odd" }, { input: [0], expected: "even", hidden: true }],
+    hints: [
+      "A number is even when n % 2 is 0.",
+      "Return the right string with a ternary.",
+    ],
+    pitfalls: [
+      "For negative numbers, % keeps the sign, but parity still works since 0 stays 0.",
+    ],
+    explanation: "The remainder of division by two tells you parity: zero means even, otherwise odd.",
     resources: [R.types],
   },
   {
@@ -38,6 +55,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function toNumber(str) {\n  // your code here\n}`,
     solution: `function toNumber(str) {\n  const n = Number(str);\n  return Number.isNaN(n) ? null : n;\n}`,
     testCases: [{ input: ["42"], expected: 42 }, { input: ["3.14"], expected: 3.14 }, { input: ["abc"], expected: null, hidden: true }],
+    hints: [
+      "Number(str) converts, returning NaN on failure.",
+      "Detect failure with Number.isNaN.",
+    ],
+    pitfalls: [
+      "NaN === NaN is false, so compare with Number.isNaN, not ===.",
+      "Number('') is 0, not NaN, which may surprise you.",
+    ],
+    explanation: "Number() does the coercion and Number.isNaN reliably detects the failure case so you can return null instead of NaN.",
     resources: [R.types],
   },
   {
@@ -48,6 +74,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function toBool(value) {\n  // your code here\n}`,
     solution: `function toBool(value) {\n  return Boolean(value);\n}`,
     testCases: [{ input: [0], expected: false }, { input: ["hi"], expected: true }, { input: [null], expected: false, hidden: true }],
+    hints: [
+      "Boolean(value) applies JavaScript truthiness.",
+      "Falsy values include 0, '', null, undefined, NaN.",
+    ],
+    pitfalls: [
+      "Strings like '0' or 'false' are truthy, since any non-empty string is truthy.",
+    ],
+    explanation: "Boolean() collapses a value to its truthiness following the standard falsy list.",
     resources: [R.types],
   },
   {
@@ -58,6 +92,13 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function isSafeInt(n) {\n  // your code here\n}`,
     solution: `function isSafeInt(n) {\n  return Number.isSafeInteger(n);\n}`,
     testCases: [{ input: [10], expected: true }, { input: [10.1], expected: false }, { input: [-3], expected: true, hidden: true }],
+    hints: [
+      "Number.isSafeInteger checks integer and range in one call.",
+    ],
+    pitfalls: [
+      "isSafeInteger is stricter than isInteger; values beyond 2^53-1 are unsafe.",
+    ],
+    explanation: "Safe integers are whole numbers representable exactly in a double, which Number.isSafeInteger checks directly.",
     resources: [R.types],
   },
   {
@@ -68,6 +109,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function withDefault(value, fallback) {\n  // your code here\n}`,
     solution: `function withDefault(value, fallback) {\n  return value ?? fallback;\n}`,
     testCases: [{ input: [null, 5], expected: 5 }, { input: [0, 5], expected: 0 }, { input: [undefined, "x"], expected: "x", hidden: true }],
+    hints: [
+      "Nullish coalescing ?? only falls back on null or undefined.",
+      "Return value ?? fallback.",
+    ],
+    pitfalls: [
+      "Using || here would wrongly replace 0 or empty string with the fallback.",
+    ],
+    explanation: "?? treats only null and undefined as missing, so valid falsy values like 0 are preserved unlike with ||.",
     resources: [R.types],
   },
   {
@@ -78,6 +127,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function countTruthy(arr) {\n  // your code here\n}`,
     solution: `function countTruthy(arr) {\n  return arr.filter(Boolean).length;\n}`,
     testCases: [{ input: [[0, 1, 2, "", null, "a"]], expected: 3 }, { input: [[false, 0, ""]], expected: 0 }, { input: [[1, 2, 3]], expected: 3, hidden: true }],
+    hints: [
+      "filter with Boolean keeps only truthy entries.",
+      "The length of that result is the count.",
+    ],
+    pitfalls: [
+      "Counting with a manual loop and == comparisons invites coercion bugs; Boolean is clearer.",
+    ],
+    explanation: "filter(Boolean) drops every falsy element, so its length is the number of truthy values.",
     resources: [R.types],
   },
   {
@@ -88,6 +145,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function swap(a, b) {\n  // your code here\n}`,
     solution: `function swap(a, b) {\n  return [b, a];\n}`,
     testCases: [{ input: [1, 2], expected: [2, 1] }, { input: ["x", "y"], expected: ["y", "x"] }, { input: [0, 0], expected: [0, 0], hidden: true }],
+    hints: [
+      "Return the two values in a reversed array.",
+      "[b, a].",
+    ],
+    pitfalls: [
+      "Trying to swap in place without a structure; just return the pair.",
+    ],
+    explanation: "Returning [b, a] is the array-destructuring swap idiom, no temporary variable needed.",
     resources: [R.types],
   },
 
@@ -100,6 +165,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function clamp(n, lo, hi) {\n  // your code here\n}`,
     solution: `function clamp(n, lo, hi) {\n  return Math.min(Math.max(n, lo), hi);\n}`,
     testCases: [{ input: [5, 0, 10], expected: 5 }, { input: [-3, 0, 10], expected: 0 }, { input: [15, 0, 10], expected: 10, hidden: true }],
+    hints: [
+      "Clamp by combining Math.max with Math.min.",
+      "Lower bound with max, upper bound with min.",
+    ],
+    pitfalls: [
+      "Applying min before max can give the wrong result if the bounds cross.",
+    ],
+    explanation: "Math.min(Math.max(n, lo), hi) first lifts n to at least lo, then caps it at hi.",
     resources: [R.ops],
   },
   {
@@ -110,6 +183,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function sign(n) {\n  // your code here\n}`,
     solution: `function sign(n) {\n  return n > 0 ? 1 : n < 0 ? -1 : 0;\n}`,
     testCases: [{ input: [5], expected: 1 }, { input: [-2], expected: -1 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Compare against zero in both directions.",
+      "Chain ternaries: positive, negative, else zero.",
+    ],
+    pitfalls: [
+      "Returning a boolean instead of -1, 0, or 1.",
+    ],
+    explanation: "A nested ternary maps positive to 1, negative to -1, and zero to 0.",
     resources: [R.ops],
   },
   {
@@ -120,6 +201,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function coalesce(a, b) {\n  // your code here\n}`,
     solution: `function coalesce(a, b) {\n  return a ?? b;\n}`,
     testCases: [{ input: [null, 3], expected: 3 }, { input: [0, 3], expected: 0 }, { input: [undefined, 7], expected: 7, hidden: true }],
+    hints: [
+      "?? returns the right side only when the left is null or undefined.",
+      "Return a ?? b.",
+    ],
+    pitfalls: [
+      "|| would also replace 0, '' and false, which ?? does not.",
+    ],
+    explanation: "Nullish coalescing keeps a unless it is null or undefined, unlike || which also rejects other falsy values.",
     resources: [R.ops],
   },
   {
@@ -130,6 +219,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function getCity(user) {\n  // your code here\n}`,
     solution: `function getCity(user) {\n  return user?.address?.city ?? "Unknown";\n}`,
     testCases: [{ input: [{ address: { city: "NYC" } }], expected: "NYC" }, { input: [{}], expected: "Unknown" }, { input: [{ address: {} }], expected: "Unknown", hidden: true }],
+    hints: [
+      "Optional chaining ?. stops safely at a missing link.",
+      "Combine with ?? to supply the fallback.",
+    ],
+    pitfalls: [
+      "Accessing user.address.city directly throws when address is undefined.",
+    ],
+    explanation: "user?.address?.city short-circuits to undefined if any link is missing, and ?? 'Unknown' supplies the default.",
     resources: [R.ops],
   },
   {
@@ -140,6 +237,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function wrapIndex(i, len) {\n  // your code here\n}`,
     solution: `function wrapIndex(i, len) {\n  return ((i % len) + len) % len;\n}`,
     testCases: [{ input: [7, 5], expected: 2 }, { input: [-1, 5], expected: 4 }, { input: [0, 5], expected: 0, hidden: true }],
+    hints: [
+      "A plain i % len can be negative for negative i.",
+      "((i % len) + len) % len normalizes into range.",
+    ],
+    pitfalls: [
+      "i % len alone returns a negative remainder for negative indices in JavaScript.",
+    ],
+    explanation: "Adding len and taking the modulus again folds negative results back into the 0..len-1 range.",
     resources: [R.ops],
   },
   {
@@ -150,6 +255,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function avg(a, b) {\n  // your code here\n}`,
     solution: `function avg(a, b) {\n  return Math.floor((a + b) / 2);\n}`,
     testCases: [{ input: [4, 8], expected: 6 }, { input: [3, 4], expected: 3 }, { input: [10, 10], expected: 10, hidden: true }],
+    hints: [
+      "Average is the sum over two.",
+      "Floor the result for an integer.",
+    ],
+    pitfalls: [
+      "Integer overflow is not a concern in JS doubles for normal values, but floating division still needs flooring.",
+    ],
+    explanation: "Math.floor((a + b) / 2) gives the integer average of two non-negative numbers.",
     resources: [R.ops],
   },
   {
@@ -160,6 +273,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function toggleAll(arr) {\n  // your code here\n}`,
     solution: `function toggleAll(arr) {\n  return arr.map((x) => !x);\n}`,
     testCases: [{ input: [[true, false]], expected: [false, true] }, { input: [[1, 0]], expected: [false, true] }, { input: [[]], expected: [], hidden: true }],
+    hints: [
+      "map each element to its logical NOT.",
+      "!x coerces then negates.",
+    ],
+    pitfalls: [
+      "Mutating the array instead of mapping to a new one.",
+    ],
+    explanation: "map with !x returns a new array of negated truthiness for each element.",
     resources: [R.ops],
   },
 
@@ -172,6 +293,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function countVowels(s) {\n  // your code here\n}`,
     solution: `function countVowels(s) {\n  return (s.match(/[aeiou]/gi) || []).length;\n}`,
     testCases: [{ input: ["hello"], expected: 2 }, { input: ["xyz"], expected: 0 }, { input: ["AEIOU"], expected: 5, hidden: true }],
+    hints: [
+      "A case-insensitive global regex matches all vowels.",
+      "match returns null when there are none, so default to an empty array.",
+    ],
+    pitfalls: [
+      "match returns null (not []) when nothing matches, which breaks .length.",
+    ],
+    explanation: "Matching /[aeiou]/gi finds every vowel; guarding the null result with || [] keeps .length safe.",
     resources: [R.str],
   },
   {
@@ -182,6 +311,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function titleCase(s) {\n  // your code here\n}`,
     solution: `function titleCase(s) {\n  return s.split(" ").map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(" ");\n}`,
     testCases: [{ input: ["hello world"], expected: "Hello World" }, { input: ["a b c"], expected: "A B C" }, { input: [""], expected: "", hidden: true }],
+    hints: [
+      "Split on spaces, capitalize each word, join back.",
+      "Uppercase the first character and append the rest.",
+    ],
+    pitfalls: [
+      "Indexing w[0] on an empty word throws; guard empty words.",
+      "Losing the original spacing if you split and join carelessly.",
+    ],
+    explanation: "Splitting on spaces lets you uppercase each word's first letter and rejoin, with a guard for empty segments.",
     resources: [R.str],
   },
   {
@@ -192,6 +330,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function isPalindrome(s) {\n  // your code here\n}`,
     solution: `function isPalindrome(s) {\n  const t = s.toLowerCase();\n  return t === t.split("").reverse().join("");\n}`,
     testCases: [{ input: ["racecar"], expected: true }, { input: ["hello"], expected: false }, { input: ["Abba"], expected: true, hidden: true }],
+    hints: [
+      "Lowercase first so case does not matter.",
+      "Compare the string to its reverse.",
+    ],
+    pitfalls: [
+      "Forgetting to normalize case marks 'Abba' as not a palindrome.",
+    ],
+    explanation: "Lowercasing then comparing against the reversed string gives a case-insensitive palindrome check.",
     resources: [R.str],
   },
   {
@@ -202,6 +348,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function countChar(s, ch) {\n  // your code here\n}`,
     solution: `function countChar(s, ch) {\n  let count = 0;\n  for (const c of s) if (c === ch) count++;\n  return count;\n}`,
     testCases: [{ input: ["banana", "a"], expected: 3 }, { input: ["banana", "x"], expected: 0 }, { input: ["aaa", "a"], expected: 3, hidden: true }],
+    hints: [
+      "Loop the string and count matches.",
+      "Or split on the character and use the gaps.",
+    ],
+    pitfalls: [
+      "Passing a multi-character needle when only single characters are expected.",
+    ],
+    explanation: "Iterating once and incrementing on each match counts occurrences of the character.",
     resources: [R.str],
   },
   {
@@ -212,6 +366,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function firstUnique(s) {\n  // your code here\n}`,
     solution: `function firstUnique(s) {\n  const count = {};\n  for (const c of s) count[c] = (count[c] || 0) + 1;\n  for (const c of s) if (count[c] === 1) return c;\n  return "";\n}`,
     testCases: [{ input: ["leetcode"], expected: "l" }, { input: ["aabb"], expected: "" }, { input: ["loveleetcode"], expected: "v", hidden: true }],
+    hints: [
+      "First pass: count each character.",
+      "Second pass: return the first whose count is 1.",
+    ],
+    pitfalls: [
+      "Returning early on the first unique-so-far before counting the whole string.",
+    ],
+    explanation: "Two passes (count, then scan in order) find the first character that appears exactly once.",
     resources: [R.str],
   },
   {
@@ -222,6 +384,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function truncate(s, n) {\n  // your code here\n}`,
     solution: `function truncate(s, n) {\n  return s.length <= n ? s : s.slice(0, n) + "...";\n}`,
     testCases: [{ input: ["hello world", 5], expected: "hello..." }, { input: ["hi", 5], expected: "hi" }, { input: ["abcdef", 6], expected: "abcdef", hidden: true }],
+    hints: [
+      "If the string is short enough, return it unchanged.",
+      "Otherwise slice to n and append three dots.",
+    ],
+    pitfalls: [
+      "Off-by-one on whether length equal to n should be truncated (it should not here).",
+    ],
+    explanation: "Only strings longer than n are cut to n characters with an ellipsis appended.",
     resources: [R.str],
   },
   {
@@ -232,6 +402,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function wordCount(s) {\n  // your code here\n}`,
     solution: `function wordCount(s) {\n  return s.trim().split(/\\s+/).filter(Boolean).length;\n}`,
     testCases: [{ input: ["the quick brown fox"], expected: 4 }, { input: ["  hello   world  "], expected: 2 }, { input: [""], expected: 0, hidden: true }],
+    hints: [
+      "Trim, then split on runs of whitespace.",
+      "Filter out empties before counting.",
+    ],
+    pitfalls: [
+      "An empty or all-space string splits to [''], which would count as 1 without a filter.",
+    ],
+    explanation: "Trimming and splitting on \\s+ with a filter handles extra and leading/trailing whitespace correctly.",
     resources: [R.str],
   },
   {
@@ -242,6 +420,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function longestCommonPrefix(strs) {\n  // your code here\n}`,
     solution: `function longestCommonPrefix(strs) {\n  if (strs.length === 0) return "";\n  let prefix = strs[0];\n  for (const s of strs) {\n    while (!s.startsWith(prefix)) prefix = prefix.slice(0, -1);\n    if (prefix === "") return "";\n  }\n  return prefix;\n}`,
     testCases: [{ input: [["flower", "flow", "flight"]], expected: "fl" }, { input: [["dog", "cat"]], expected: "" }, { input: [["abc", "abc"]], expected: "abc", hidden: true }],
+    hints: [
+      "Start with the first string as the candidate prefix.",
+      "Shrink it until every string starts with it.",
+    ],
+    pitfalls: [
+      "Returning early without checking all strings.",
+      "Not handling the empty input list.",
+    ],
+    explanation: "Shrinking a candidate prefix until all strings share it yields the longest common prefix.",
     resources: [R.str],
   },
 
@@ -254,6 +441,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function findMax(arr) {\n  // your code here\n}`,
     solution: `function findMax(arr) {\n  return Math.max(...arr);\n}`,
     testCases: [{ input: [[3, 7, 2, 8, 5]], expected: 8 }, { input: [[-1, -5]], expected: -1 }, { input: [[42]], expected: 42, hidden: true }],
+    hints: [
+      "Math.max with spread finds the maximum.",
+      "The array is non-empty here.",
+    ],
+    pitfalls: [
+      "Math.max() with no arguments returns -Infinity; only safe because the array is non-empty.",
+    ],
+    explanation: "Spreading the array into Math.max returns the largest element.",
     resources: [R.arr],
   },
   {
@@ -264,6 +459,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function unique(arr) {\n  // your code here\n}`,
     solution: `function unique(arr) {\n  return [...new Set(arr)];\n}`,
     testCases: [{ input: [[1, 2, 2, 3, 1]], expected: [1, 2, 3] }, { input: [[]], expected: [] }, { input: [[5, 5, 5]], expected: [5], hidden: true }],
+    hints: [
+      "A Set drops duplicates while preserving insertion order.",
+      "Spread it back into an array.",
+    ],
+    pitfalls: [
+      "Object-valued elements are compared by reference, so a Set will not dedupe equal-looking objects.",
+    ],
+    explanation: "new Set keeps first occurrences in order; spreading gives a deduplicated array.",
     resources: [R.arr],
   },
   {
@@ -274,6 +477,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function chunk(arr, size) {\n  // your code here\n}`,
     solution: `function chunk(arr, size) {\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], 2], expected: [[1, 2], [3, 4], [5]] }, { input: [[1, 2, 3], 3], expected: [[1, 2, 3]] }, { input: [[], 2], expected: [], hidden: true }],
+    hints: [
+      "Step through the array by size.",
+      "slice each window of size elements.",
+    ],
+    pitfalls: [
+      "Mutating with splice instead of slicing.",
+      "An incorrect loop step duplicating or skipping elements.",
+    ],
+    explanation: "Looping with i += size and slicing each window groups the array into fixed-size chunks.",
     resources: [R.arr],
   },
   {
@@ -284,6 +496,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function rotate(arr, k) {\n  // your code here\n}`,
     solution: `function rotate(arr, k) {\n  const n = arr.length;\n  if (n === 0) return [];\n  k = ((k % n) + n) % n;\n  return arr.slice(n - k).concat(arr.slice(0, n - k));\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], 2], expected: [4, 5, 1, 2, 3] }, { input: [[1, 2, 3], 0], expected: [1, 2, 3] }, { input: [[1, 2], 3], expected: [2, 1], hidden: true }],
+    hints: [
+      "Normalize k modulo the length first.",
+      "Take the last k elements then the rest.",
+    ],
+    pitfalls: [
+      "k can exceed length, so reduce it with modulo.",
+      "k of 0 must return the array unchanged, watch slice(-0).",
+    ],
+    explanation: "After reducing k modulo length, concatenating the tail of k elements with the head gives a right rotation.",
     resources: [R.arr],
   },
   {
@@ -294,6 +515,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function flatten(arr) {\n  // your code here\n}`,
     solution: `function flatten(arr) {\n  return [].concat(...arr);\n}`,
     testCases: [{ input: [[1, [2, 3], 4, [5]]], expected: [1, 2, 3, 4, 5] }, { input: [[[1], [2]]], expected: [1, 2] }, { input: [[1, 2]], expected: [1, 2], hidden: true }],
+    hints: [
+      "concat with spread flattens one level.",
+      "[].concat(...arr).",
+    ],
+    pitfalls: [
+      "flat() also works but flattens deeper if given a depth; one level is the goal here.",
+    ],
+    explanation: "Spreading the array into [].concat merges nested arrays exactly one level deep.",
     resources: [R.arr],
   },
   {
@@ -304,6 +533,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function intersection(a, b) {\n  // your code here\n}`,
     solution: `function intersection(a, b) {\n  const inB = new Set(b);\n  return [...new Set(a)].filter((x) => inB.has(x));\n}`,
     testCases: [{ input: [[1, 2, 3, 4], [2, 4, 6]], expected: [2, 4] }, { input: [[1, 2], [3, 4]], expected: [] }, { input: [[1, 1, 2], [1, 2]], expected: [1, 2], hidden: true }],
+    hints: [
+      "Put b in a Set for fast lookup.",
+      "Keep the unique values of a that are in b.",
+    ],
+    pitfalls: [
+      "Returning duplicates from a; dedupe a first.",
+      "Nested includes makes it quadratic; a Set is faster.",
+    ],
+    explanation: "A Set of b enables O(1) membership checks while you filter the deduplicated values of a.",
     resources: [R.arr],
   },
   {
@@ -314,6 +552,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function moveZeros(arr) {\n  // your code here\n}`,
     solution: `function moveZeros(arr) {\n  const nonZero = arr.filter((x) => x !== 0);\n  const zeros = arr.length - nonZero.length;\n  return nonZero.concat(new Array(zeros).fill(0));\n}`,
     testCases: [{ input: [[0, 1, 0, 3, 12]], expected: [1, 3, 12, 0, 0] }, { input: [[0, 0]], expected: [0, 0] }, { input: [[1, 2, 3]], expected: [1, 2, 3], hidden: true }],
+    hints: [
+      "Keep the non-zeros in order, then append the zeros.",
+      "Count the zeros to know how many to append.",
+    ],
+    pitfalls: [
+      "Mutating the input in place when an immutable result is expected here.",
+    ],
+    explanation: "Filtering out zeros preserves order, and padding with the removed count of zeros pushes them to the end.",
     resources: [R.arr],
   },
   {
@@ -324,6 +570,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function maxSubArray(nums) {\n  // your code here\n}`,
     solution: `function maxSubArray(nums) {\n  let best = nums[0], cur = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    cur = Math.max(nums[i], cur + nums[i]);\n    best = Math.max(best, cur);\n  }\n  return best;\n}`,
     testCases: [{ input: [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], expected: 6 }, { input: [[1]], expected: 1 }, { input: [[-1, -2, -3]], expected: -1, hidden: true }],
+    hints: [
+      "Track the best running subarray sum.",
+      "Reset the run when it would help to start fresh.",
+      "This is Kadane's algorithm.",
+    ],
+    pitfalls: [
+      "Initializing the best to 0 breaks all-negative inputs; start from the first element.",
+    ],
+    explanation: "Kadane keeps the best sum ending at each index, resetting when extending hurts, and tracks the global best.",
     resources: [R.arr],
   },
 
@@ -336,6 +591,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function countKeys(obj) {\n  // your code here\n}`,
     solution: `function countKeys(obj) {\n  return Object.keys(obj).length;\n}`,
     testCases: [{ input: [{ a: 1, b: 2 }], expected: 2 }, { input: [{}], expected: 0 }, { input: [{ x: 1 }], expected: 1, hidden: true }],
+    hints: [
+      "Object.keys returns the own enumerable keys.",
+      "Its length is the count.",
+    ],
+    pitfalls: [
+      "Inherited or non-enumerable keys are not counted by Object.keys, which is usually what you want.",
+    ],
+    explanation: "Object.keys(obj).length counts the object's own enumerable properties.",
     resources: [R.obj],
   },
   {
@@ -346,6 +609,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function sumValues(obj) {\n  // your code here\n}`,
     solution: `function sumValues(obj) {\n  return Object.values(obj).reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [{ a: 1, b: 2, c: 3 }], expected: 6 }, { input: [{}], expected: 0 }, { input: [{ x: 10 }], expected: 10, hidden: true }],
+    hints: [
+      "Object.values gives the values array.",
+      "reduce to sum them.",
+    ],
+    pitfalls: [
+      "Non-numeric values would produce NaN or string concatenation; inputs here are numbers.",
+    ],
+    explanation: "Summing Object.values with reduce totals the numeric values.",
     resources: [R.obj],
   },
   {
@@ -356,6 +627,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function invert(obj) {\n  // your code here\n}`,
     solution: `function invert(obj) {\n  const out = {};\n  for (const [k, v] of Object.entries(obj)) out[v] = k;\n  return out;\n}`,
     testCases: [{ input: [{ a: 1, b: 2 }], expected: { "1": "a", "2": "b" } }, { input: [{}], expected: {} }, { input: [{ x: "y" }], expected: { y: "x" }, hidden: true }],
+    hints: [
+      "Iterate entries and assign value as the new key.",
+      "The old key becomes the new value.",
+    ],
+    pitfalls: [
+      "Duplicate values collide, with later keys overwriting earlier ones.",
+      "Numeric values become string keys on the result object.",
+    ],
+    explanation: "Swapping each entry's key and value builds the inverted object; remember object keys are always strings.",
     resources: [R.obj],
   },
   {
@@ -366,6 +646,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function merge(a, b) {\n  // your code here\n}`,
     solution: `function merge(a, b) {\n  return { ...a, ...b };\n}`,
     testCases: [{ input: [{ a: 1 }, { b: 2 }], expected: { a: 1, b: 2 } }, { input: [{ a: 1 }, { a: 2 }], expected: { a: 2 } }, { input: [{}, { x: 1 }], expected: { x: 1 }, hidden: true }],
+    hints: [
+      "Spread a then b into a new object.",
+      "Later keys win.",
+    ],
+    pitfalls: [
+      "Object.assign onto a mutates a; assign into {} or use spread.",
+    ],
+    explanation: "{ ...a, ...b } shallow-merges with b overriding a, without mutating either input.",
     resources: [R.obj],
   },
   {
@@ -376,6 +664,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function pick(obj, keys) {\n  // your code here\n}`,
     solution: `function pick(obj, keys) {\n  const out = {};\n  for (const k of keys) if (Object.prototype.hasOwnProperty.call(obj, k)) out[k] = obj[k];\n  return out;\n}`,
     testCases: [{ input: [{ a: 1, b: 2, c: 3 }, ["a", "c"]], expected: { a: 1, c: 3 } }, { input: [{ a: 1 }, ["x"]], expected: {} }, { input: [{ a: 1, b: 2 }, ["a", "b"]], expected: { a: 1, b: 2 }, hidden: true }],
+    hints: [
+      "Walk the keys list, copying ones that exist on the object.",
+      "Use hasOwnProperty to test presence.",
+    ],
+    pitfalls: [
+      "Copying keys that are absent adds undefined entries.",
+      "Iterating the object instead of the keys loses the requested order.",
+    ],
+    explanation: "Iterating the keys array and copying present properties yields a subset in the requested order.",
     resources: [R.obj],
   },
   {
@@ -386,6 +683,15 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function deepClone(value) {\n  // your code here\n}`,
     solution: `function deepClone(value) {\n  return JSON.parse(JSON.stringify(value));\n}`,
     testCases: [{ input: [{ a: { b: 1 } }], expected: { a: { b: 1 } } }, { input: [[1, 2, { x: 3 }]], expected: [1, 2, { x: 3 }] }, { input: [{}], expected: {}, hidden: true }],
+    hints: [
+      "JSON round-tripping deep-copies plain data.",
+      "JSON.parse(JSON.stringify(value)).",
+    ],
+    pitfalls: [
+      "This drops functions, undefined, Dates become strings, and it fails on cyclic data.",
+      "It is only safe for JSON-compatible values.",
+    ],
+    explanation: "Serializing then parsing produces a deep copy for plain JSON data, with the documented limitations.",
     resources: [R.obj],
   },
   {
@@ -396,6 +702,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function groupBy(arr, key) {\n  // your code here\n}`,
     solution: `function groupBy(arr, key) {\n  const out = {};\n  for (const item of arr) {\n    const k = item[key];\n    (out[k] = out[k] || []).push(item);\n  }\n  return out;\n}`,
     testCases: [{ input: [[{ type: "a", v: 1 }, { type: "b", v: 2 }, { type: "a", v: 3 }], "type"], expected: { a: [{ type: "a", v: 1 }, { type: "a", v: 3 }], b: [{ type: "b", v: 2 }] } }, { input: [[], "k"], expected: {} }, { input: [[{ k: 1 }], "k"], expected: { "1": [{ k: 1 }] }, hidden: true }],
+    hints: [
+      "Bucket each item under item[key].",
+      "Create the array on first encounter of a group.",
+    ],
+    pitfalls: [
+      "Forgetting to initialize the group array before pushing.",
+    ],
+    explanation: "Iterating once and pushing each item into a group keyed by item[key] produces a map of arrays.",
     resources: [R.obj],
   },
   {
@@ -406,6 +720,14 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function frequency(arr) {\n  // your code here\n}`,
     solution: `function frequency(arr) {\n  const out = {};\n  for (const x of arr) out[x] = (out[x] || 0) + 1;\n  return out;\n}`,
     testCases: [{ input: [["a", "b", "a", "c", "a"]], expected: { a: 3, b: 1, c: 1 } }, { input: [[]], expected: {} }, { input: [["x", "x"]], expected: { x: 2 }, hidden: true }],
+    hints: [
+      "Increment a counter per value.",
+      "Default missing counts to 0 before adding 1.",
+    ],
+    pitfalls: [
+      "Numeric values become string keys on the frequency object.",
+    ],
+    explanation: "Tallying each value into an object builds a frequency map in one pass.",
     resources: [R.obj],
   },
   {
@@ -416,6 +738,16 @@ export const jsFundamentalsProblems: Problem[] = [
     starterCode: `function flattenObject(obj) {\n  // your code here\n}`,
     solution: `function flattenObject(obj) {\n  const out = {};\n  const walk = (o, prefix) => {\n    for (const [k, v] of Object.entries(o)) {\n      const path = prefix ? prefix + "." + k : k;\n      if (v && typeof v === "object" && !Array.isArray(v)) walk(v, path);\n      else out[path] = v;\n    }\n  };\n  walk(obj, "");\n  return out;\n}`,
     testCases: [{ input: [{ a: 1, b: { c: 2, d: { e: 3 } } }], expected: { a: 1, "b.c": 2, "b.d.e": 3 } }, { input: [{}], expected: {} }, { input: [{ x: { y: 1 } }], expected: { "x.y": 1 }, hidden: true }],
+    hints: [
+      "Recurse into nested plain objects, building a dotted path.",
+      "Assign the value at leaf (non-object) nodes.",
+      "Arrays are treated as leaf values here.",
+    ],
+    pitfalls: [
+      "Recursing into arrays when they should be treated as values.",
+      "Forgetting the path prefix on nested keys.",
+    ],
+    explanation: "Depth-first recursion that joins keys with dots flattens nested objects into a single-level dotted map.",
     resources: [R.obj],
   },
 ];
