@@ -22,6 +22,14 @@ export const jsDomProblems: Problem[] = [
       { description: "the heading text is 'Hello'", assert: "document.getElementById('title').textContent === 'Hello'" },
       { description: "exactly one heading exists", assert: "document.querySelectorAll('h1').length === 1", hidden: true },
     ],
+    hints: [
+      "Select the element by id.",
+      "Assign to its textContent.",
+    ],
+    pitfalls: [
+      "Using innerHTML for plain text invites injection bugs; prefer textContent.",
+    ],
+    explanation: "textContent sets the element's text safely and directly.",
     resources: [R.text],
   },
   {
@@ -36,6 +44,14 @@ export const jsDomProblems: Problem[] = [
       { description: "#box has the 'active' class", assert: "document.getElementById('box').classList.contains('active')" },
       { description: "the class name contains 'active'", assert: "document.getElementById('box').className.includes('active')", hidden: true },
     ],
+    hints: [
+      "Use classList.add to add a class.",
+      "It will not duplicate an existing class.",
+    ],
+    pitfalls: [
+      "Overwriting className wipes any existing classes; classList.add is additive.",
+    ],
+    explanation: "classList.add appends the class without disturbing others.",
     resources: [R.classList],
   },
   {
@@ -50,6 +66,15 @@ export const jsDomProblems: Problem[] = [
       { description: "three list items exist", assert: "document.querySelectorAll('#list li').length === 3" },
       { description: "the first item reads 'Item 1'", assert: "document.querySelector('#list li').textContent === 'Item 1'", hidden: true },
     ],
+    hints: [
+      "Create each li with createElement.",
+      "Set its text and appendChild it to the list.",
+    ],
+    pitfalls: [
+      "Building HTML strings is error-prone; create nodes instead.",
+      "Off-by-one in the loop bounds.",
+    ],
+    explanation: "Creating and appending element nodes in a loop builds the list items programmatically.",
     resources: [R.create],
   },
   {
@@ -64,6 +89,13 @@ export const jsDomProblems: Problem[] = [
       { description: "#msg is no longer hidden", assert: "document.getElementById('msg').hidden === false" },
       { description: "the hidden attribute is gone", assert: "document.getElementById('msg').hasAttribute('hidden') === false", hidden: true },
     ],
+    hints: [
+      "Set the hidden property to false, or remove the attribute.",
+    ],
+    pitfalls: [
+      "Setting style.display alone leaves the hidden attribute in place.",
+    ],
+    explanation: "Clearing the hidden property reveals the element by removing the boolean attribute.",
     resources: [R.attr],
   },
   {
@@ -78,6 +110,14 @@ export const jsDomProblems: Problem[] = [
       { description: "dataset.count is '5'", assert: "document.getElementById('btn').dataset.count === '5'" },
       { description: "the data-count attribute is '5'", assert: "document.getElementById('btn').getAttribute('data-count') === '5'", hidden: true },
     ],
+    hints: [
+      "Use the dataset API to set data-* attributes.",
+      "el.dataset.count = '5'.",
+    ],
+    pitfalls: [
+      "Dataset values are always strings, so '5' not 5.",
+    ],
+    explanation: "dataset.count maps to the data-count attribute, stored as a string.",
     resources: [R.attr],
   },
   {
@@ -92,6 +132,13 @@ export const jsDomProblems: Problem[] = [
       { description: "the input value is 'Ada'", assert: "document.getElementById('name').value === 'Ada'" },
       { description: "the input is reachable via querySelector", assert: "document.querySelector('#name').value === 'Ada'", hidden: true },
     ],
+    hints: [
+      "Set the input's value property.",
+    ],
+    pitfalls: [
+      "Setting the value attribute differs from the live value property in some cases.",
+    ],
+    explanation: "Assigning to input.value updates the field's current value.",
     resources: [R.attr],
   },
   {
@@ -106,6 +153,13 @@ export const jsDomProblems: Problem[] = [
       { description: "only one span remains", assert: "document.querySelectorAll('#parent span').length === 1" },
       { description: "the .remove-me span is gone", assert: "document.querySelector('.remove-me') === null", hidden: true },
     ],
+    hints: [
+      "Select the element and call remove() on it.",
+    ],
+    pitfalls: [
+      "Removing via parent.removeChild requires a parent reference; remove() is simpler.",
+    ],
+    explanation: "Element.remove() detaches the node from the DOM in one call.",
     resources: [R.remove],
   },
   {
@@ -120,6 +174,13 @@ export const jsDomProblems: Problem[] = [
       { description: "the inline color is red", assert: "document.getElementById('box').style.color === 'red'" },
       { description: "the style attribute mentions red", assert: "document.getElementById('box').getAttribute('style').includes('red')", hidden: true },
     ],
+    hints: [
+      "Set the inline style property, for example style.color.",
+    ],
+    pitfalls: [
+      "Inline styles override stylesheet rules; use them deliberately.",
+    ],
+    explanation: "Assigning style.color sets an inline style on the element.",
     resources: [R.style],
   },
 ];

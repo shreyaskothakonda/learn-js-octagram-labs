@@ -17,6 +17,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function asyncIdentity(x) {\n  // your code here\n}`,
     solution: `async function asyncIdentity(x) {\n  return x;\n}`,
     testCases: [{ input: [5], expected: 5 }, { input: ["a"], expected: "a" }, { input: [null], expected: null, hidden: true }],
+    hints: [
+      "An async function wraps its return value in a resolved promise.",
+    ],
+    pitfalls: [
+      "Returning a promise of a promise; just return the value.",
+    ],
+    explanation: "Marking the function async means returning x resolves to x for the awaiting caller.",
     resources: [R.async],
   },
   {
@@ -27,6 +34,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function asyncDouble(n) {\n  // your code here\n}`,
     solution: `async function asyncDouble(n) {\n  return n * 2;\n}`,
     testCases: [{ input: [4], expected: 8 }, { input: [0], expected: 0 }, { input: [-3], expected: -6, hidden: true }],
+    hints: [
+      "Return n * 2 from an async function.",
+    ],
+    pitfalls: [
+      "Forgetting async, so the caller cannot await it.",
+    ],
+    explanation: "The async function resolves to the doubled value.",
     resources: [R.async],
   },
   {
@@ -37,6 +51,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function resolveAfter(value) {\n  // your code here\n}`,
     solution: `async function resolveAfter(value) {\n  return await Promise.resolve(value);\n}`,
     testCases: [{ input: [42], expected: 42 }, { input: ["x"], expected: "x" }, { input: [true], expected: true, hidden: true }],
+    hints: [
+      "await the resolved promise and return it.",
+    ],
+    pitfalls: [
+      "Returning the promise without awaiting still works for an async function, but the task asks you to await.",
+    ],
+    explanation: "await unwraps Promise.resolve(value) to the underlying value.",
     resources: [R.promise],
   },
   {
@@ -47,6 +68,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function sumAll(nums) {\n  // your code here\n}`,
     solution: `async function sumAll(nums) {\n  const values = await Promise.all(nums.map((n) => Promise.resolve(n)));\n  return values.reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: 6 }, { input: [[]], expected: 0 }, { input: [[5]], expected: 5, hidden: true }],
+    hints: [
+      "Wrap each number in Promise.resolve.",
+      "await Promise.all, then sum.",
+    ],
+    pitfalls: [
+      "awaiting promises sequentially in a loop is slower than Promise.all.",
+    ],
+    explanation: "Promise.all resolves all values in parallel; reduce then sums the resolved array.",
     resources: [R.promise],
   },
   {
@@ -57,6 +86,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function chainAdd(n) {\n  // your code here\n}`,
     solution: `function chainAdd(n) {\n  return Promise.resolve(n).then((x) => x + 1).then((x) => x * 2);\n}`,
     testCases: [{ input: [3], expected: 8 }, { input: [0], expected: 2 }, { input: [5], expected: 12, hidden: true }],
+    hints: [
+      "Chain two .then calls.",
+      "First add one, then double.",
+    ],
+    pitfalls: [
+      "Returning before the chain resolves; return the chain itself.",
+    ],
+    explanation: "Each .then transforms the resolved value, composing add-one then double.",
     resources: [R.promise],
   },
   {
@@ -67,6 +104,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function doubleAllAsync(nums) {\n  // your code here\n}`,
     solution: `async function doubleAllAsync(nums) {\n  return Promise.all(nums.map((n) => Promise.resolve(n * 2)));\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [2, 4, 6] }, { input: [[]], expected: [] }, { input: [[5]], expected: [10], hidden: true }],
+    hints: [
+      "Map to resolved doubled values and Promise.all them.",
+    ],
+    pitfalls: [
+      "Returning an array of promises instead of awaiting/returning Promise.all.",
+    ],
+    explanation: "Promise.all over the mapped doubled promises resolves to the array of doubled numbers.",
     resources: [R.promise],
   },
   {
@@ -77,6 +121,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function safeDivide(a, b) {\n  // your code here\n}`,
     solution: `async function safeDivide(a, b) {\n  try {\n    if (b === 0) throw new Error("divide by zero");\n    return a / b;\n  } catch {\n    return null;\n  }\n}`,
     testCases: [{ input: [10, 2], expected: 5 }, { input: [5, 0], expected: null }, { input: [9, 3], expected: 3, hidden: true }],
+    hints: [
+      "try the division, throw when the divisor is zero.",
+      "catch and return null.",
+    ],
+    pitfalls: [
+      "Throwing without a catch rejects the promise instead of returning null.",
+    ],
+    explanation: "Wrapping the divide in try/catch converts the zero-divisor error into a null result.",
     resources: [R.async],
   },
   {
@@ -87,6 +139,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function fetchOrDefault(value, fallback) {\n  // your code here\n}`,
     solution: `async function fetchOrDefault(value, fallback) {\n  return value ?? fallback;\n}`,
     testCases: [{ input: [null, 5], expected: 5 }, { input: [3, 5], expected: 3 }, { input: [undefined, "x"], expected: "x", hidden: true }],
+    hints: [
+      "Return value unless it is null or undefined.",
+      "Use ?? for the fallback.",
+    ],
+    pitfalls: [
+      "Using || would replace valid falsy values like 0.",
+    ],
+    explanation: "?? returns the value unless it is nullish, otherwise the fallback, inside an async function.",
     resources: [R.async],
   },
   {
@@ -97,6 +157,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function accumulateAsync(nums) {\n  // your code here\n}`,
     solution: `async function accumulateAsync(nums) {\n  let sum = 0;\n  for (const n of nums) sum += await Promise.resolve(n);\n  return sum;\n}`,
     testCases: [{ input: [[1, 2, 3, 4]], expected: 10 }, { input: [[]], expected: 0 }, { input: [[7]], expected: 7, hidden: true }],
+    hints: [
+      "Loop and await each value, adding to a sum.",
+      "for...of with await works sequentially.",
+    ],
+    pitfalls: [
+      "Sequential awaits are slower than Promise.all when order does not matter.",
+    ],
+    explanation: "Awaiting each value in sequence and accumulating gives the total, demonstrating for-await-style flow.",
     resources: [R.async],
   },
   {
@@ -107,6 +175,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `async function pipelineAsync(value, steps) {\n  // your code here\n}`,
     solution: `async function pipelineAsync(value, steps) {\n  const fns = { inc: (x) => x + 1, double: (x) => x * 2 };\n  let acc = value;\n  for (const step of steps) acc = await Promise.resolve(fns[step](acc));\n  return acc;\n}`,
     testCases: [{ input: [3, ["inc", "double"]], expected: 8 }, { input: [5, []], expected: 5 }, { input: [2, ["double", "double"]], expected: 8, hidden: true }],
+    hints: [
+      "Fold the steps, awaiting each transform.",
+      "Look up each step function by name.",
+    ],
+    pitfalls: [
+      "Not awaiting inside the loop, mixing pending promises into the value.",
+    ],
+    explanation: "Awaiting each named step in order builds an async pipeline over the starting value.",
     resources: [R.async],
   },
 
@@ -119,6 +195,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function hasDigit(s) {\n  // your code here\n}`,
     solution: `function hasDigit(s) {\n  return /\\d/.test(s);\n}`,
     testCases: [{ input: ["abc1"], expected: true }, { input: ["abc"], expected: false }, { input: ["5"], expected: true, hidden: true }],
+    hints: [
+      "Test the string against a digit pattern.",
+      "/\\d/.test(s).",
+    ],
+    pitfalls: [
+      "Anchoring the pattern would require the whole string to be a digit.",
+    ],
+    explanation: "/\\d/.test checks whether any digit appears anywhere in the string.",
     resources: [R.regex],
   },
   {
@@ -129,6 +213,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function extractNumbers(s) {\n  // your code here\n}`,
     solution: `function extractNumbers(s) {\n  return s.match(/\\d+/g) || [];\n}`,
     testCases: [{ input: ["a12b345"], expected: ["12", "345"] }, { input: ["abc"], expected: [] }, { input: ["1"], expected: ["1"], hidden: true }],
+    hints: [
+      "Use a global digit-run pattern with match.",
+      "Default a null match to an empty array.",
+    ],
+    pitfalls: [
+      "match returns null (not []) when nothing matches.",
+    ],
+    explanation: "Matching /\\d+/g collects each run of digits; the || [] guards the no-match case.",
     resources: [R.regex],
   },
   {
@@ -139,6 +231,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function isEmail(s) {\n  // your code here\n}`,
     solution: `function isEmail(s) {\n  return /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(s);\n}`,
     testCases: [{ input: ["a@b.com"], expected: true }, { input: ["nope"], expected: false }, { input: ["x@y.co"], expected: true, hidden: true }],
+    hints: [
+      "Require non-space, non-at characters around a single @ and a dot.",
+      "Anchor with ^ and $.",
+    ],
+    pitfalls: [
+      "A truly correct email regex is complex; this is a deliberately simple check.",
+    ],
+    explanation: "The anchored pattern enforces name@host.tld shape without spaces, good enough for basic validation.",
     resources: [R.regex],
   },
   {
@@ -149,6 +249,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function collapseSpaces(s) {\n  // your code here\n}`,
     solution: `function collapseSpaces(s) {\n  return s.replace(/\\s+/g, " ").trim();\n}`,
     testCases: [{ input: ["a   b  c"], expected: "a b c" }, { input: ["  hi  "], expected: "hi" }, { input: ["x"], expected: "x", hidden: true }],
+    hints: [
+      "Replace runs of whitespace with one space.",
+      "Then trim the ends.",
+    ],
+    pitfalls: [
+      "Forgetting the global flag only collapses the first run.",
+    ],
+    explanation: "Replacing /\\s+/g with a single space and trimming normalizes irregular whitespace.",
     resources: [R.regex],
   },
   {
@@ -159,6 +267,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function countWords(s) {\n  // your code here\n}`,
     solution: `function countWords(s) {\n  return (s.match(/\\b\\w+\\b/g) || []).length;\n}`,
     testCases: [{ input: ["hello world"], expected: 2 }, { input: [""], expected: 0 }, { input: ["a, b, c"], expected: 3, hidden: true }],
+    hints: [
+      "Match word-character runs globally.",
+      "Count the matches, defaulting null to [].",
+    ],
+    pitfalls: [
+      "Splitting on spaces miscounts punctuation-separated words.",
+    ],
+    explanation: "Matching /\\b\\w+\\b/g counts word tokens regardless of punctuation.",
     resources: [R.regex],
   },
   {
@@ -169,6 +285,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function maskDigits(s) {\n  // your code here\n}`,
     solution: `function maskDigits(s) {\n  return s.replace(/\\d/g, "*");\n}`,
     testCases: [{ input: ["abc123"], expected: "abc***" }, { input: ["12"], expected: "**" }, { input: ["xyz"], expected: "xyz", hidden: true }],
+    hints: [
+      "Replace every digit globally with an asterisk.",
+    ],
+    pitfalls: [
+      "Omitting the global flag masks only the first digit.",
+    ],
+    explanation: "replace(/\\d/g, '*') swaps each digit for an asterisk.",
     resources: [R.regex],
   },
   {
@@ -179,6 +302,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function reformatDate(s) {\n  // your code here\n}`,
     solution: `function reformatDate(s) {\n  return s.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, "$3/$2/$1");\n}`,
     testCases: [{ input: ["2024-01-15"], expected: "15/01/2024" }, { input: ["1999-12-31"], expected: "31/12/1999" }, { input: ["2000-06-09"], expected: "09/06/2000", hidden: true }],
+    hints: [
+      "Capture year, month, day groups.",
+      "Reorder them in the replacement with $3/$2/$1.",
+    ],
+    pitfalls: [
+      "Mismatched group counts or wrong digit lengths.",
+    ],
+    explanation: "Capture groups for each date part let the replacement reorder them into DD/MM/YYYY.",
     resources: [R.regex],
   },
 
@@ -191,6 +322,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function safeParse(s) {\n  // your code here\n}`,
     solution: `function safeParse(s) {\n  try {\n    return JSON.parse(s);\n  } catch {\n    return null;\n  }\n}`,
     testCases: [{ input: ['{"a":1}'], expected: { a: 1 } }, { input: ["nope"], expected: null }, { input: ["[1,2]"], expected: [1, 2], hidden: true }],
+    hints: [
+      "Wrap JSON.parse in try/catch.",
+      "Return null on failure.",
+    ],
+    pitfalls: [
+      "Letting the parse error propagate instead of catching it.",
+    ],
+    explanation: "try/catch around JSON.parse returns the parsed value or null for invalid JSON.",
     resources: [R.errors],
   },
   {
@@ -201,6 +340,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function safeDiv(a, b) {\n  // your code here\n}`,
     solution: `function safeDiv(a, b) {\n  try {\n    if (b === 0) throw new Error("divide by zero");\n    return a / b;\n  } catch {\n    return null;\n  }\n}`,
     testCases: [{ input: [10, 2], expected: 5 }, { input: [5, 0], expected: null }, { input: [9, 3], expected: 3, hidden: true }],
+    hints: [
+      "Throw when the divisor is zero, catch and return null.",
+      "Otherwise return the quotient.",
+    ],
+    pitfalls: [
+      "Returning Infinity by dividing by zero without the guard.",
+    ],
+    explanation: "The try/catch converts the zero-divisor error into a null result.",
     resources: [R.errors],
   },
   {
@@ -211,6 +358,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function tryOrDefault(arr, index, fallback) {\n  // your code here\n}`,
     solution: `function tryOrDefault(arr, index, fallback) {\n  const getAt = (a, i) => { if (i < 0 || i >= a.length) throw new RangeError("out of range"); return a[i]; };\n  try {\n    return getAt(arr, index);\n  } catch {\n    return fallback;\n  }\n}`,
     testCases: [{ input: [[1, 2, 3], 1, 0], expected: 2 }, { input: [[1], 5, -1], expected: -1 }, { input: [[], 0, 9], expected: 9, hidden: true }],
+    hints: [
+      "A helper throws on an out-of-range index.",
+      "Catch it and return the fallback.",
+    ],
+    pitfalls: [
+      "Returning undefined for an out-of-range index instead of the fallback.",
+    ],
+    explanation: "Wrapping a throwing accessor in try/catch lets you supply a fallback on bad indices.",
     resources: [R.errors],
   },
   {
@@ -221,6 +376,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function checkAge(age) {\n  // your code here\n}`,
     solution: `function checkAge(age) {\n  try {\n    if (age < 0 || age > 120) throw new RangeError("invalid age");\n    return "ok";\n  } catch {\n    return "invalid";\n  }\n}`,
     testCases: [{ input: [25], expected: "ok" }, { input: [-5], expected: "invalid" }, { input: [200], expected: "invalid", hidden: true }],
+    hints: [
+      "Throw a RangeError outside the valid range, catch it.",
+      "Return 'ok' or 'invalid'.",
+    ],
+    pitfalls: [
+      "Returning a boolean instead of the expected strings.",
+    ],
+    explanation: "Validation via thrown errors and a catch maps in-range ages to 'ok' and the rest to 'invalid'.",
     resources: [R.errors],
   },
   {
@@ -231,6 +394,14 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     starterCode: `function trace(shouldThrow) {\n  // your code here\n}`,
     solution: `function trace(shouldThrow) {\n  const log = [];\n  try {\n    if (shouldThrow) throw new Error("x");\n    log.push("try");\n  } catch {\n    log.push("catch");\n  } finally {\n    log.push("finally");\n  }\n  return log;\n}`,
     testCases: [{ input: [false], expected: ["try", "finally"] }, { input: [true], expected: ["catch", "finally"] }, { input: [false], expected: ["try", "finally"], hidden: true }],
+    hints: [
+      "Push 'try' on success or 'catch' on error.",
+      "Always push 'finally' in the finally block.",
+    ],
+    pitfalls: [
+      "Assuming finally is skipped on error; it always runs.",
+    ],
+    explanation: "The log records which path ran, showing that finally executes whether or not an error was thrown.",
     resources: [R.errors],
   },
 ];
