@@ -1,5 +1,6 @@
 import type { Problem, TestCase } from "@/content/types";
 import { Hints } from "./Hints";
+import { DifficultyBadge } from "../ui/DifficultyBadge";
 
 function sampleIO(problem: Problem, tc: TestCase): { input: string; output: string } {
   if (problem.kind === "function") {
@@ -20,7 +21,10 @@ export function PromptPanel({ problem, solved }: { problem: Problem; solved: boo
     <div className="p-5 overflow-auto space-y-4">
       <div>
         <h1 className="text-xl font-bold">{problem.title}</h1>
-        <span className="text-xs uppercase text-gray-400">{problem.topic} · {problem.difficulty}</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-gray-400">{problem.topic}</span>
+          <DifficultyBadge difficulty={problem.difficulty} />
+        </div>
         {problem.course && (
           <p className="text-xs text-gray-400 mt-1">
             Course · Section {problem.course.section}: {problem.course.sectionTitle} · Lecture {problem.course.lecture}: {problem.course.lectureName}

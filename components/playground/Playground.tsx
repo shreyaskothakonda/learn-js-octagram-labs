@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import type { Problem } from "@/content/types";
@@ -11,20 +12,32 @@ import { createClient } from "@/lib/supabase/client";
 import { PromptPanel } from "./PromptPanel";
 import { ResultsTabs } from "./ResultsTabs";
 
-export function Playground({ problem }: { problem: Problem }) {
+export function Playground({ problem, nextId, backHref }: { problem: Problem; nextId: string | null; backHref: string }) {
   const router = useRouter();
+  const storageKey = `code:${problem.id}`;
   const [code, setCode] = useState(problem.starterCode);
   const [result, setResult] = useState<RunResult | null>(null);
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [solved, setSolved] = useState(false);
   const [editorTheme, setEditorTheme] = useState("vs-dark");
+
   useEffect(() => {
     const sync = () => setEditorTheme(document.documentElement.classList.contains("dark") ? "vs-dark" : "vs");
     sync();
     window.addEventListener("themechange", sync);
     return () => window.removeEventListener("themechange", sync);
   }, []);
+
+  // Restore saved code for this problem (refresh-safe).
+  useEffect(() => {
+    try { const saved = localStorage.getItem(storageKey); if (saved != null) setCode(saved); } catch {}
+  }, [storageKey]);
+
+  function updateCode(val: string) {
+    setCode(val);
+    try { localStorage.setItem(storageKey, val); } catch {}
+  }
 
   async function execute(onlyVisible: boolean): Promise<RunResult> {
     const cases = onlyVisible ? problem.testCases.filter((t) => !t.hidden) : problem.testCases;
@@ -38,15 +51,13 @@ export function Playground({ problem }: { problem: Problem }) {
   }
 
   async function onRun() {
+    if (busy) return;
     setBusy(true);
-    try {
-      setResult(await execute(true));
-    } finally {
-      setBusy(false);
-    }
+    try { setResult(await execute(true)); } finally { setBusy(false); }
   }
 
   async function onSubmit() {
+    if (busy) return;
     setBusy(true);
     try {
       const supabase = createClient();
@@ -57,34 +68,67 @@ export function Playground({ problem }: { problem: Problem }) {
       const passedCount = r.caseResults.filter((c) => c.passed).length;
       const total = r.caseResults.length;
       const passed = total > 0 && passedCount === total && !r.error;
-      if (passed) setSolved(true);
+      setSolved(passed);
       try {
-        await recordAttempt({
-          problemId: problem.id, code,
-          passed,
-          testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs,
-        });
-      } catch { /* non-blocking: results stay visible */ }
-    } finally {
-      setBusy(false);
-    }
+        await recordAttempt({ problemId: problem.id, code, passed, testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs });
+      } catch { /* non-blocking */ }
+    } finally { setBusy(false); }
   }
+
+  // Keyboard shortcuts via a ref so the listener always sees the latest handlers.
+  const handlers = useRef({ run: onRun, submit: onSubmit });
+  handlers.current = { run: onRun, submit: onSubmit };
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (e.shiftKey) handlers.current.submit(); else handlers.current.run();
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr] h-[calc(100vh-3rem)]">
-      <div className="border-r overflow-auto"><PromptPanel problem={problem} solved={solved} /></div>
-      <div className="flex flex-col">
+      <div className="border-r flex flex-col min-h-0">
+        <div className="border-b px-5 py-2 text-xs">
+          <Link href={backHref} className="text-blue-500 hover:underline">← Back to problems</Link>
+        </div>
+        <div className="flex-1 overflow-auto"><PromptPanel problem={problem} solved={solved} /></div>
+      </div>
+
+      <div className="flex flex-col min-h-0">
         <div className="flex-1 min-h-0">
           <Editor height="100%" defaultLanguage="javascript" theme={editorTheme}
-            value={code} onChange={(v) => setCode(v ?? "")} options={{ minimap: { enabled: false }, fontSize: 14 }} />
+            value={code} onChange={(v) => updateCode(v ?? "")}
+            options={{ minimap: { enabled: false }, fontSize: 14, scrollBeyondLastLine: false }} />
         </div>
-        <div className="flex gap-2 p-2 border-t">
-          <button disabled={busy} onClick={onRun} className="rounded border px-4 py-1.5 text-sm">Run</button>
-          <button disabled={busy} onClick={onSubmit} className="rounded bg-blue-600 text-white px-4 py-1.5 text-sm">Submit</button>
-          <button disabled={busy} onClick={() => setCode(problem.starterCode)} className="rounded border px-4 py-1.5 text-sm">Reset</button>
-          <button disabled={busy} onClick={() => setCode(problem.solution)} className="ml-auto rounded border px-4 py-1.5 text-sm">Show Solution</button>
+
+        {solved && (
+          <div className="flex items-center gap-3 px-3 py-2 border-t bg-green-500/15 text-sm">
+            <span className="font-semibold text-green-700 dark:text-green-300">✓ Solved! All tests passed.</span>
+            {nextId && (
+              <Link href={`/problem/${nextId}`} className="ml-auto rounded bg-green-600 text-white px-3 py-1 hover:bg-green-700">
+                Next problem →
+              </Link>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 p-2 border-t">
+          <button disabled={busy} onClick={onRun} title="Run (Cmd/Ctrl+Enter)" className="rounded border px-4 py-1.5 text-sm disabled:opacity-50">
+            {busy ? "Running…" : "Run"}
+          </button>
+          <button disabled={busy} onClick={onSubmit} title="Submit (Cmd/Ctrl+Shift+Enter)" className="rounded bg-blue-600 text-white px-4 py-1.5 text-sm hover:bg-blue-700 disabled:opacity-50">
+            {busy ? "Submitting…" : "Submit"}
+          </button>
+          <span className="hidden sm:block text-xs text-gray-400">⌘/Ctrl + Enter to run</span>
+          <button disabled={busy} onClick={() => { updateCode(problem.starterCode); try { localStorage.removeItem(storageKey); } catch {} setSolved(false); }} className="ml-auto rounded border px-3 py-1.5 text-sm disabled:opacity-50">Reset</button>
+          <button disabled={busy} onClick={() => updateCode(problem.solution)} className="rounded border px-3 py-1.5 text-sm disabled:opacity-50">Solution</button>
         </div>
       </div>
+
       <ResultsTabs problem={problem} result={result} srcdoc={srcdoc} />
     </div>
   );
