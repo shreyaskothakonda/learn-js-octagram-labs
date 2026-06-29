@@ -183,6 +183,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function setField(state, key, value) {\n  // your code here\n}`,
     solution: `function setField(state, key, value) {\n  return { ...state, [key]: value };\n}`,
     testCases: [{ input: [{ a: 1 }, "b", 2], expected: { a: 1, b: 2 } }, { input: [{ a: 1 }, "a", 9], expected: { a: 9 } }, { input: [{}, "x", 1], expected: { x: 1 }, hidden: true }],
+    hints: [
+      "Spread the old state into a new object, then set the key.",
+      "Use a computed property name: { ...state, [key]: value }.",
+    ],
+    pitfalls: [
+      "Assigning state[key] = value mutates the object React is holding.",
+    ],
+    explanation: "Returning { ...state, [key]: value } creates a new object with one field changed, giving React a new reference to detect the update.",
     resources: [R.state],
   },
   {
@@ -193,6 +201,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function removeField(state, key) {\n  // your code here\n}`,
     solution: `function removeField(state, key) {\n  const copy = { ...state };\n  delete copy[key];\n  return copy;\n}`,
     testCases: [{ input: [{ a: 1, b: 2 }, "a"], expected: { b: 2 } }, { input: [{ a: 1 }, "x"], expected: { a: 1 } }, { input: [{ a: 1 }, "a"], expected: {}, hidden: true }],
+    hints: [
+      "Copy the object first, then delete the key from the copy.",
+      "Or destructure the key out and return the rest.",
+    ],
+    pitfalls: [
+      "delete state[key] mutates the original object.",
+    ],
+    explanation: "Copy with { ...state } and delete the key from the copy so the original state object is never touched.",
     resources: [R.state],
   },
   {
@@ -203,6 +219,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function updateNested(state, path, value) {\n  // your code here\n}`,
     solution: `function updateNested(state, path, value) {\n  if (path.length === 1) return { ...state, [path[0]]: value };\n  const [head, ...rest] = path;\n  return { ...state, [head]: updateNested(state[head], rest, value) };\n}`,
     testCases: [{ input: [{ user: { name: "a" } }, ["user", "name"], "b"], expected: { user: { name: "b" } } }, { input: [{ a: { b: { c: 1 } } }, ["a", "b", "c"], 9], expected: { a: { b: { c: 9 } } } }, { input: [{ x: 1 }, ["x"], 2], expected: { x: 2 }, hidden: true }],
+    hints: [
+      "Recurse along the path, spreading at each level.",
+      "Base case: a path of length one sets the field directly.",
+      "Rebuild each parent object with spread as you come back up.",
+    ],
+    pitfalls: [
+      "Mutating a nested object mutates shared state, since spread only copies the top level.",
+      "Forgetting to spread an intermediate level leaves it pointing at the old nested object.",
+    ],
+    explanation: "Each level returns a new object that spreads its siblings and replaces only the one child on the path. Recursing to the leaf and rebuilding every parent keeps the whole path immutable.",
     resources: [R.state],
   },
   {
@@ -213,6 +239,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function mergeState(state, patch) {\n  // your code here\n}`,
     solution: `function mergeState(state, patch) {\n  return { ...state, ...patch };\n}`,
     testCases: [{ input: [{ a: 1, b: 2 }, { b: 3 }], expected: { a: 1, b: 3 } }, { input: [{}, { x: 1 }], expected: { x: 1 } }, { input: [{ a: 1 }, {}], expected: { a: 1 }, hidden: true }],
+    hints: [
+      "Spread state first, then the patch so patch wins.",
+      "{ ...state, ...patch }.",
+    ],
+    pitfalls: [
+      "Object.assign(state, patch) mutates state; assign into a fresh object or use spread.",
+    ],
+    explanation: "Spreading state then patch produces a new object where patch keys override state keys, the standard shallow merge for setState updates.",
     resources: [R.state],
   },
   {
@@ -223,6 +257,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function toggleField(state, key) {\n  // your code here\n}`,
     solution: `function toggleField(state, key) {\n  return { ...state, [key]: !state[key] };\n}`,
     testCases: [{ input: [{ open: false }, "open"], expected: { open: true } }, { input: [{ open: true }, "open"], expected: { open: false } }, { input: [{ a: 1, b: false }, "b"], expected: { a: 1, b: true }, hidden: true }],
+    hints: [
+      "Read the current boolean and store its negation.",
+      "{ ...state, [key]: !state[key] }.",
+    ],
+    pitfalls: [
+      "Mutating state[key] = !state[key] keeps the same object reference.",
+    ],
+    explanation: "Negate the current value and return it in a new object, the immutable way to flip a boolean flag in state.",
     resources: [R.state],
   },
   {
@@ -233,6 +275,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function incrementField(state, key) {\n  // your code here\n}`,
     solution: `function incrementField(state, key) {\n  return { ...state, [key]: state[key] + 1 };\n}`,
     testCases: [{ input: [{ count: 0 }, "count"], expected: { count: 1 } }, { input: [{ n: 5 }, "n"], expected: { n: 6 } }, { input: [{ a: 1, c: 9 }, "c"], expected: { a: 1, c: 10 }, hidden: true }],
+    hints: [
+      "Add one to the current number in a new object.",
+      "{ ...state, [key]: state[key] + 1 }.",
+    ],
+    pitfalls: [
+      "state[key]++ mutates the object.",
+      "Calling the updater with a stale value when several increments happen in one render (prefer the functional updater in real React).",
+    ],
+    explanation: "Return a new object with the counter field increased by one, leaving the rest of state intact.",
     resources: [R.state],
   },
   {
@@ -243,6 +294,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function resetFields(state, keys, value) {\n  // your code here\n}`,
     solution: `function resetFields(state, keys, value) {\n  const next = { ...state };\n  for (const k of keys) next[k] = value;\n  return next;\n}`,
     testCases: [{ input: [{ a: 1, b: 2, c: 3 }, ["a", "b"], 0], expected: { a: 0, b: 0, c: 3 } }, { input: [{ x: 5 }, [], 0], expected: { x: 5 } }, { input: [{ a: 1 }, ["a"], 9], expected: { a: 9 }, hidden: true }],
+    hints: [
+      "Copy state once, then set each listed key.",
+      "Iterate the keys array and assign on the copy.",
+    ],
+    pitfalls: [
+      "Mutating the original state while resetting fields.",
+    ],
+    explanation: "Make one copy with { ...state } and set every key in the list to the reset value, so unaffected fields stay as they were.",
     resources: [R.state],
   },
 
@@ -255,6 +314,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function counterReducer(state, action) {\n  // your code here\n}`,
     solution: `function counterReducer(state, action) {\n  switch (action.type) {\n    case "inc": return state + 1;\n    case "dec": return state - 1;\n    case "reset": return 0;\n    default: return state;\n  }\n}`,
     testCases: [{ input: [0, { type: "inc" }], expected: 1 }, { input: [5, { type: "dec" }], expected: 4 }, { input: [9, { type: "reset" }], expected: 0, hidden: true }],
+    hints: [
+      "Switch on action.type.",
+      "Return a new state value for each case.",
+      "The default branch must return the unchanged state.",
+    ],
+    pitfalls: [
+      "Forgetting the default case, which would return undefined for unknown actions.",
+      "Mutating state instead of returning a new value.",
+    ],
+    explanation: "A reducer is a pure function from (state, action) to the next state. Each case computes a fresh value, and unknown actions fall through to return the state unchanged.",
     resources: [R.reducer],
   },
   {
@@ -265,6 +334,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function amountReducer(state, action) {\n  // your code here\n}`,
     solution: `function amountReducer(state, action) {\n  return action.type === "add" ? state + action.payload : state;\n}`,
     testCases: [{ input: [0, { type: "add", payload: 5 }], expected: 5 }, { input: [3, { type: "add", payload: -1 }], expected: 2 }, { input: [0, { type: "noop" }], expected: 0, hidden: true }],
+    hints: [
+      "Only the add action changes the state.",
+      "Add action.payload to the current number.",
+      "Return state unchanged for anything else.",
+    ],
+    pitfalls: [
+      "Assuming a payload exists on every action type.",
+    ],
+    explanation: "The reducer adds the payload for an add action and returns the current state for all other action types, keeping it pure and total.",
     resources: [R.reducer],
   },
   {
@@ -275,6 +353,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function todoAddReducer(state, action) {\n  // your code here\n}`,
     solution: `function todoAddReducer(state, action) {\n  if (action.type !== "add") return state;\n  return [...state, { text: action.text, done: false }];\n}`,
     testCases: [{ input: [[], { type: "add", text: "x" }], expected: [{ text: "x", done: false }] }, { input: [[{ text: "a", done: false }], { type: "add", text: "b" }], expected: [{ text: "a", done: false }, { text: "b", done: false }] }, { input: [[], { type: "other" }], expected: [], hidden: true }],
+    hints: [
+      "Guard the action type first.",
+      "Append a new todo with spread, do not push.",
+      "New todos start with done: false.",
+    ],
+    pitfalls: [
+      "state.push(...) mutates the array.",
+      "Returning a new array for unrelated action types causes needless re-renders.",
+    ],
+    explanation: "For an add action, return a new array spreading the old todos plus the new { text, done: false }. Other actions return the same array reference unchanged.",
     resources: [R.reducer],
   },
   {
@@ -285,6 +373,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function todoToggleReducer(state, action) {\n  // your code here\n}`,
     solution: `function todoToggleReducer(state, action) {\n  if (action.type !== "toggle") return state;\n  return state.map((t, i) => (i === action.index ? { ...t, done: !t.done } : t));\n}`,
     testCases: [{ input: [[{ text: "a", done: false }], { type: "toggle", index: 0 }], expected: [{ text: "a", done: true }] }, { input: [[{ text: "a", done: true }, { text: "b", done: false }], { type: "toggle", index: 1 }], expected: [{ text: "a", done: true }, { text: "b", done: true }] }, { input: [[{ text: "a", done: false }], { type: "x" }], expected: [{ text: "a", done: false }], hidden: true }],
+    hints: [
+      "map over the todos and change only the one at action.index.",
+      "Spread the matched todo and flip its done.",
+      "Return others unchanged.",
+    ],
+    pitfalls: [
+      "Mutating the matched todo object.",
+      "Toggling by reference equality instead of by index.",
+    ],
+    explanation: "map returns a new array; at the target index you return a new todo with done flipped, and every other todo is returned as-is, so only one item changes identity.",
     resources: [R.reducer],
   },
   {
@@ -295,6 +393,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function todoRemoveReducer(state, action) {\n  // your code here\n}`,
     solution: `function todoRemoveReducer(state, action) {\n  if (action.type !== "remove") return state;\n  return state.filter((_, i) => i !== action.index);\n}`,
     testCases: [{ input: [[{ text: "a" }, { text: "b" }], { type: "remove", index: 0 }], expected: [{ text: "b" }] }, { input: [[{ text: "a" }], { type: "remove", index: 0 }], expected: [] }, { input: [[{ text: "a" }], { type: "x" }], expected: [{ text: "a" }], hidden: true }],
+    hints: [
+      "filter out the index to remove.",
+      "Keep items whose index is not action.index.",
+    ],
+    pitfalls: [
+      "splice mutates the array in place.",
+    ],
+    explanation: "filter builds a new array without the todo at the given index, leaving the original untouched.",
     resources: [R.reducer],
   },
   {
@@ -305,6 +411,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function cartReducer(state, action) {\n  // your code here\n}`,
     solution: `function cartReducer(state, action) {\n  if (action.type !== "add") return state;\n  const exists = state.some((item) => item.id === action.id);\n  if (exists) return state.map((item) => (item.id === action.id ? { ...item, qty: item.qty + 1 } : item));\n  return [...state, { id: action.id, qty: 1 }];\n}`,
     testCases: [{ input: [[], { type: "add", id: 1 }], expected: [{ id: 1, qty: 1 }] }, { input: [[{ id: 1, qty: 1 }], { type: "add", id: 1 }], expected: [{ id: 1, qty: 2 }] }, { input: [[{ id: 1, qty: 1 }], { type: "add", id: 2 }], expected: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }], hidden: true }],
+    hints: [
+      "Check whether an item with the id already exists.",
+      "If it exists, map and bump its qty; otherwise append a new line.",
+      "Both branches must avoid mutation.",
+    ],
+    pitfalls: [
+      "Mutating item.qty++ on the existing line.",
+      "Adding a duplicate line instead of incrementing the existing one.",
+    ],
+    explanation: "If the id is present, map produces a new array with that line's qty increased in a fresh object; if absent, spread a new { id, qty: 1 } onto the end. Either way the result is a new array.",
     resources: [R.reducer],
   },
   {
@@ -315,6 +431,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function formReducer(state, action) {\n  // your code here\n}`,
     solution: `function formReducer(state, action) {\n  if (action.type !== "setField") return state;\n  return { ...state, [action.field]: action.value };\n}`,
     testCases: [{ input: [{ name: "" }, { type: "setField", field: "name", value: "Al" }], expected: { name: "Al" } }, { input: [{ name: "x", age: "1" }, { type: "setField", field: "age", value: "2" }], expected: { name: "x", age: "2" } }, { input: [{ a: "1" }, { type: "x" }], expected: { a: "1" }, hidden: true }],
+    hints: [
+      "Only setField changes state.",
+      "Use a computed key for the field name.",
+      "{ ...state, [action.field]: action.value }.",
+    ],
+    pitfalls: [
+      "Mutating the form object directly.",
+    ],
+    explanation: "A form reducer updates one field per action by returning a new object with that computed key replaced, the pattern behind controlled multi-field forms.",
     resources: [R.reducer],
   },
 
@@ -327,6 +452,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function toLabels(items) {\n  // your code here\n}`,
     solution: `function toLabels(items) {\n  return items.map((item) => item.name);\n}`,
     testCases: [{ input: [[{ name: "a" }, { name: "b" }]], expected: ["a", "b"] }, { input: [[]], expected: [] }, { input: [[{ name: "x" }]], expected: ["x"], hidden: true }],
+    hints: [
+      "map each item to its name.",
+      "Return the array of strings.",
+    ],
+    pitfalls: [
+      "Assuming every item has a name without checking the data shape.",
+    ],
+    explanation: "map transforms the list of objects into a list of their name strings, ready to render as text or option labels.",
     resources: [R.render],
   },
   {
@@ -337,6 +470,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function visibleItems(items) {\n  // your code here\n}`,
     solution: `function visibleItems(items) {\n  return items.filter((item) => item.visible);\n}`,
     testCases: [{ input: [[{ id: 1, visible: true }, { id: 2, visible: false }]], expected: [{ id: 1, visible: true }] }, { input: [[]], expected: [] }, { input: [[{ id: 3, visible: true }]], expected: [{ id: 3, visible: true }], hidden: true }],
+    hints: [
+      "filter on the visible flag.",
+      "Truthy visible stays, falsy is dropped.",
+    ],
+    pitfalls: [
+      "Returning the same array when nothing is filtered, which is fine, but mutating it is not.",
+    ],
+    explanation: "filter keeps only items whose visible property is truthy, producing a new array for rendering.",
     resources: [R.render],
   },
   {
@@ -347,6 +488,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function sortByName(items) {\n  // your code here\n}`,
     solution: `function sortByName(items) {\n  return [...items].sort((a, b) => a.name.localeCompare(b.name));\n}`,
     testCases: [{ input: [[{ name: "b" }, { name: "a" }]], expected: [{ name: "a" }, { name: "b" }] }, { input: [[]], expected: [] }, { input: [[{ name: "c" }, { name: "a" }, { name: "b" }]], expected: [{ name: "a" }, { name: "b" }, { name: "c" }], hidden: true }],
+    hints: [
+      "Copy before sorting; sort mutates in place.",
+      "Compare names with localeCompare.",
+      "[...items].sort(...).",
+    ],
+    pitfalls: [
+      "items.sort(...) mutates the prop or state array, a classic React bug.",
+      "Comparing strings with subtraction, which only works for numbers.",
+    ],
+    explanation: "Spread into a new array first because sort mutates. localeCompare gives correct alphabetical order, and the original list is preserved.",
     resources: [R.render],
   },
   {
@@ -357,6 +508,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function getKeys(items) {\n  // your code here\n}`,
     solution: `function getKeys(items) {\n  return items.map((item) => item.id);\n}`,
     testCases: [{ input: [[{ id: 3 }, { id: 7 }]], expected: [3, 7] }, { input: [[]], expected: [] }, { input: [[{ id: 1 }]], expected: [1], hidden: true }],
+    hints: [
+      "map each item to its id.",
+      "These become your React list keys.",
+    ],
+    pitfalls: [
+      "Using array index as a key when items reorder, which breaks reconciliation; prefer stable ids.",
+    ],
+    explanation: "Extracting stable ids gives React keys that survive reordering, so it can match elements across renders correctly.",
     resources: [R.render],
   },
   {
@@ -367,6 +526,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function paginate(items, page, size) {\n  // your code here\n}`,
     solution: `function paginate(items, page, size) {\n  const start = (page - 1) * size;\n  return items.slice(start, start + size);\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], 1, 2], expected: [1, 2] }, { input: [[1, 2, 3, 4, 5], 2, 2], expected: [3, 4] }, { input: [[1, 2, 3, 4, 5], 3, 2], expected: [5], hidden: true }],
+    hints: [
+      "Compute the start offset from the 1-indexed page.",
+      "start = (page - 1) * size.",
+      "slice from start to start + size.",
+    ],
+    pitfalls: [
+      "Off-by-one from treating the page as 0-indexed.",
+      "Mutating with splice instead of slicing.",
+    ],
+    explanation: "slice(start, start + size) returns the items for the requested page without touching the source array. The (page - 1) offset accounts for 1-indexed pages.",
     resources: [R.render],
   },
   {
@@ -377,6 +546,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function pageNumbers(total, size) {\n  // your code here\n}`,
     solution: `function pageNumbers(total, size) {\n  const count = Math.ceil(total / size);\n  return Array.from({ length: count }, (_, i) => i + 1);\n}`,
     testCases: [{ input: [10, 3], expected: [1, 2, 3, 4] }, { input: [6, 3], expected: [1, 2] }, { input: [0, 3], expected: [], hidden: true }],
+    hints: [
+      "The page count is the ceiling of total divided by size.",
+      "Build an array of that length filled with 1..count.",
+      "Array.from with a map callback works well.",
+    ],
+    pitfalls: [
+      "Using floor instead of ceil, which drops the last partial page.",
+    ],
+    explanation: "Math.ceil(total / size) is how many pages you need; Array.from({length: count}, (_, i) => i + 1) produces the 1-based page numbers.",
     resources: [R.render],
   },
   {
@@ -387,6 +565,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function groupBySection(items, key) {\n  // your code here\n}`,
     solution: `function groupBySection(items, key) {\n  const out = {};\n  for (const item of items) {\n    const k = item[key];\n    (out[k] = out[k] || []).push(item);\n  }\n  return out;\n}`,
     testCases: [{ input: [[{ cat: "a", n: 1 }, { cat: "b", n: 2 }, { cat: "a", n: 3 }], "cat"], expected: { a: [{ cat: "a", n: 1 }, { cat: "a", n: 3 }], b: [{ cat: "b", n: 2 }] } }, { input: [[], "cat"], expected: {} }, { input: [[{ cat: "x", n: 1 }], "cat"], expected: { x: [{ cat: "x", n: 1 }] }, hidden: true }],
+    hints: [
+      "Build an object keyed by item[key].",
+      "Push each item into its group, creating the array on first sight.",
+    ],
+    pitfalls: [
+      "Assuming insertion order of keys matters; rely on it only when keys are strings.",
+      "Mutating shared group arrays from elsewhere.",
+    ],
+    explanation: "Iterating once and bucketing each item under item[key] yields a map of arrays, ready to render as sectioned lists.",
     resources: [R.render],
   },
   {
@@ -397,6 +584,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function chunkRows(items, perRow) {\n  // your code here\n}`,
     solution: `function chunkRows(items, perRow) {\n  const rows = [];\n  for (let i = 0; i < items.length; i += perRow) rows.push(items.slice(i, i + perRow));\n  return rows;\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], 2], expected: [[1, 2], [3, 4], [5]] }, { input: [[], 2], expected: [] }, { input: [[1, 2, 3], 3], expected: [[1, 2, 3]], hidden: true }],
+    hints: [
+      "Step through the array in increments of perRow.",
+      "slice each window of perRow items.",
+      "Collect the windows into an array of rows.",
+    ],
+    pitfalls: [
+      "Mutating the source array.",
+      "An off-by-one in the loop bound dropping the final partial row.",
+    ],
+    explanation: "Looping with i += perRow and slicing each window groups items into rows for grid layouts, leaving the original array intact.",
     resources: [R.render],
   },
 
@@ -409,6 +606,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function cartTotal(items) {\n  // your code here\n}`,
     solution: `function cartTotal(items) {\n  return items.reduce((sum, item) => sum + item.price * item.qty, 0);\n}`,
     testCases: [{ input: [[{ price: 10, qty: 2 }, { price: 5, qty: 1 }]], expected: 25 }, { input: [[]], expected: 0 }, { input: [[{ price: 3, qty: 3 }]], expected: 9, hidden: true }],
+    hints: [
+      "reduce over the items.",
+      "Add price times qty for each line.",
+    ],
+    pitfalls: [
+      "Storing the total in state instead of deriving it, which can drift out of sync.",
+    ],
+    explanation: "The total is derived state: compute it from the cart with reduce on each render rather than storing a separate, duplicable value.",
     resources: [R.derived],
   },
   {
@@ -419,6 +624,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function countCompleted(todos) {\n  // your code here\n}`,
     solution: `function countCompleted(todos) {\n  return todos.filter((t) => t.done).length;\n}`,
     testCases: [{ input: [[{ done: true }, { done: false }, { done: true }]], expected: 2 }, { input: [[]], expected: 0 }, { input: [[{ done: false }]], expected: 0, hidden: true }],
+    hints: [
+      "filter the done items and take the length.",
+      "Or count with reduce.",
+    ],
+    pitfalls: [
+      "Keeping a separate completed counter in state that can fall out of sync.",
+    ],
+    explanation: "Count completed todos directly from the list each render, so the number can never disagree with the data.",
     resources: [R.derived],
   },
   {
@@ -429,6 +642,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function filterSearch(items, query) {\n  // your code here\n}`,
     solution: `function filterSearch(items, query) {\n  const q = query.toLowerCase();\n  return items.filter((item) => item.name.toLowerCase().includes(q));\n}`,
     testCases: [{ input: [[{ name: "Apple" }, { name: "Banana" }], "an"], expected: [{ name: "Banana" }] }, { input: [[{ name: "Apple" }], ""], expected: [{ name: "Apple" }] }, { input: [[{ name: "Pear" }], "xyz"], expected: [], hidden: true }],
+    hints: [
+      "Lowercase both the query and each name before comparing.",
+      "Use includes for a substring match.",
+    ],
+    pitfalls: [
+      "Case-sensitive comparison missing obvious matches.",
+      "Recomputing inside a child when it could be memoized for large lists.",
+    ],
+    explanation: "Normalizing case and using includes gives a forgiving search filter, the typical derived list behind a search box.",
     resources: [R.derived],
   },
   {
@@ -439,6 +661,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function activeCount(todos) {\n  // your code here\n}`,
     solution: `function activeCount(todos) {\n  return todos.filter((t) => !t.done).length;\n}`,
     testCases: [{ input: [[{ done: false }, { done: true }]], expected: 1 }, { input: [[]], expected: 0 }, { input: [[{ done: false }, { done: false }]], expected: 2, hidden: true }],
+    hints: [
+      "Count todos where done is false.",
+      "filter then length.",
+    ],
+    pitfalls: [
+      "Treating missing done as done; undefined is falsy so it counts as active here.",
+    ],
+    explanation: "Active items are simply those not done, computed from the list rather than tracked separately.",
     resources: [R.derived],
   },
   {
@@ -449,6 +679,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function percentComplete(todos) {\n  // your code here\n}`,
     solution: `function percentComplete(todos) {\n  if (todos.length === 0) return 0;\n  const done = todos.filter((t) => t.done).length;\n  return Math.round((done / todos.length) * 100);\n}`,
     testCases: [{ input: [[{ done: true }, { done: false }]], expected: 50 }, { input: [[]], expected: 0 }, { input: [[{ done: true }]], expected: 100, hidden: true }],
+    hints: [
+      "Guard the empty list to avoid dividing by zero.",
+      "Round (done / total) * 100.",
+      "Math.round gives a whole percent.",
+    ],
+    pitfalls: [
+      "Dividing by zero for an empty list yields NaN.",
+      "Forgetting to round, leaving long decimals.",
+    ],
+    explanation: "Guard the empty case to return 0, then round the done-over-total ratio times 100 for a clean percentage.",
     resources: [R.derived],
   },
   {
@@ -459,6 +699,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function summaryStats(nums) {\n  // your code here\n}`,
     solution: `function summaryStats(nums) {\n  const min = Math.min(...nums);\n  const max = Math.max(...nums);\n  const avg = nums.reduce((a, b) => a + b, 0) / nums.length;\n  return { min, max, avg };\n}`,
     testCases: [{ input: [[1, 2, 3, 4]], expected: { min: 1, max: 4, avg: 2.5 } }, { input: [[5]], expected: { min: 5, max: 5, avg: 5 } }, { input: [[2, 4]], expected: { min: 2, max: 4, avg: 3 }, hidden: true }],
+    hints: [
+      "min and max via Math with spread.",
+      "avg is the sum divided by the length.",
+      "Return all three in one object.",
+    ],
+    pitfalls: [
+      "Spreading a very large array into Math.min/max can overflow the call stack; reduce is safer at scale.",
+    ],
+    explanation: "Derive the summary in one pass: Math.min/max for the bounds and a reduce-based mean, returned together as { min, max, avg }.",
     resources: [R.derived],
   },
 
@@ -471,6 +720,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function withDefaults(props, defaults) {\n  // your code here\n}`,
     solution: `function withDefaults(props, defaults) {\n  return { ...defaults, ...props };\n}`,
     testCases: [{ input: [{ a: 1 }, { a: 0, b: 2 }], expected: { a: 1, b: 2 } }, { input: [{}, { x: 5 }], expected: { x: 5 } }, { input: [{ size: "lg" }, { size: "md" }], expected: { size: "lg" }, hidden: true }],
+    hints: [
+      "Spread defaults first, then props.",
+      "Provided props override the defaults.",
+    ],
+    pitfalls: [
+      "Spreading props before defaults, which lets defaults clobber real values.",
+    ],
+    explanation: "{ ...defaults, ...props } merges so that any prop the caller passed wins, while unspecified ones fall back to the default.",
     resources: [R.props],
   },
   {
@@ -481,6 +738,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function classNames(map) {\n  // your code here\n}`,
     solution: `function classNames(map) {\n  return Object.keys(map).filter((k) => map[k]).join(" ");\n}`,
     testCases: [{ input: [{ active: true, disabled: false, big: true }], expected: "active big" }, { input: [{}], expected: "" }, { input: [{ a: 1 }], expected: "a", hidden: true }],
+    hints: [
+      "Take the keys whose values are truthy.",
+      "Join the survivors with a space.",
+    ],
+    pitfalls: [
+      "Including keys with falsy values in the output.",
+      "Leaving a trailing space from naive concatenation.",
+    ],
+    explanation: "Filtering object keys by truthy value and joining with spaces builds a className string conditionally, the core of utilities like clsx.",
     resources: [R.props],
   },
   {
@@ -491,6 +757,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function cx(...names) {\n  // your code here\n}`,
     solution: `function cx(...names) {\n  return names.filter(Boolean).join(" ");\n}`,
     testCases: [{ input: ["btn", false, "primary", null, "lg"], expected: "btn primary lg" }, { input: ["only"], expected: "only" }, { input: [false, ""], expected: "", hidden: true }],
+    hints: [
+      "filter the arguments with Boolean to drop falsy ones.",
+      "Join the rest with a space.",
+    ],
+    pitfalls: [
+      "Letting false, null, or empty strings slip into the output.",
+      "Using join without filtering, producing double spaces.",
+    ],
+    explanation: "names.filter(Boolean) removes every falsy argument so conditional classes like cond && 'active' disappear cleanly, then join adds the spaces.",
     resources: [R.props],
   },
   {
@@ -501,6 +776,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function pickProps(props, keys) {\n  // your code here\n}`,
     solution: `function pickProps(props, keys) {\n  const out = {};\n  for (const k of keys) if (Object.prototype.hasOwnProperty.call(props, k)) out[k] = props[k];\n  return out;\n}`,
     testCases: [{ input: [{ a: 1, b: 2, c: 3 }, ["a", "c"]], expected: { a: 1, c: 3 } }, { input: [{ a: 1 }, ["x"]], expected: {} }, { input: [{ a: 1, b: 2 }, ["b", "a"]], expected: { b: 2, a: 1 }, hidden: true }],
+    hints: [
+      "Iterate the keys list and copy only those present on props.",
+      "Use hasOwnProperty to check presence.",
+    ],
+    pitfalls: [
+      "Copying keys that do not exist, adding undefined values.",
+      "Mutating the source props object.",
+    ],
+    explanation: "Walking the keys array and copying only existing props builds a subset object in the requested order, without touching the original.",
     resources: [R.props],
   },
   {
@@ -511,6 +795,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function conditionalClass(base, condition, extra) {\n  // your code here\n}`,
     solution: `function conditionalClass(base, condition, extra) {\n  return condition ? base + " " + extra : base;\n}`,
     testCases: [{ input: ["btn", true, "active"], expected: "btn active" }, { input: ["btn", false, "active"], expected: "btn" }, { input: ["x", true, "y"], expected: "x y", hidden: true }],
+    hints: [
+      "When the condition holds, append a space and the extra class.",
+      "Otherwise return base alone.",
+    ],
+    pitfalls: [
+      "Adding a leading or trailing space when extra is empty.",
+    ],
+    explanation: "A small helper that conditionally appends a modifier class, the simplest form of conditional styling.",
     resources: [R.props],
   },
 
@@ -523,6 +815,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function handleChange(state, field, value) {\n  // your code here\n}`,
     solution: `function handleChange(state, field, value) {\n  return { ...state, [field]: value };\n}`,
     testCases: [{ input: [{ name: "a" }, "name", "ab"], expected: { name: "ab" } }, { input: [{ name: "", email: "x" }, "email", "y"], expected: { name: "", email: "y" } }, { input: [{}, "q", "1"], expected: { q: "1" }, hidden: true }],
+    hints: [
+      "Spread the form and set the changed field.",
+      "Use a computed key for the field name.",
+    ],
+    pitfalls: [
+      "Mutating the form state object.",
+      "Replacing the whole form instead of one field.",
+    ],
+    explanation: "Returning { ...state, [field]: value } updates one controlled field while preserving the others, the canonical onChange handler.",
     resources: [R.forms],
   },
   {
@@ -533,6 +834,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function toggleChecked(list, id) {\n  // your code here\n}`,
     solution: `function toggleChecked(list, id) {\n  return list.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item));\n}`,
     testCases: [{ input: [[{ id: 1, checked: false }], 1], expected: [{ id: 1, checked: true }] }, { input: [[{ id: 1, checked: true }, { id: 2, checked: false }], 2], expected: [{ id: 1, checked: true }, { id: 2, checked: true }] }, { input: [[{ id: 1, checked: false }], 9], expected: [{ id: 1, checked: false }], hidden: true }],
+    hints: [
+      "map and flip checked only on the matching id.",
+      "Spread the matched item, negate checked.",
+      "Return others unchanged.",
+    ],
+    pitfalls: [
+      "Mutating the matched item.",
+      "Toggling every item instead of the one with the id.",
+    ],
+    explanation: "map returns a new list where only the item with the given id gets a new object with checked flipped, leaving the rest by reference.",
     resources: [R.forms],
   },
   {
@@ -543,6 +854,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function validateRequired(form, fields) {\n  // your code here\n}`,
     solution: `function validateRequired(form, fields) {\n  const errors = {};\n  for (const f of fields) if (!form[f]) errors[f] = "Required";\n  return errors;\n}`,
     testCases: [{ input: [{ name: "", email: "a" }, ["name", "email"]], expected: { name: "Required" } }, { input: [{ name: "x" }, ["name"]], expected: {} }, { input: [{ a: "" }, ["a"]], expected: { a: "Required" }, hidden: true }],
+    hints: [
+      "Walk the required fields.",
+      "Mark a field as Required when its value is falsy.",
+      "Collect errors into an object.",
+    ],
+    pitfalls: [
+      "Treating 0 or false as missing when they may be valid values for some fields.",
+      "Returning an array instead of a field-keyed object.",
+    ],
+    explanation: "Building an errors object keyed by field name lets the UI show a message under each empty required input.",
     resources: [R.forms],
   },
   {
@@ -553,6 +874,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function resetForm(form) {\n  // your code here\n}`,
     solution: `function resetForm(form) {\n  const out = {};\n  for (const k of Object.keys(form)) out[k] = "";\n  return out;\n}`,
     testCases: [{ input: [{ name: "a", email: "b" }], expected: { name: "", email: "" } }, { input: [{}], expected: {} }, { input: [{ x: "y" }], expected: { x: "" }, hidden: true }],
+    hints: [
+      "Build a new object with every key set to an empty string.",
+      "Object.keys then assign.",
+    ],
+    pitfalls: [
+      "Mutating the original form.",
+      "Assuming all values are strings if some are numbers or booleans.",
+    ],
+    explanation: "Mapping every field to an empty string returns a cleared form object suitable for resetting a controlled form.",
     resources: [R.forms],
   },
   {
@@ -563,6 +893,14 @@ export const reactProblems: Problem[] = [
     starterCode: `function countErrors(errors) {\n  // your code here\n}`,
     solution: `function countErrors(errors) {\n  return Object.keys(errors).length;\n}`,
     testCases: [{ input: [{ a: "x", b: "y" }], expected: 2 }, { input: [{}], expected: 0 }, { input: [{ a: "e" }], expected: 1, hidden: true }],
+    hints: [
+      "Count the keys of the errors object.",
+      "Object.keys(errors).length.",
+    ],
+    pitfalls: [
+      "Counting nested values instead of top-level fields.",
+    ],
+    explanation: "The number of error fields is just the count of keys, handy for disabling a submit button while errors remain.",
     resources: [R.forms],
   },
   {
@@ -573,6 +911,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function updateFromEvent(state, event) {\n  // your code here\n}`,
     solution: `function updateFromEvent(state, event) {\n  const { name, value } = event.target;\n  return { ...state, [name]: value };\n}`,
     testCases: [{ input: [{ name: "a" }, { target: { name: "name", value: "b" } }], expected: { name: "b" } }, { input: [{ a: "1", b: "2" }, { target: { name: "b", value: "9" } }], expected: { a: "1", b: "9" } }, { input: [{}, { target: { name: "x", value: "1" } }], expected: { x: "1" }, hidden: true }],
+    hints: [
+      "Pull name and value off event.target.",
+      "Spread state and set the computed field.",
+    ],
+    pitfalls: [
+      "Reading event.value instead of event.target.value.",
+      "Mutating state.",
+    ],
+    explanation: "Destructuring { name, value } from event.target and returning { ...state, [name]: value } is exactly how a shared React onChange handler updates the right field.",
     resources: [R.forms],
   },
 
@@ -585,6 +932,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function useToggle(state, times) {\n  // your code here\n}`,
     solution: `function useToggle(state, times) {\n  return times % 2 === 0 ? state : !state;\n}`,
     testCases: [{ input: [false, 3], expected: true }, { input: [false, 2], expected: false }, { input: [true, 1], expected: false, hidden: true }],
+    hints: [
+      "Toggling an even number of times returns to the start.",
+      "Toggling an odd number of times flips it.",
+      "Check times % 2.",
+    ],
+    pitfalls: [
+      "Looping and negating times in a row works but is unnecessary; parity is enough.",
+    ],
+    explanation: "A boolean toggled n times equals the original when n is even and its negation when n is odd, so times % 2 decides the result.",
     resources: [R.hooks],
   },
   {
@@ -595,6 +951,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function pagination(state, action) {\n  // your code here\n}`,
     solution: `function pagination(state, action) {\n  if (action === "next") return { ...state, page: Math.min(state.page + 1, state.total) };\n  if (action === "prev") return { ...state, page: Math.max(state.page - 1, 1) };\n  return state;\n}`,
     testCases: [{ input: [{ page: 1, total: 3 }, "next"], expected: { page: 2, total: 3 } }, { input: [{ page: 1, total: 3 }, "prev"], expected: { page: 1, total: 3 } }, { input: [{ page: 3, total: 3 }, "next"], expected: { page: 3, total: 3 }, hidden: true }],
+    hints: [
+      "next increases page but not past total.",
+      "prev decreases page but not below 1.",
+      "Use Math.min and Math.max to clamp.",
+    ],
+    pitfalls: [
+      "Letting page exceed total or drop below 1.",
+      "Mutating the state object.",
+    ],
+    explanation: "Clamping with Math.min(page + 1, total) and Math.max(page - 1, 1) keeps pagination within bounds while returning new state objects.",
     resources: [R.hooks],
   },
   {
@@ -605,6 +971,15 @@ export const reactProblems: Problem[] = [
     starterCode: `function applyActions(initial, actions) {\n  // your code here\n}`,
     solution: `function applyActions(initial, actions) {\n  return actions.reduce((acc, a) => (a.type === "inc" ? acc + 1 : a.type === "dec" ? acc - 1 : acc), initial);\n}`,
     testCases: [{ input: [0, [{ type: "inc" }, { type: "inc" }, { type: "dec" }]], expected: 1 }, { input: [5, []], expected: 5 }, { input: [0, [{ type: "dec" }]], expected: -1, hidden: true }],
+    hints: [
+      "reduce the actions over the starting value.",
+      "inc adds one, dec subtracts one.",
+      "Unknown actions leave the accumulator unchanged.",
+    ],
+    pitfalls: [
+      "Mutating an external counter instead of folding immutably.",
+    ],
+    explanation: "Folding the action list with reduce applies each inc or dec in order, mirroring how a useReducer would process a sequence of dispatches.",
     resources: [R.hooks],
   },
 ];
