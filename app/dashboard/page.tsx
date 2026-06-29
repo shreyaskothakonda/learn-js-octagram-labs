@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getOptionalUser } from "@/lib/supabase/server";
 import { getAllProblems } from "@/content";
 
 export default async function Dashboard() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getOptionalUser();
   if (!user) redirect("/login");
+  const supabase = await createClient();
 
   const { data: progress } = await supabase.from("progress").select("problem_id,status");
   const { data: attempts } = await supabase
