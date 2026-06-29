@@ -14,6 +14,7 @@ import { algorithmProblems } from "./problems/algorithms";
 import { dsExtraProblems } from "./problems/ds-extra";
 import { dsExtra2Problems } from "./problems/ds-extra-2";
 import { interviewProblems } from "./problems/interview";
+import { interview2Problems } from "./problems/interview-2";
 
 const ALL: Problem[] = [
   ...javascriptProblems,
@@ -30,6 +31,7 @@ const ALL: Problem[] = [
   ...dsExtraProblems,
   ...dsExtra2Problems,
   ...interviewProblems,
+  ...interview2Problems,
   ...reactProblems,
 ];
 
