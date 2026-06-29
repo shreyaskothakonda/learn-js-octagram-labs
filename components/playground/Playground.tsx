@@ -17,6 +17,7 @@ export function Playground({ problem }: { problem: Problem }) {
   const [result, setResult] = useState<RunResult | null>(null);
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [solved, setSolved] = useState(false);
 
   async function execute(onlyVisible: boolean): Promise<RunResult> {
     const cases = onlyVisible ? problem.testCases.filter((t) => !t.hidden) : problem.testCases;
@@ -47,10 +48,12 @@ export function Playground({ problem }: { problem: Problem }) {
       setResult(r);
       const passedCount = r.caseResults.filter((c) => c.passed).length;
       const total = r.caseResults.length;
+      const passed = total > 0 && passedCount === total && !r.error;
+      if (passed) setSolved(true);
       try {
         await recordAttempt({
           problemId: problem.id, code,
-          passed: total > 0 && passedCount === total && !r.error,
+          passed,
           testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs,
         });
       } catch { /* non-blocking: results stay visible */ }
@@ -61,7 +64,7 @@ export function Playground({ problem }: { problem: Problem }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr] h-[calc(100vh-3rem)]">
-      <div className="border-r overflow-auto"><PromptPanel problem={problem} /></div>
+      <div className="border-r overflow-auto"><PromptPanel problem={problem} solved={solved} /></div>
       <div className="flex flex-col">
         <div className="flex-1 min-h-0">
           <Editor height="100%" defaultLanguage="javascript" theme="vs-dark"

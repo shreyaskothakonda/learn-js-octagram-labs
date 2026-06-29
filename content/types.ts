@@ -29,4 +29,6 @@ export type Problem = {
   testCases: TestCase[];
   resources: Resource[];
   hints?: string[];
+  pitfalls?: string[];
+  explanation?: string;
 };

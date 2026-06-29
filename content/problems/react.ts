@@ -21,6 +21,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function addItem(list, item) {\n  // your code here\n}`,
     solution: `function addItem(list, item) {\n  return [...list, item];\n}`,
     testCases: [{ input: [[1, 2], 3], expected: [1, 2, 3] }, { input: [[], 1], expected: [1] }, { input: [["a"], "b"], expected: ["a", "b"], hidden: true }],
+    hints: [
+      "State updates must create a new array rather than changing the existing one.",
+      "The spread operator copies the existing items into a fresh array.",
+      "Return [...list, item].",
+    ],
+    pitfalls: [
+      "list.push(item) mutates the original array, so React keeps the same reference and may skip the re-render.",
+      "Returning the same array reference (even after pushing) defeats React change detection.",
+    ],
+    explanation: "React decides whether to re-render by comparing references. push keeps the same array reference, so the change can be missed. Spreading into a new array with [...list, item] produces a new reference that includes the added item, which is what React expects from a state update.",
     resources: [R.arr],
   },
   {
@@ -31,6 +41,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function removeAt(list, index) {\n  // your code here\n}`,
     solution: `function removeAt(list, index) {\n  return list.filter((_, i) => i !== index);\n}`,
     testCases: [{ input: [[1, 2, 3], 1], expected: [1, 3] }, { input: [[1], 0], expected: [] }, { input: [[1, 2], 5], expected: [1, 2], hidden: true }],
+    hints: [
+      "filter returns a brand-new array and leaves the original untouched.",
+      "Keep every element whose index is not the one you want to remove.",
+      "filter gives you the index as its second argument.",
+    ],
+    pitfalls: [
+      "splice removes in place and mutates the original array; prefer filter or slice.",
+      "Removing by value instead of index gives the wrong result when the list has duplicates.",
+    ],
+    explanation: "filter((_, i) => i !== index) walks the array and builds a new one containing every element except the one at the target index, without changing the original. An out-of-range index simply keeps all elements.",
     resources: [R.arr],
   },
   {
@@ -41,6 +61,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function updateAt(list, index, value) {\n  // your code here\n}`,
     solution: `function updateAt(list, index, value) {\n  return list.map((x, i) => (i === index ? value : x));\n}`,
     testCases: [{ input: [[1, 2, 3], 1, 9], expected: [1, 9, 3] }, { input: [[5], 0, 7], expected: [7] }, { input: [[1, 2], 2, 9], expected: [1, 2], hidden: true }],
+    hints: [
+      "map produces a new array of the same length.",
+      "At the target index return the new value, otherwise return the original element.",
+      "Compare the map index to the target index.",
+    ],
+    pitfalls: [
+      "list[index] = value mutates the original array.",
+      "When elements are objects, returning value replaces the whole object; spread it if you only mean to change one field.",
+    ],
+    explanation: "map returns a new array. At the matching index you return value; at every other position you return the original element, so only one slot changes while the rest are preserved.",
     resources: [R.arr],
   },
   {
@@ -51,6 +81,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function removeById(list, id) {\n  // your code here\n}`,
     solution: `function removeById(list, id) {\n  return list.filter((item) => item.id !== id);\n}`,
     testCases: [{ input: [[{ id: 1 }, { id: 2 }], 1], expected: [{ id: 2 }] }, { input: [[{ id: 1 }], 2], expected: [{ id: 1 }] }, { input: [[], 1], expected: [], hidden: true }],
+    hints: [
+      "Items are identified by a stable id, not by their position.",
+      "Keep every item whose id does not match.",
+      "filter(item => item.id !== id).",
+    ],
+    pitfalls: [
+      "indexOf followed by splice mutates the array and is fragile with object identity.",
+      "Comparing whole objects by reference instead of comparing the id field.",
+    ],
+    explanation: "Identifying rows by a stable id is the React-friendly approach (it also gives you good keys). filter keeps every item except the one whose id matches, returning a new array.",
     resources: [R.arr],
   },
   {
@@ -61,6 +101,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function updateById(list, id, patch) {\n  // your code here\n}`,
     solution: `function updateById(list, id, patch) {\n  return list.map((item) => (item.id === id ? { ...item, ...patch } : item));\n}`,
     testCases: [{ input: [[{ id: 1, done: false }, { id: 2, done: false }], 1, { done: true }], expected: [{ id: 1, done: true }, { id: 2, done: false }] }, { input: [[{ id: 1, n: 0 }], 1, { n: 5 }], expected: [{ id: 1, n: 5 }] }, { input: [[{ id: 1 }], 9, { x: 1 }], expected: [{ id: 1 }], hidden: true }],
+    hints: [
+      "map over the list; only the matching item should change.",
+      "Merge the patch onto the item with spread: { ...item, ...patch }.",
+      "Return the original item for every non-match.",
+    ],
+    pitfalls: [
+      "Mutating the matched item (item.done = true) instead of building a new object.",
+      "Replacing the whole item with patch and losing fields that were not part of the patch.",
+    ],
+    explanation: "For the matching id you return a new object { ...item, ...patch }, preserving untouched fields and overriding changed ones. Every other item is returned as-is, so only one row changes identity and the list stays immutable.",
     resources: [R.arr],
   },
   {
@@ -71,6 +121,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function insertAt(list, index, item) {\n  // your code here\n}`,
     solution: `function insertAt(list, index, item) {\n  return [...list.slice(0, index), item, ...list.slice(index)];\n}`,
     testCases: [{ input: [[1, 2, 3], 1, 9], expected: [1, 9, 2, 3] }, { input: [[], 0, 5], expected: [5] }, { input: [[1, 2], 10, 9], expected: [1, 2, 9], hidden: true }],
+    hints: [
+      "slice returns a copy of a range and never mutates.",
+      "Combine the part before the index, the new item, and the part after.",
+      "[...list.slice(0, index), item, ...list.slice(index)].",
+    ],
+    pitfalls: [
+      "splice inserts in place and mutates the original array.",
+      "Forgetting that an index beyond the length just appends the item.",
+    ],
+    explanation: "slice(0, index) is everything before the insertion point and slice(index) is everything after. Spreading them around the new item produces a fresh array with the item inserted, leaving the original alone.",
     resources: [R.arr],
   },
   {
@@ -81,6 +141,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function toggleInArray(list, value) {\n  // your code here\n}`,
     solution: `function toggleInArray(list, value) {\n  return list.includes(value) ? list.filter((x) => x !== value) : [...list, value];\n}`,
     testCases: [{ input: [[1, 2, 3], 2], expected: [1, 3] }, { input: [[1, 3], 2], expected: [1, 3, 2] }, { input: [[], 5], expected: [5], hidden: true }],
+    hints: [
+      "Check membership with includes.",
+      "If it is present, filter it out; if it is absent, spread it in.",
+      "Return a new array in both branches.",
+    ],
+    pitfalls: [
+      "Mutating with push or splice instead of returning a new array.",
+      "Adding a duplicate when the value is already present.",
+    ],
+    explanation: "This is the pattern behind toggling a checkbox in a set of selected ids. If the value is already in the array you remove it with filter; otherwise you add it with spread. Either branch returns a new array.",
     resources: [R.arr],
   },
   {
@@ -91,6 +161,16 @@ export const reactProblems: Problem[] = [
     starterCode: `function moveItem(list, from, to) {\n  // your code here\n}`,
     solution: `function moveItem(list, from, to) {\n  const copy = [...list];\n  const [moved] = copy.splice(from, 1);\n  copy.splice(to, 0, moved);\n  return copy;\n}`,
     testCases: [{ input: [[1, 2, 3, 4], 0, 2], expected: [2, 3, 1, 4] }, { input: [["a", "b"], 1, 0], expected: ["b", "a"] }, { input: [[1], 0, 0], expected: [1], hidden: true }],
+    hints: [
+      "Copy the array first so you never mutate the original.",
+      "splice can both remove and insert.",
+      "Remove the element at from, then insert it at to.",
+    ],
+    pitfalls: [
+      "Calling splice directly on the state array mutates it.",
+      "Inserting before removing, which shifts the indices and moves the wrong element.",
+    ],
+    explanation: "Work on a copy made with [...list]. splice(from, 1) removes and returns the moved element; splice(to, 0, moved) inserts it at the destination. Because all of this happens on the copy, the original array is never touched.",
     resources: [R.arr],
   },
 
