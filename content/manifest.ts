@@ -3,6 +3,7 @@ import type { Track } from "./types";
 export const TOPICS: Record<Track, { topic: string; label: string }[]> = {
   javascript: [
     { topic: "Variables & Types", label: "Variables & Types" },
+    { topic: "Operators", label: "Operators" },
     { topic: "Strings", label: "Strings" },
     { topic: "Arrays", label: "Arrays" },
     { topic: "Objects", label: "Objects" },
@@ -12,6 +13,8 @@ export const TOPICS: Record<Track, { topic: string; label: string }[]> = {
     { topic: "Array Methods", label: "Array Methods (map/filter/reduce)" },
     { topic: "Recursion", label: "Recursion" },
     { topic: "ES6+", label: "ES6+" },
+    { topic: "Classes & Prototypes", label: "Classes & Prototypes" },
+    { topic: "Iterators & Generators", label: "Iterators & Generators" },
     { topic: "Async & Promises", label: "Async & Promises" },
     { topic: "Regex", label: "Regex" },
     { topic: "Error Handling", label: "Error Handling" },
