@@ -21,6 +21,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[-5, 5]], expected: 0, hidden: true },
       { input: [[10]], expected: 10, hidden: true },
     ],
+    hints: [
+      "reduce accumulates a single total.",
+      "Start the accumulator at 0.",
+    ],
+    pitfalls: [
+      "Omitting the initial value breaks on an empty array.",
+    ],
+    explanation: "reduce with an initial 0 sums every element, returning 0 for an empty array.",
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -46,6 +54,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[-1, -5, -2]], expected: -1 },
       { input: [[7]], expected: 7, hidden: true },
     ],
+    hints: [
+      "Math.max with spread returns the largest value.",
+      "The input is non-empty.",
+    ],
+    pitfalls: [
+      "Math.max() with no arguments returns -Infinity.",
+    ],
+    explanation: "Spreading the array into Math.max yields its maximum.",
     resources: [
       {
         label: "MDN: Math.max",
@@ -73,6 +89,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[]], expected: [], hidden: true },
       { input: [[5, 5, 5]], expected: [5], hidden: true },
     ],
+    hints: [
+      "A Set removes duplicates while keeping order.",
+      "Spread it back to an array.",
+    ],
+    pitfalls: [
+      "Objects are compared by reference, so a Set will not dedupe equal-looking objects.",
+    ],
+    explanation: "new Set keeps first occurrences in order; spreading returns the deduplicated array.",
     resources: [
       {
         label: "MDN: Set",
@@ -102,6 +126,14 @@ export const javascriptProblems: Problem[] = [
       { input: ["a"], expected: "a", hidden: true },
       { input: ["abcd"], expected: "dcba", hidden: true },
     ],
+    hints: [
+      "Split into characters, reverse, then join.",
+      "split('').reverse().join('').",
+    ],
+    pitfalls: [
+      "This splits by code unit, so it can mangle characters outside the basic plane (emoji).",
+    ],
+    explanation: "Splitting to an array lets you reverse and rejoin into the reversed string.",
     resources: [
       {
         label: "MDN: String.prototype.split",
@@ -129,6 +161,14 @@ export const javascriptProblems: Problem[] = [
       { input: ["AEIOU"], expected: 5, hidden: true },
       { input: [""], expected: 0, hidden: true },
     ],
+    hints: [
+      "Match vowels case-insensitively and globally.",
+      "Default a null match to an empty array before counting.",
+    ],
+    pitfalls: [
+      "match returns null when nothing matches, which breaks .length.",
+    ],
+    explanation: "A global case-insensitive vowel match, guarded against null, gives the vowel count.",
     resources: [
       {
         label: "MDN: String.prototype.match",
@@ -157,6 +197,14 @@ export const javascriptProblems: Problem[] = [
       { input: ["No lemon no melon"], expected: true, hidden: true },
       { input: ["abc"], expected: false, hidden: true },
     ],
+    hints: [
+      "Lowercase first so case is ignored.",
+      "Compare the string with its reverse.",
+    ],
+    pitfalls: [
+      "Skipping case normalization misjudges mixed-case palindromes.",
+    ],
+    explanation: "Comparing the lowercased string to its reverse checks for a palindrome regardless of case.",
     resources: [
       {
         label: "MDN: String.prototype.replace",
@@ -188,6 +236,14 @@ export const javascriptProblems: Problem[] = [
       { input: [{}], expected: 0 },
       { input: [{ x: undefined }], expected: 1, hidden: true },
     ],
+    hints: [
+      "Object.keys lists the own keys.",
+      "Its length is the count.",
+    ],
+    pitfalls: [
+      "Inherited properties are not included, which is usually intended.",
+    ],
+    explanation: "Object.keys(obj).length counts the own enumerable properties.",
     resources: [
       {
         label: "MDN: Object.keys",
@@ -214,6 +270,15 @@ export const javascriptProblems: Problem[] = [
       { input: [{ x: "foo", y: "bar" }], expected: { foo: "x", bar: "y" } },
       { input: [{}], expected: {}, hidden: true },
     ],
+    hints: [
+      "Iterate entries, assigning value as the new key.",
+      "The old key becomes the value.",
+    ],
+    pitfalls: [
+      "Duplicate values overwrite each other.",
+      "Numeric values become string keys.",
+    ],
+    explanation: "Swapping each entry's key and value produces the inverted object.",
     resources: [
       {
         label: "MDN: Object.fromEntries",
@@ -243,6 +308,14 @@ export const javascriptProblems: Problem[] = [
       { input: ["Bob", "Hi"], expected: "Hi, Bob!" },
       { input: ["World", "Hey"], expected: "Hey, World!", hidden: true },
     ],
+    hints: [
+      "A default parameter fills in for undefined.",
+      "Concatenate the greeting with the name.",
+    ],
+    pitfalls: [
+      "Defaults apply only to undefined, not to empty string or null.",
+    ],
+    explanation: "The default value supplies a fallback name only when the argument is undefined.",
     resources: [
       {
         label: "MDN: Default parameters",
@@ -272,6 +345,14 @@ export const javascriptProblems: Problem[] = [
       { input: [0, 0], expected: 0, hidden: true },
       { input: [10, 1], expected: 11, hidden: true },
     ],
+    hints: [
+      "Define an inner function that closes over a private counter.",
+      "Collect the values produced across calls.",
+    ],
+    pitfalls: [
+      "Declaring the counter where it resets each call loses the closed-over state.",
+    ],
+    explanation: "The inner function captures a private counter by closure, so repeated calls advance the same state.",
     resources: [
       {
         label: "MDN: Closures",
@@ -302,6 +383,14 @@ export const javascriptProblems: Problem[] = [
       { input: [2, -7], expected: -14, hidden: true },
       { input: [1, 100], expected: 100, hidden: true },
     ],
+    hints: [
+      "Build a multiplier that closes over the factor.",
+      "Apply it to the inputs.",
+    ],
+    pitfalls: [
+      "Reading the factor from outside instead of capturing it.",
+    ],
+    explanation: "The returned multiplier captures factor by closure and applies it to each value.",
     resources: [
       {
         label: "MDN: Closures",
@@ -334,6 +423,14 @@ export const javascriptProblems: Problem[] = [
       { input: [(v: number) => v - 1, 10, 0], expected: 10, hidden: true },
       { input: [(v: number) => v * 3, 2, 2], expected: 18, hidden: true },
     ],
+    hints: [
+      "Apply the chosen transformation repeatedly.",
+      "Fold the result n times from the start value.",
+    ],
+    pitfalls: [
+      "Off-by-one in how many times the transform is applied.",
+    ],
+    explanation: "Repeatedly applying the operation n times folds the starting value forward, a higher-order pattern.",
     resources: [
       {
         label: "MDN: Functions as first-class objects",
@@ -364,6 +461,14 @@ export const javascriptProblems: Problem[] = [
       { input: [10, []], expected: 10, hidden: true },
       { input: [1, [(x: number) => x + 1, (x: number) => x + 1, (x: number) => x + 1]], expected: 4, hidden: true },
     ],
+    hints: [
+      "reduce applies each named step in order.",
+      "Look up each step function by name.",
+    ],
+    pitfalls: [
+      "Applying steps out of order; reduce runs left to right.",
+    ],
+    explanation: "reduce threads the value through each named transform, composing a pipeline.",
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -393,6 +498,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[]], expected: [] },
       { input: [[-1, 0, 1]], expected: [-2, 0, 2], hidden: true },
     ],
+    hints: [
+      "map returns a new array.",
+      "Multiply each element by two.",
+    ],
+    pitfalls: [
+      "Mutating the source array in a loop instead of mapping.",
+    ],
+    explanation: "map produces a new array with each value doubled.",
     resources: [
       {
         label: "MDN: Array.prototype.map",
@@ -419,6 +532,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[1, 3, 5]], expected: [] },
       { input: [[0, -2, 7]], expected: [0, -2], hidden: true },
     ],
+    hints: [
+      "filter keeps elements passing a test.",
+      "Keep numbers where n % 2 is 0.",
+    ],
+    pitfalls: [
+      "Negative evens still qualify; sign does not affect parity.",
+    ],
+    explanation: "filter on even values returns a new array of the evens.",
     resources: [
       {
         label: "MDN: Array.prototype.filter",
@@ -452,6 +573,14 @@ export const javascriptProblems: Problem[] = [
         hidden: true,
       },
     ],
+    hints: [
+      "Group strings under their length as the key.",
+      "Create the bucket array on first sight.",
+    ],
+    pitfalls: [
+      "Forgetting to initialize the group array before pushing.",
+    ],
+    explanation: "Bucketing each string by its length produces an object mapping length to the matching words.",
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -484,6 +613,14 @@ export const javascriptProblems: Problem[] = [
       { input: [5], expected: 120 },
       { input: [6], expected: 720, hidden: true },
     ],
+    hints: [
+      "Base case: factorial(0) is 1.",
+      "Recurse: n times factorial(n-1).",
+    ],
+    pitfalls: [
+      "No base case causes infinite recursion.",
+    ],
+    explanation: "Each call multiplies n by the factorial of n-1, bottoming out at 1.",
     resources: [
       {
         label: "MDN: Recursion (glossary)",
@@ -511,6 +648,14 @@ export const javascriptProblems: Problem[] = [
       { input: [[[]]], expected: [], hidden: true },
       { input: [[1, [2, 3], [4, [5]]]], expected: [1, 2, 3, 4, 5], hidden: true },
     ],
+    hints: [
+      "Recurse into array elements, collect scalars.",
+      "Spread recursive results into the output.",
+    ],
+    pitfalls: [
+      "Only flattening one level instead of recursing fully.",
+    ],
+    explanation: "Recursing into nested arrays and gathering non-array values flattens arbitrarily deep structures.",
     resources: [
       {
         label: "MDN: Array.prototype.flat",
@@ -542,6 +687,14 @@ export const javascriptProblems: Problem[] = [
       { input: [["hello", "world"]], expected: ["world", "hello"] },
       { input: [[true, false]], expected: [false, true], hidden: true },
     ],
+    hints: [
+      "Return the two values in reversed order.",
+      "Array destructuring makes the swap concise.",
+    ],
+    pitfalls: [
+      "Trying to swap in place without a structure to return.",
+    ],
+    explanation: "Returning the reversed pair is the destructuring swap idiom.",
     resources: [
       {
         label: "MDN: Destructuring assignment",
@@ -572,6 +725,14 @@ export const javascriptProblems: Problem[] = [
       { input: [{ a: 1 }, {}], expected: { a: 1 } },
       { input: [{}, { b: 2 }], expected: { b: 2 }, hidden: true },
     ],
+    hints: [
+      "Spread defaults first, then overrides.",
+      "Later keys win.",
+    ],
+    pitfalls: [
+      "Spreading overrides before defaults lets defaults clobber them.",
+    ],
+    explanation: "Spreading defaults then the override object merges so provided values take precedence.",
     resources: [
       {
         label: "MDN: Spread syntax",
@@ -601,6 +762,16 @@ export const javascriptProblems: Problem[] = [
       { input: ["abc"], expected: ["abc", "acb", "bac", "bca", "cab", "cba"] },
       { input: ["aa"], expected: ["aa"], hidden: true },
     ],
+    hints: [
+      "Fix each character as the first, permute the rest.",
+      "Concatenate results from each choice.",
+      "Sort or follow a fixed order for determinism.",
+    ],
+    pitfalls: [
+      "Duplicate characters can produce repeated permutations.",
+      "Building permutations without a clear base case.",
+    ],
+    explanation: "Choosing each character in turn and permuting the remainder generates all orderings recursively.",
     resources: [
       {
         label: "MDN: Recursion (glossary)",
@@ -638,6 +809,14 @@ export const javascriptProblems: Problem[] = [
         assert: "document.querySelector('#list li').textContent === 'Item'",
       },
     ],
+    hints: [
+      "Create an li with createElement.",
+      "Set its text, then appendChild to the list.",
+    ],
+    pitfalls: [
+      "Building HTML strings instead of creating nodes invites bugs.",
+    ],
+    explanation: "Creating an element node and appending it adds the list item to the DOM safely.",
     resources: [
       {
         label: "MDN: Document.createElement",
@@ -673,6 +852,13 @@ export const javascriptProblems: Problem[] = [
         assert: "document.getElementById('box').classList.contains('visible')",
       },
     ],
+    hints: [
+      "classList.toggle adds the class if absent and removes it if present.",
+    ],
+    pitfalls: [
+      "Manually checking and editing className is more error-prone than classList.toggle.",
+    ],
+    explanation: "classList.toggle flips the presence of a class in one call.",
     resources: [
       {
         label: "MDN: Element.classList",
