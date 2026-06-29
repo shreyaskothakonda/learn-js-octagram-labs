@@ -11,11 +11,13 @@ import { recordAttempt } from "@/lib/progress/store";
 import { createClient } from "@/lib/supabase/client";
 import { PromptPanel } from "./PromptPanel";
 import { ResultsTabs } from "./ResultsTabs";
+import { useToast } from "@/components/Toast";
 
 type MobileTab = "prompt" | "code" | "results";
 
 export function Playground({ problem, nextId, backHref }: { problem: Problem; nextId: string | null; backHref: string }) {
   const router = useRouter();
+  const toast = useToast();
   const storageKey = `code:${problem.id}`;
   const [code, setCode] = useState(problem.starterCode);
   const [result, setResult] = useState<RunResult | null>(null);
@@ -78,7 +80,10 @@ export function Playground({ problem, nextId, backHref }: { problem: Problem; ne
       setSolved(passed);
       try {
         await recordAttempt({ problemId: problem.id, code, passed, testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs });
-      } catch { /* non-blocking */ }
+        toast(passed ? "Solved! Progress saved." : "Attempt saved.", passed ? "success" : "info");
+      } catch {
+        toast("Could not save your progress.", "error");
+      }
     } finally { setBusy(false); }
   }
 

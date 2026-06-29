@@ -19,7 +19,7 @@ export function ResultsTabs({ problem, result, srcdoc }: { problem: Problem; res
           </button>
         ))}
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto" aria-live="polite">
         {active === "Tests" && <TestResults result={result} />}
         {active === "Console" && <ConsoleOutput result={result} />}
         {active === "HTML View" && <HtmlView srcdoc={srcdoc} />}
