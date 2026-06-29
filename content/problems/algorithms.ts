@@ -29,6 +29,7 @@ export const algorithmProblems: Problem[] = [
       "Sorting in place mutates the caller's array; copy first if that matters.",
     ],
     explanation: "Bubble sort makes repeated passes swapping neighbors. O(n^2) time, O(1) extra space.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
   {
@@ -48,6 +49,7 @@ export const algorithmProblems: Problem[] = [
       "An incorrect merge that drops the tail of one half.",
     ],
     explanation: "Merge sort divides, sorts recursively, and merges. O(n log n) time, O(n) space.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
   {
@@ -66,6 +68,7 @@ export const algorithmProblems: Problem[] = [
       "A bad pivot on already-sorted input degrades to O(n^2).",
     ],
     explanation: "Quicksort partitions around a pivot and recurses. Average O(n log n), worst O(n^2).",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
   {
@@ -84,6 +87,7 @@ export const algorithmProblems: Problem[] = [
       "Advancing the mid pointer after swapping from the high side can skip an unprocessed value.",
     ],
     explanation: "The Dutch national flag scan sorts three values in a single O(n) pass, O(1) space.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
   {
@@ -102,6 +106,7 @@ export const algorithmProblems: Problem[] = [
       "Comparing against the wrong end when deciding to merge.",
     ],
     explanation: "Sorting by start then merging overlapping ends gives the result in O(n log n) time.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
   {
@@ -120,6 +125,7 @@ export const algorithmProblems: Problem[] = [
       "Off-by-one between k and the zero-based index.",
     ],
     explanation: "Sorting descending and indexing k-1 is O(n log n); quickselect would be O(n) average.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 172, lectureName: "Sorting Arrays" },
     resources: [R.sort],
   },
 

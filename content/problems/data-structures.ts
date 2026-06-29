@@ -25,6 +25,7 @@ export const dataStructureProblems: Problem[] = [
       "A nested loop is O(n^2); the sorted order is what lets you avoid it.",
     ],
     explanation: "Two pointers start at the ends and move inward based on the sum versus target. O(n) time, O(1) space.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 149, lectureName: "Simple Array Methods" },
     resources: [
       {
         label: "MDN: Arrays",
@@ -61,6 +62,7 @@ export const dataStructureProblems: Problem[] = [
       "Moving the taller side never increases the area, so always move the shorter one.",
     ],
     explanation: "Two pointers from both ends, always advancing the shorter wall, find the max area in O(n) time, O(1) space.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 149, lectureName: "Simple Array Methods" },
     resources: [
       {
         label: "MDN: Math.min",
@@ -99,6 +101,7 @@ export const dataStructureProblems: Problem[] = [
       "Counting with nested loops is O(n^2); a map makes it linear.",
     ],
     explanation: "A hash map tallies each value in one pass. O(n) time and space.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 124, lectureName: "Maps: Fundamentals" },
     resources: [
       {
         label: "MDN: Map",
@@ -135,6 +138,7 @@ export const dataStructureProblems: Problem[] = [
       "Look up the complement before inserting the current value to avoid using an element twice.",
     ],
     explanation: "Store each value-to-index as you scan and look up the complement. O(n) time and space.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 124, lectureName: "Maps: Fundamentals" },
     resources: [
       {
         label: "MDN: Map",
@@ -170,6 +174,7 @@ export const dataStructureProblems: Problem[] = [
       "Returning the first not-yet-seen character is wrong; you need count exactly one.",
     ],
     explanation: "Count characters, then scan again for the first with count one. O(n) time and space.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 124, lectureName: "Maps: Fundamentals" },
     resources: [
       {
         label: "MDN: Map",

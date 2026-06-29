@@ -31,6 +31,7 @@ export const reactProblems: Problem[] = [
       "Returning the same array reference (even after pushing) defeats React change detection.",
     ],
     explanation: "React decides whether to re-render by comparing references. push keeps the same array reference, so the change can be missed. Spreading into a new array with [...list, item] produces a new reference that includes the added item, which is what React expects from a state update.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -51,6 +52,7 @@ export const reactProblems: Problem[] = [
       "Removing by value instead of index gives the wrong result when the list has duplicates.",
     ],
     explanation: "filter((_, i) => i !== index) walks the array and builds a new one containing every element except the one at the target index, without changing the original. An out-of-range index simply keeps all elements.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -71,6 +73,7 @@ export const reactProblems: Problem[] = [
       "When elements are objects, returning value replaces the whole object; spread it if you only mean to change one field.",
     ],
     explanation: "map returns a new array. At the matching index you return value; at every other position you return the original element, so only one slot changes while the rest are preserved.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -91,6 +94,7 @@ export const reactProblems: Problem[] = [
       "Comparing whole objects by reference instead of comparing the id field.",
     ],
     explanation: "Identifying rows by a stable id is the React-friendly approach (it also gives you good keys). filter keeps every item except the one whose id matches, returning a new array.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -111,6 +115,7 @@ export const reactProblems: Problem[] = [
       "Replacing the whole item with patch and losing fields that were not part of the patch.",
     ],
     explanation: "For the matching id you return a new object { ...item, ...patch }, preserving untouched fields and overriding changed ones. Every other item is returned as-is, so only one row changes identity and the list stays immutable.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -131,6 +136,7 @@ export const reactProblems: Problem[] = [
       "Forgetting that an index beyond the length just appends the item.",
     ],
     explanation: "slice(0, index) is everything before the insertion point and slice(index) is everything after. Spreading them around the new item produces a fresh array with the item inserted, leaving the original alone.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -151,6 +157,7 @@ export const reactProblems: Problem[] = [
       "Adding a duplicate when the value is already present.",
     ],
     explanation: "This is the pattern behind toggling a checkbox in a set of selected ids. If the value is already in the array you remove it with filter; otherwise you add it with spread. Either branch returns a new array.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
   {
@@ -171,6 +178,7 @@ export const reactProblems: Problem[] = [
       "Inserting before removing, which shifts the indices and moves the wrong element.",
     ],
     explanation: "Work on a copy made with [...list]. splice(from, 1) removes and returns the moved element; splice(to, 0, moved) inserts it at the destination. Because all of this happens on the copy, the original array is never touched.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.arr],
   },
 
@@ -191,6 +199,7 @@ export const reactProblems: Problem[] = [
       "Assigning state[key] = value mutates the object React is holding.",
     ],
     explanation: "Returning { ...state, [key]: value } creates a new object with one field changed, giving React a new reference to detect the update.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -209,6 +218,7 @@ export const reactProblems: Problem[] = [
       "delete state[key] mutates the original object.",
     ],
     explanation: "Copy with { ...state } and delete the key from the copy so the original state object is never touched.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -229,6 +239,7 @@ export const reactProblems: Problem[] = [
       "Forgetting to spread an intermediate level leaves it pointing at the old nested object.",
     ],
     explanation: "Each level returns a new object that spreads its siblings and replaces only the one child on the path. Recursing to the leaf and rebuilding every parent keeps the whole path immutable.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -247,6 +258,7 @@ export const reactProblems: Problem[] = [
       "Object.assign(state, patch) mutates state; assign into a fresh object or use spread.",
     ],
     explanation: "Spreading state then patch produces a new object where patch keys override state keys, the standard shallow merge for setState updates.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -265,6 +277,7 @@ export const reactProblems: Problem[] = [
       "Mutating state[key] = !state[key] keeps the same object reference.",
     ],
     explanation: "Negate the current value and return it in a new object, the immutable way to flip a boolean flag in state.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -284,6 +297,7 @@ export const reactProblems: Problem[] = [
       "Calling the updater with a stale value when several increments happen in one render (prefer the functional updater in real React).",
     ],
     explanation: "Return a new object with the counter field increased by one, leaving the rest of state intact.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
   {
@@ -302,6 +316,7 @@ export const reactProblems: Problem[] = [
       "Mutating the original state while resetting fields.",
     ],
     explanation: "Make one copy with { ...state } and set every key in the list to the reset value, so unaffected fields stay as they were.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.state],
   },
 
@@ -324,6 +339,7 @@ export const reactProblems: Problem[] = [
       "Mutating state instead of returning a new value.",
     ],
     explanation: "A reducer is a pure function from (state, action) to the next state. Each case computes a fresh value, and unknown actions fall through to return the state unchanged.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -343,6 +359,7 @@ export const reactProblems: Problem[] = [
       "Assuming a payload exists on every action type.",
     ],
     explanation: "The reducer adds the payload for an add action and returns the current state for all other action types, keeping it pure and total.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -363,6 +380,7 @@ export const reactProblems: Problem[] = [
       "Returning a new array for unrelated action types causes needless re-renders.",
     ],
     explanation: "For an add action, return a new array spreading the old todos plus the new { text, done: false }. Other actions return the same array reference unchanged.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -383,6 +401,7 @@ export const reactProblems: Problem[] = [
       "Toggling by reference equality instead of by index.",
     ],
     explanation: "map returns a new array; at the target index you return a new todo with done flipped, and every other todo is returned as-is, so only one item changes identity.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -401,6 +420,7 @@ export const reactProblems: Problem[] = [
       "splice mutates the array in place.",
     ],
     explanation: "filter builds a new array without the todo at the given index, leaving the original untouched.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -421,6 +441,7 @@ export const reactProblems: Problem[] = [
       "Adding a duplicate line instead of incrementing the existing one.",
     ],
     explanation: "If the id is present, map produces a new array with that line's qty increased in a fresh object; if absent, spread a new { id, qty: 1 } onto the end. Either way the result is a new array.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
   {
@@ -440,6 +461,7 @@ export const reactProblems: Problem[] = [
       "Mutating the form object directly.",
     ],
     explanation: "A form reducer updates one field per action by returning a new object with that computed key replaced, the pattern behind controlled multi-field forms.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.reducer],
   },
 
@@ -460,6 +482,7 @@ export const reactProblems: Problem[] = [
       "Assuming every item has a name without checking the data shape.",
     ],
     explanation: "map transforms the list of objects into a list of their name strings, ready to render as text or option labels.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -478,6 +501,7 @@ export const reactProblems: Problem[] = [
       "Returning the same array when nothing is filtered, which is fine, but mutating it is not.",
     ],
     explanation: "filter keeps only items whose visible property is truthy, producing a new array for rendering.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -498,6 +522,7 @@ export const reactProblems: Problem[] = [
       "Comparing strings with subtraction, which only works for numbers.",
     ],
     explanation: "Spread into a new array first because sort mutates. localeCompare gives correct alphabetical order, and the original list is preserved.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -516,6 +541,7 @@ export const reactProblems: Problem[] = [
       "Using array index as a key when items reorder, which breaks reconciliation; prefer stable ids.",
     ],
     explanation: "Extracting stable ids gives React keys that survive reordering, so it can match elements across renders correctly.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -536,6 +562,7 @@ export const reactProblems: Problem[] = [
       "Mutating with splice instead of slicing.",
     ],
     explanation: "slice(start, start + size) returns the items for the requested page without touching the source array. The (page - 1) offset accounts for 1-indexed pages.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -555,6 +582,7 @@ export const reactProblems: Problem[] = [
       "Using floor instead of ceil, which drops the last partial page.",
     ],
     explanation: "Math.ceil(total / size) is how many pages you need; Array.from({length: count}, (_, i) => i + 1) produces the 1-based page numbers.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -574,6 +602,7 @@ export const reactProblems: Problem[] = [
       "Mutating shared group arrays from elsewhere.",
     ],
     explanation: "Iterating once and bucketing each item under item[key] yields a map of arrays, ready to render as sectioned lists.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
   {
@@ -594,6 +623,7 @@ export const reactProblems: Problem[] = [
       "An off-by-one in the loop bound dropping the final partial row.",
     ],
     explanation: "Looping with i += perRow and slicing each window groups items into rows for grid layouts, leaving the original array intact.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 157, lectureName: "The map Method" },
     resources: [R.render],
   },
 
@@ -614,6 +644,7 @@ export const reactProblems: Problem[] = [
       "Storing the total in state instead of deriving it, which can drift out of sync.",
     ],
     explanation: "The total is derived state: compute it from the cart with reduce on each render rather than storing a separate, duplicable value.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
   {
@@ -632,6 +663,7 @@ export const reactProblems: Problem[] = [
       "Keeping a separate completed counter in state that can fall out of sync.",
     ],
     explanation: "Count completed todos directly from the list each render, so the number can never disagree with the data.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
   {
@@ -651,6 +683,7 @@ export const reactProblems: Problem[] = [
       "Recomputing inside a child when it could be memoized for large lists.",
     ],
     explanation: "Normalizing case and using includes gives a forgiving search filter, the typical derived list behind a search box.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
   {
@@ -669,6 +702,7 @@ export const reactProblems: Problem[] = [
       "Treating missing done as done; undefined is falsy so it counts as active here.",
     ],
     explanation: "Active items are simply those not done, computed from the list rather than tracked separately.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
   {
@@ -689,6 +723,7 @@ export const reactProblems: Problem[] = [
       "Forgetting to round, leaving long decimals.",
     ],
     explanation: "Guard the empty case to return 0, then round the done-over-total ratio times 100 for a clean percentage.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
   {
@@ -708,6 +743,7 @@ export const reactProblems: Problem[] = [
       "Spreading a very large array into Math.min/max can overflow the call stack; reduce is safer at scale.",
     ],
     explanation: "Derive the summary in one pass: Math.min/max for the bounds and a reduce-based mean, returned together as { min, max, avg }.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 160, lectureName: "The reduce Method" },
     resources: [R.derived],
   },
 
@@ -728,6 +764,7 @@ export const reactProblems: Problem[] = [
       "Spreading props before defaults, which lets defaults clobber real values.",
     ],
     explanation: "{ ...defaults, ...props } merges so that any prop the caller passed wins, while unspecified ones fall back to the default.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.props],
   },
   {
@@ -747,6 +784,7 @@ export const reactProblems: Problem[] = [
       "Leaving a trailing space from naive concatenation.",
     ],
     explanation: "Filtering object keys by truthy value and joining with spaces builds a className string conditionally, the core of utilities like clsx.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.props],
   },
   {
@@ -766,6 +804,7 @@ export const reactProblems: Problem[] = [
       "Using join without filtering, producing double spaces.",
     ],
     explanation: "names.filter(Boolean) removes every falsy argument so conditional classes like cond && 'active' disappear cleanly, then join adds the spaces.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.props],
   },
   {
@@ -785,6 +824,7 @@ export const reactProblems: Problem[] = [
       "Mutating the source props object.",
     ],
     explanation: "Walking the keys array and copying only existing props builds a subset object in the requested order, without touching the original.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.props],
   },
   {
@@ -803,6 +843,7 @@ export const reactProblems: Problem[] = [
       "Adding a leading or trailing space when extra is empty.",
     ],
     explanation: "A small helper that conditionally appends a modifier class, the simplest form of conditional styling.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.props],
   },
 
@@ -824,6 +865,7 @@ export const reactProblems: Problem[] = [
       "Replacing the whole form instead of one field.",
     ],
     explanation: "Returning { ...state, [field]: value } updates one controlled field while preserving the others, the canonical onChange handler.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
   {
@@ -844,6 +886,7 @@ export const reactProblems: Problem[] = [
       "Toggling every item instead of the one with the id.",
     ],
     explanation: "map returns a new list where only the item with the given id gets a new object with checked flipped, leaving the rest by reference.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
   {
@@ -864,6 +907,7 @@ export const reactProblems: Problem[] = [
       "Returning an array instead of a field-keyed object.",
     ],
     explanation: "Building an errors object keyed by field name lets the UI show a message under each empty required input.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
   {
@@ -883,6 +927,7 @@ export const reactProblems: Problem[] = [
       "Assuming all values are strings if some are numbers or booleans.",
     ],
     explanation: "Mapping every field to an empty string returns a cleared form object suitable for resetting a controlled form.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
   {
@@ -901,6 +946,7 @@ export const reactProblems: Problem[] = [
       "Counting nested values instead of top-level fields.",
     ],
     explanation: "The number of error fields is just the count of keys, handy for disabling a submit button while errors remain.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
   {
@@ -920,6 +966,7 @@ export const reactProblems: Problem[] = [
       "Mutating state.",
     ],
     explanation: "Destructuring { name, value } from event.target and returning { ...state, [name]: value } is exactly how a shared React onChange handler updates the right field.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [R.forms],
   },
 
@@ -941,6 +988,7 @@ export const reactProblems: Problem[] = [
       "Looping and negating times in a row works but is unnecessary; parity is enough.",
     ],
     explanation: "A boolean toggled n times equals the original when n is even and its negation when n is odd, so times % 2 decides the result.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.hooks],
   },
   {
@@ -961,6 +1009,7 @@ export const reactProblems: Problem[] = [
       "Mutating the state object.",
     ],
     explanation: "Clamping with Math.min(page + 1, total) and Math.max(page - 1, 1) keeps pagination within bounds while returning new state objects.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.hooks],
   },
   {
@@ -980,6 +1029,7 @@ export const reactProblems: Problem[] = [
       "Mutating an external counter instead of folding immutably.",
     ],
     explanation: "Folding the action list with reduce applies each inc or dec in order, mirroring how a useReducer would process a sequence of dispatches.",
+    course: { section: 17, sectionTitle: "Modern JavaScript Development: Modules, Tooling, and Functional", lecture: 294, lectureName: "Declarative and Functional JavaScript Principles" },
     resources: [R.hooks],
   },
 ];
