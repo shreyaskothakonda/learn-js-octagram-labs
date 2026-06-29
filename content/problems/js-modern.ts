@@ -16,6 +16,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function headTail(arr) {\n  // your code here\n}`,
     solution: `function headTail(arr) {\n  const [head, ...tail] = arr;\n  return { head, tail };\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: { head: 1, tail: [2, 3] } }, { input: [[5]], expected: { head: 5, tail: [] } }, { input: [[1, 2]], expected: { head: 1, tail: [2] }, hidden: true }],
+    hints: [
+      "Array destructuring with a rest element splits head and tail.",
+      "const [head, ...tail] = arr.",
+    ],
+    pitfalls: [
+      "On an empty array head is undefined; the tests here use non-empty inputs.",
+    ],
+    explanation: "Destructuring with a rest element captures the first item and gathers the remainder into a new array.",
     resources: [R.es6],
   },
   {
@@ -26,6 +34,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function sumWithBase(base = 10, ...nums) {\n  // your code here\n}`,
     solution: `function sumWithBase(base = 10, ...nums) {\n  return base + nums.reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [5, 1, 2, 3], expected: 11 }, { input: [undefined, 1, 2], expected: 13 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Default the base, gather the rest with ...nums.",
+      "Add the base to the summed rest.",
+    ],
+    pitfalls: [
+      "The default base applies only when the argument is undefined.",
+    ],
+    explanation: "A default parameter plus rest parameters lets base fall back to 10 while the remaining arguments are summed.",
     resources: [R.es6],
   },
   {
@@ -36,6 +52,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function formatUser(user) {\n  // your code here\n}`,
     solution: "function formatUser(user) {\n  return `${user.name} (${user.age})`;\n}",
     testCases: [{ input: [{ name: "Ada", age: 30 }], expected: "Ada (30)" }, { input: [{ name: "Bo", age: 5 }], expected: "Bo (5)" }, { input: [{ name: "X", age: 0 }], expected: "X (0)", hidden: true }],
+    hints: [
+      "Use a template literal with two interpolations.",
+      "Backticks with ${user.name} and ${user.age}.",
+    ],
+    pitfalls: [
+      "String concatenation works but is noisier than a template literal.",
+    ],
+    explanation: "Template literals interpolate the name and age directly into the formatted string.",
     resources: [R.es6],
   },
   {
@@ -46,6 +70,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function mergeUnique(a, b) {\n  // your code here\n}`,
     solution: `function mergeUnique(a, b) {\n  return [...new Set([...a, ...b])];\n}`,
     testCases: [{ input: [[1, 2], [2, 3]], expected: [1, 2, 3] }, { input: [[], [1]], expected: [1] }, { input: [[1], [1]], expected: [1], hidden: true }],
+    hints: [
+      "Spread both arrays into one, then dedupe with a Set.",
+      "[...new Set([...a, ...b])].",
+    ],
+    pitfalls: [
+      "Concatenating without deduping leaves repeats.",
+    ],
+    explanation: "Spreading both arrays and passing through a Set merges them while removing duplicates.",
     resources: [R.es6],
   },
   {
@@ -56,6 +88,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function makeEntry(key, value) {\n  // your code here\n}`,
     solution: `function makeEntry(key, value) {\n  return { [key]: value };\n}`,
     testCases: [{ input: ["color", "red"], expected: { color: "red" } }, { input: ["x", 1], expected: { x: 1 } }, { input: ["a", "b"], expected: { a: "b" }, hidden: true }],
+    hints: [
+      "A computed property key uses brackets.",
+      "{ [key]: value }.",
+    ],
+    pitfalls: [
+      "Writing { key: value } creates a literal 'key' property, not a dynamic one.",
+    ],
+    explanation: "Brackets around key evaluate it, so the property name is dynamic.",
     resources: [R.es6],
   },
   {
@@ -66,6 +106,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function parseCoords(arr) {\n  // your code here\n}`,
     solution: `function parseCoords(arr) {\n  const [x = 0, y = 0] = arr;\n  return { x, y };\n}`,
     testCases: [{ input: [[1, 2]], expected: { x: 1, y: 2 } }, { input: [[5]], expected: { x: 5, y: 0 } }, { input: [[]], expected: { x: 0, y: 0 }, hidden: true }],
+    hints: [
+      "Destructure the first two with defaults of 0.",
+      "const [x = 0, y = 0] = arr.",
+    ],
+    pitfalls: [
+      "Defaults apply only to missing (undefined) positions.",
+    ],
+    explanation: "Destructuring with defaults fills x and y, supplying 0 where the array is short.",
     resources: [R.es6],
   },
   {
@@ -76,6 +124,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function getStreet(user) {\n  // your code here\n}`,
     solution: `function getStreet(user) {\n  const { address: { street = "N/A" } = {} } = user;\n  return street;\n}`,
     testCases: [{ input: [{ address: { street: "Main" } }], expected: "Main" }, { input: [{ address: {} }], expected: "N/A" }, { input: [{}], expected: "N/A", hidden: true }],
+    hints: [
+      "Destructure address, then street, with defaults at each level.",
+      "Give the address a default of {} so missing addresses do not throw.",
+    ],
+    pitfalls: [
+      "Without the {} default, destructuring street from a missing address throws.",
+    ],
+    explanation: "Nested destructuring with a default empty object and a default street value safely yields 'N/A' when anything is missing.",
     resources: [R.es6],
   },
   {
@@ -86,6 +142,13 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function flattenPairs(pairs) {\n  // your code here\n}`,
     solution: `function flattenPairs(pairs) {\n  return Object.fromEntries(pairs);\n}`,
     testCases: [{ input: [[["a", 1], ["b", 2]]], expected: { a: 1, b: 2 } }, { input: [[]], expected: {} }, { input: [[["x", 5]]], expected: { x: 5 }, hidden: true }],
+    hints: [
+      "Object.fromEntries turns [key, value] pairs into an object.",
+    ],
+    pitfalls: [
+      "Reaching for a manual reduce when fromEntries does it directly.",
+    ],
+    explanation: "Object.fromEntries consumes the pairs and builds the corresponding object.",
     resources: [R.es6],
   },
 
@@ -98,6 +161,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function rectangleArea(w, h) {\n  // define a Rectangle class and use it\n}`,
     solution: `class Rectangle {\n  constructor(w, h) { this.w = w; this.h = h; }\n  area() { return this.w * this.h; }\n}\nfunction rectangleArea(w, h) {\n  return new Rectangle(w, h).area();\n}`,
     testCases: [{ input: [3, 4], expected: 12 }, { input: [5, 5], expected: 25 }, { input: [0, 10], expected: 0, hidden: true }],
+    hints: [
+      "Define a class with a constructor storing w and h.",
+      "Add an area() method returning w * h.",
+    ],
+    pitfalls: [
+      "Forgetting new when instantiating the class.",
+    ],
+    explanation: "A class encapsulates the dimensions and exposes area() that multiplies them.",
     resources: [R.cls],
   },
   {
@@ -108,6 +179,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function counterAfter(n) {\n  // define a Counter class and use it\n}`,
     solution: `class Counter {\n  constructor() { this.count = 0; }\n  inc() { this.count++; }\n}\nfunction counterAfter(n) {\n  const c = new Counter();\n  for (let i = 0; i < n; i++) c.inc();\n  return c.count;\n}`,
     testCases: [{ input: [3], expected: 3 }, { input: [0], expected: 0 }, { input: [5], expected: 5, hidden: true }],
+    hints: [
+      "Initialize count to 0 in the constructor.",
+      "inc() increments this.count.",
+    ],
+    pitfalls: [
+      "Declaring count outside the instance, sharing it across instances.",
+    ],
+    explanation: "Each Counter instance holds its own count, incremented by inc().",
     resources: [R.cls],
   },
   {
@@ -118,6 +197,15 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function stackOps(values) {\n  // define a Stack class and use it\n}`,
     solution: `class Stack {\n  constructor() { this.items = []; }\n  push(x) { this.items.push(x); }\n  pop() { return this.items.pop(); }\n  get size() { return this.items.length; }\n}\nfunction stackOps(values) {\n  const s = new Stack();\n  values.forEach((v) => s.push(v));\n  const out = [];\n  while (s.size > 0) out.push(s.pop());\n  return out;\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [3, 2, 1] }, { input: [[]], expected: [] }, { input: [[5]], expected: [5], hidden: true }],
+    hints: [
+      "Back the stack with an array.",
+      "push appends, pop removes from the end.",
+      "Pop until empty to reverse the input.",
+    ],
+    pitfalls: [
+      "Confusing stack (LIFO) order with queue order.",
+    ],
+    explanation: "A stack is last-in-first-out, so pushing then popping all items yields them reversed.",
     resources: [R.cls],
   },
   {
@@ -128,6 +216,16 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function shapeAreas(shapes) {\n  // define Shape, Square, Rect and use them\n}`,
     solution: `class Shape { area() { return 0; } }\nclass Square extends Shape {\n  constructor(s) { super(); this.s = s; }\n  area() { return this.s * this.s; }\n}\nclass Rect extends Shape {\n  constructor(w, h) { super(); this.w = w; this.h = h; }\n  area() { return this.w * this.h; }\n}\nfunction shapeAreas(shapes) {\n  return shapes.map((s) => (s.type === "square" ? new Square(s.side).area() : new Rect(s.w, s.h).area()));\n}`,
     testCases: [{ input: [[{ type: "square", side: 2 }, { type: "rect", w: 2, h: 3 }]], expected: [4, 6] }, { input: [[{ type: "square", side: 3 }]], expected: [9] }, { input: [[]], expected: [], hidden: true }],
+    hints: [
+      "Base Shape with an area() the subclasses override.",
+      "Square and Rect extend Shape and call super().",
+      "Dispatch on the type field.",
+    ],
+    pitfalls: [
+      "Forgetting super() in a subclass constructor throws.",
+      "Not overriding area() in a subclass.",
+    ],
+    explanation: "Subclasses override area() and the mapper picks the right class per descriptor, demonstrating polymorphism.",
     resources: [R.cls],
   },
   {
@@ -138,6 +236,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function rangeSum(n) {\n  // define MathUtils with a static method and use it\n}`,
     solution: `class MathUtils {\n  static sumTo(n) {\n    let total = 0;\n    for (let i = 1; i <= n; i++) total += i;\n    return total;\n  }\n}\nfunction rangeSum(n) {\n  return MathUtils.sumTo(n);\n}`,
     testCases: [{ input: [5], expected: 15 }, { input: [1], expected: 1 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "A static method belongs to the class, not instances.",
+      "Call it as ClassName.method().",
+    ],
+    pitfalls: [
+      "Calling a static method on an instance does not work.",
+    ],
+    explanation: "Static methods are utilities on the class itself, invoked without an instance.",
     resources: [R.cls],
   },
   {
@@ -148,6 +254,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function fullNameOf(first, last) {\n  // define a Person class with a getter and use it\n}`,
     solution: `class Person {\n  constructor(first, last) { this.first = first; this.last = last; }\n  get fullName() { return this.first + " " + this.last; }\n}\nfunction fullNameOf(first, last) {\n  return new Person(first, last).fullName;\n}`,
     testCases: [{ input: ["Ada", "Love"], expected: "Ada Love" }, { input: ["A", "B"], expected: "A B" }, { input: ["One", "Two"], expected: "One Two", hidden: true }],
+    hints: [
+      "Define a getter with the get keyword.",
+      "Access it like a property, without parentheses.",
+    ],
+    pitfalls: [
+      "Calling a getter like a method (fullName()) fails.",
+    ],
+    explanation: "A getter computes a value accessed as a property, here joining first and last names.",
     resources: [R.cls],
   },
   {
@@ -158,6 +272,15 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function greetWith(name) {\n  // define a constructor function with a prototype method and use it\n}`,
     solution: `function Speaker(name) { this.name = name; }\nSpeaker.prototype.greet = function () { return "Hi " + this.name; };\nfunction greetWith(name) {\n  return new Speaker(name).greet();\n}`,
     testCases: [{ input: ["Sam"], expected: "Hi Sam" }, { input: ["A"], expected: "Hi A" }, { input: ["Bo"], expected: "Hi Bo", hidden: true }],
+    hints: [
+      "Use a constructor function and assign to its prototype.",
+      "Methods on the prototype are shared by all instances.",
+    ],
+    pitfalls: [
+      "Defining the method inside the constructor creates a new function per instance.",
+      "Forgetting new loses the this binding.",
+    ],
+    explanation: "Putting greet on the prototype shares one method across instances, the mechanism classes use under the hood.",
     resources: [R.cls],
   },
   {
@@ -168,6 +291,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function toFahrenheit(c) {\n  // define a Temperature class and use it\n}`,
     solution: `class Temperature {\n  constructor(c) { this.c = c; }\n  toF() { return this.c * 9 / 5 + 32; }\n}\nfunction toFahrenheit(c) {\n  return new Temperature(c).toF();\n}`,
     testCases: [{ input: [0], expected: 32 }, { input: [100], expected: 212 }, { input: [20], expected: 68, hidden: true }],
+    hints: [
+      "Store Celsius in the constructor.",
+      "toF() applies c * 9/5 + 32.",
+    ],
+    pitfalls: [
+      "Operator precedence: write c * 9 / 5 + 32 carefully.",
+    ],
+    explanation: "The class wraps a Celsius value and converts to Fahrenheit with the standard formula.",
     resources: [R.cls],
   },
 
@@ -180,6 +311,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function rangeArray(n) {\n  // use a generator function*\n}`,
     solution: `function rangeArray(n) {\n  function* gen() { for (let i = 0; i < n; i++) yield i; }\n  return [...gen()];\n}`,
     testCases: [{ input: [3], expected: [0, 1, 2] }, { input: [0], expected: [] }, { input: [1], expected: [0], hidden: true }],
+    hints: [
+      "Define a generator with function* that yields 0..n-1.",
+      "Spread the generator into an array.",
+    ],
+    pitfalls: [
+      "Forgetting the star, making it a normal function.",
+    ],
+    explanation: "A generator yields each value lazily; spreading drains it into an array.",
     resources: [R.iter],
   },
   {
@@ -190,6 +329,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function fibSeq(n) {\n  // use a generator function*\n}`,
     solution: `function fibSeq(n) {\n  function* gen() {\n    let a = 0, b = 1;\n    for (let i = 0; i < n; i++) { yield a; [a, b] = [b, a + b]; }\n  }\n  return [...gen()];\n}`,
     testCases: [{ input: [5], expected: [0, 1, 1, 2, 3] }, { input: [1], expected: [0] }, { input: [0], expected: [], hidden: true }],
+    hints: [
+      "Yield the running Fibonacci value n times.",
+      "Advance the pair each iteration.",
+    ],
+    pitfalls: [
+      "Yielding after advancing skips the first value.",
+    ],
+    explanation: "The generator yields the current term then advances the pair, producing the first n Fibonacci numbers.",
     resources: [R.iter],
   },
   {
@@ -200,6 +347,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function takeEvens(n) {\n  // use an infinite generator and take n values\n}`,
     solution: `function takeEvens(n) {\n  function* evens() { let i = 0; while (true) { yield i; i += 2; } }\n  const it = evens();\n  const out = [];\n  for (let i = 0; i < n; i++) out.push(it.next().value);\n  return out;\n}`,
     testCases: [{ input: [3], expected: [0, 2, 4] }, { input: [1], expected: [0] }, { input: [0], expected: [], hidden: true }],
+    hints: [
+      "Write an infinite generator of evens.",
+      "Pull exactly n values with next().",
+    ],
+    pitfalls: [
+      "Spreading an infinite generator never terminates; take only n.",
+    ],
+    explanation: "An unbounded generator paired with a bounded take loop yields the first n even numbers without hanging.",
     resources: [R.iter],
   },
   {
@@ -210,6 +365,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function collectGen(start, count) {\n  // use a generator function*\n}`,
     solution: `function collectGen(start, count) {\n  function* gen() { for (let i = 0; i < count; i++) yield start + i; }\n  return [...gen()];\n}`,
     testCases: [{ input: [5, 3], expected: [5, 6, 7] }, { input: [0, 0], expected: [] }, { input: [10, 1], expected: [10], hidden: true }],
+    hints: [
+      "Yield count integers starting at start.",
+      "Spread to collect them.",
+    ],
+    pitfalls: [
+      "Off-by-one producing one too many or too few values.",
+    ],
+    explanation: "The generator yields start through start+count-1, collected by spreading.",
     resources: [R.iter],
   },
   {
@@ -220,6 +383,14 @@ export const jsModernProblems: Problem[] = [
     starterCode: `function chunkGen(arr, size) {\n  // use a generator function*\n}`,
     solution: `function chunkGen(arr, size) {\n  function* gen() { for (let i = 0; i < arr.length; i += size) yield arr.slice(i, i + size); }\n  return [...gen()];\n}`,
     testCases: [{ input: [[1, 2, 3, 4, 5], 2], expected: [[1, 2], [3, 4], [5]] }, { input: [[], 2], expected: [] }, { input: [[1], 1], expected: [[1]], hidden: true }],
+    hints: [
+      "Step by size, yielding each slice.",
+      "Spread the yielded chunks into an array.",
+    ],
+    pitfalls: [
+      "A wrong step size overlapping or skipping elements.",
+    ],
+    explanation: "Yielding successive size-length slices lazily chunks the array, collected with spread.",
     resources: [R.iter],
   },
 ];
