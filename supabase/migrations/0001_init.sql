@@ -31,10 +31,13 @@ alter table attempts enable row level security;
 alter table progress enable row level security;
 
 create policy "own profile" on profiles
-  for all using (auth.uid() = id) with check (auth.uid() = id);
+  for all to authenticated
+  using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
 
 create policy "own attempts" on attempts
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 create policy "own progress" on progress
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
