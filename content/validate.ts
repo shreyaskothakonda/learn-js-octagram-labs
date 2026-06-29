@@ -18,5 +18,10 @@ export function validateProblem(p: Problem): string[] {
       if (!tc.assert) errors.push("dom test case missing assert");
     }
   }
+  if (p.kind === "harness") {
+    for (const tc of p.testCases ?? []) {
+      if (!tc.run) errors.push("harness test case missing run script");
+    }
+  }
   return errors;
 }

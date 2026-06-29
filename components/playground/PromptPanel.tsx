@@ -1,7 +1,21 @@
-import type { Problem } from "@/content/types";
+import type { Problem, TestCase } from "@/content/types";
 import { Hints } from "./Hints";
 
+function sampleIO(problem: Problem, tc: TestCase): { input: string; output: string } {
+  if (problem.kind === "function") {
+    const args = (tc.input ?? []).map((v) => JSON.stringify(v)).join(", ");
+    return { input: `${problem.functionName}(${args})`, output: JSON.stringify(tc.expected) };
+  }
+  if (problem.kind === "harness") {
+    return { input: tc.description ?? tc.run ?? "", output: JSON.stringify(tc.expected) };
+  }
+  return { input: tc.description ?? "(see HTML View)", output: "assertion passes" };
+}
+
 export function PromptPanel({ problem, solved }: { problem: Problem; solved: boolean }) {
+  const visible = problem.testCases.filter((t) => !t.hidden);
+  const hiddenCount = problem.testCases.length - visible.length;
+
   return (
     <div className="p-5 overflow-auto space-y-4">
       <div>
@@ -13,7 +27,41 @@ export function PromptPanel({ problem, solved }: { problem: Problem; solved: boo
           </p>
         )}
       </div>
+
       <p className="whitespace-pre-wrap text-sm">{problem.prompt}</p>
+
+      {problem.examples && problem.examples.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm">Examples</h3>
+          {problem.examples.map((ex, i) => (
+            <div key={i} className="rounded border text-xs font-mono p-3 space-y-1 bg-gray-500/5">
+              <div><span className="text-gray-400">Input: </span>{ex.input}</div>
+              <div><span className="text-gray-400">Output: </span>{ex.output}</div>
+              {ex.explanation && <div className="font-sans text-gray-400">{ex.explanation}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {visible.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm">Sample tests</h3>
+          <div className="rounded border divide-y text-xs font-mono">
+            {visible.map((tc, i) => {
+              const io = sampleIO(problem, tc);
+              return (
+                <div key={i} className="p-2 space-y-0.5">
+                  <div><span className="text-gray-400">Input: </span>{io.input}</div>
+                  <div><span className="text-gray-400">Output: </span>{io.output}</div>
+                </div>
+              );
+            })}
+          </div>
+          {hiddenCount > 0 && (
+            <p className="text-xs text-gray-400">+ {hiddenCount} hidden test{hiddenCount === 1 ? "" : "s"} run on Submit.</p>
+          )}
+        </div>
+      )}
 
       {problem.hints && problem.hints.length > 0 && <Hints hints={problem.hints} />}
 

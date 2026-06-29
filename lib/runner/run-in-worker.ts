@@ -6,6 +6,7 @@ export function runInWorker(
   functionName: string,
   testCases: TestCase[],
   timeoutMs = 3000,
+  kind: "function" | "harness" = "function",
 ): Promise<RunResult> {
   return new Promise((resolve) => {
     const worker = new Worker("/runner-worker.js");
@@ -24,6 +25,6 @@ export function runInWorker(
       worker.terminate();
       resolve({ caseResults: [], consoleLogs: [], error: e.message, runtimeMs: 0 });
     };
-    worker.postMessage({ code, functionName, testCases });
+    worker.postMessage({ kind, code, functionName, testCases });
   });
 }

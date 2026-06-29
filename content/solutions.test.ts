@@ -22,4 +22,12 @@ describe("reference solutions pass their own tests", () => {
       }
     });
   }
+  for (const p of getAllProblems().filter((p) => p.kind === "harness")) {
+    it(`${p.id} harness solution passes`, () => {
+      for (const tc of p.testCases) {
+        const out = new Function(`${p.solution}\n${tc.run}`)();
+        expect(deepEqual(out, tc.expected), `${p.id} run ${tc.run}`).toBe(true);
+      }
+    });
+  }
 });

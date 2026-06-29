@@ -26,6 +26,7 @@ export function Playground({ problem }: { problem: Problem }) {
       setSrcdoc(srcdoc);
       return result;
     }
+    if (problem.kind === "harness") return runInWorker(code, "", cases, 3000, "harness");
     return runInWorker(code, problem.functionName!, cases);
   }
 

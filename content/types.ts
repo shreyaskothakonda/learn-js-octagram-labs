@@ -1,6 +1,6 @@
 export type Track = "javascript" | "data-structures" | "react";
 export type Difficulty = "easy" | "medium" | "hard";
-export type ProblemKind = "function" | "dom";
+export type ProblemKind = "function" | "dom" | "harness";
 
 export type TestCase = {
   // function problems:
@@ -9,10 +9,14 @@ export type TestCase = {
   // dom problems:
   description?: string;
   assert?: string; // JS expression evaluated in the iframe; must return boolean
+  // harness problems: a driver script appended after the user's code; ends in `return <value>`
+  run?: string;
   hidden?: boolean;
 };
 
 export type Resource = { label: string; url: string };
+
+export type Example = { input: string; output: string; explanation?: string };
 
 export type CourseRef = {
   section: number;
@@ -39,4 +43,5 @@ export type Problem = {
   pitfalls?: string[];
   explanation?: string;
   course?: CourseRef;
+  examples?: Example[];
 };

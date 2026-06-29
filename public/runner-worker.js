@@ -11,12 +11,26 @@ function deepEqual(a, b) {
 }
 
 self.onmessage = (e) => {
-  const { code, functionName, testCases } = e.data;
+  const { kind, code, functionName, testCases } = e.data;
   const start = Date.now();
   const consoleLogs = [];
   const fakeConsole = {
     log: (...args) => consoleLogs.push(args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ")),
   };
+
+  if (kind === "harness") {
+    const caseResults = testCases.map((tc, index) => {
+      try {
+        const actual = new Function("console", `${code}\n${tc.run}`)(fakeConsole);
+        return { index, passed: deepEqual(actual, tc.expected), expected: tc.expected, actual, description: tc.description };
+      } catch (err) {
+        return { index, passed: false, expected: tc.expected, error: String((err && err.message) || err), description: tc.description };
+      }
+    });
+    self.postMessage({ caseResults, consoleLogs, runtimeMs: Date.now() - start });
+    return;
+  }
+
   let fn;
   try {
     fn = new Function("console", `${code}; return ${functionName};`)(fakeConsole);
