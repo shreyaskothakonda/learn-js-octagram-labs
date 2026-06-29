@@ -11,13 +11,13 @@ import { recordAttempt } from "@/lib/progress/store";
 import { createClient } from "@/lib/supabase/client";
 import { PromptPanel } from "./PromptPanel";
 import { ResultsTabs } from "./ResultsTabs";
-import { useToast } from "@/components/Toast";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 type MobileTab = "prompt" | "code" | "results";
 
 export function Playground({ problem, nextId, backHref }: { problem: Problem; nextId: string | null; backHref: string }) {
   const router = useRouter();
-  const toast = useToast();
   const storageKey = `code:${problem.id}`;
   const [code, setCode] = useState(problem.starterCode);
   const [result, setResult] = useState<RunResult | null>(null);
@@ -80,9 +80,9 @@ export function Playground({ problem, nextId, backHref }: { problem: Problem; ne
       setSolved(passed);
       try {
         await recordAttempt({ problemId: problem.id, code, passed, testsPassed: passedCount, testsTotal: total, runtimeMs: r.runtimeMs });
-        toast(passed ? "Solved! Progress saved." : "Attempt saved.", passed ? "success" : "info");
+        if (passed) toast.success("Solved! Progress saved."); else toast("Attempt saved.");
       } catch {
-        toast("Could not save your progress.", "error");
+        toast.error("Could not save your progress.");
       }
     } finally { setBusy(false); }
   }
@@ -135,11 +135,11 @@ export function Playground({ problem, nextId, backHref }: { problem: Problem; ne
           </div>
         )}
         <div className="flex items-center gap-2 p-2 border-t">
-          <button disabled={busy} onClick={onRun} title="Run (Cmd/Ctrl+Enter)" className="rounded border px-4 py-1.5 text-sm disabled:opacity-50">{busy ? "Running…" : "Run"}</button>
-          <button disabled={busy} onClick={onSubmit} title="Submit (Cmd/Ctrl+Shift+Enter)" className="rounded bg-blue-600 text-white px-4 py-1.5 text-sm hover:bg-blue-700 disabled:opacity-50">{busy ? "Submitting…" : "Submit"}</button>
+          <Button variant="outline" size="sm" disabled={busy} onClick={onRun} title="Run (Cmd/Ctrl+Enter)">{busy ? "Running…" : "Run"}</Button>
+          <Button size="sm" disabled={busy} onClick={onSubmit} title="Submit (Cmd/Ctrl+Shift+Enter)">{busy ? "Submitting…" : "Submit"}</Button>
           <span className="hidden xl:block text-xs text-gray-400">⌘/Ctrl + Enter</span>
-          <button disabled={busy} onClick={() => { updateCode(problem.starterCode); try { localStorage.removeItem(storageKey); } catch {} setSolved(false); }} className="ml-auto rounded border px-3 py-1.5 text-sm disabled:opacity-50">Reset</button>
-          <button disabled={busy} onClick={() => updateCode(problem.solution)} className="rounded border px-3 py-1.5 text-sm disabled:opacity-50">Solution</button>
+          <Button variant="outline" size="sm" className="ml-auto" disabled={busy} onClick={() => { updateCode(problem.starterCode); try { localStorage.removeItem(storageKey); } catch {} setSolved(false); }}>Reset</Button>
+          <Button variant="outline" size="sm" disabled={busy} onClick={() => updateCode(problem.solution)}>Solution</Button>
         </div>
       </div>
 

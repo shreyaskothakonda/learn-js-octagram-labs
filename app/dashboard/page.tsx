@@ -4,6 +4,7 @@ import { createClient, getOptionalUser } from "@/lib/supabase/server";
 import { getProblem, getProblemsByTrack } from "@/content";
 import type { Track, Difficulty } from "@/content/types";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Card, CardContent } from "@/components/ui/card";
 
 const TRACKS: { track: Track; label: string }[] = [
   { track: "javascript", label: "JavaScript" },
@@ -62,7 +63,7 @@ export default async function Dashboard() {
               <div key={t.track}>
                 <div className="flex justify-between text-sm mb-1">
                   <Link href={`/learn/${t.track}`} className="hover:text-blue-500">{t.label}</Link>
-                  <span className="text-gray-400">{s} / {all.length}</span>
+                  <span className="text-muted-foreground">{s} / {all.length}</span>
                 </div>
                 <ProgressBar value={s} total={all.length} />
               </div>
@@ -83,7 +84,7 @@ export default async function Dashboard() {
       <section>
         <h2 className="font-semibold mb-3">Recent attempts</h2>
         {recent.length === 0 ? (
-          <p className="text-sm text-gray-400">No attempts yet. Solve a problem to see it here.</p>
+          <p className="text-sm text-muted-foreground">No attempts yet. Solve a problem to see it here.</p>
         ) : (
           <ul className="divide-y border rounded-lg">
             {recent.map((a) => {
@@ -106,9 +107,11 @@ export default async function Dashboard() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border p-4 text-center">
-      <div className="text-3xl font-bold">{value}</div>
-      <div className="text-xs text-gray-400">{label}</div>
-    </div>
+    <Card>
+      <CardContent className="p-4 text-center">
+        <div className="text-3xl font-bold">{value}</div>
+        <div className="text-xs text-muted-foreground">{label}</div>
+      </CardContent>
+    </Card>
   );
 }

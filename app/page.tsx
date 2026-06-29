@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getProblemsByTrack } from "@/content";
 import { createClient, getOptionalUser } from "@/lib/supabase/server";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import type { Track } from "@/content/types";
 
 const TRACKS: { href: string; track: Track; title: string; desc: string }[] = [
@@ -22,21 +23,23 @@ export default async function Home() {
   return (
     <main className="mx-auto max-w-4xl p-8">
       <h1 className="text-4xl font-bold mb-2">Octagram Labs: Learn JavaScript</h1>
-      <p className="text-gray-500 mb-8">Practice in the browser. Run code, pass tests, track progress.</p>
+      <p className="text-muted-foreground mb-8">Practice in the browser. Run code, pass tests, track progress.</p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TRACKS.map((c) => {
           const all = getProblemsByTrack(c.track);
           const solved = all.filter((p) => solvedIds.has(p.id)).length;
           return (
-            <Link key={c.href} href={c.href} className="flex flex-col rounded-xl border p-6 hover:border-blue-500 transition">
-              <h2 className="text-xl font-semibold">{c.title}</h2>
-              <p className="text-sm text-gray-500 mt-1 flex-1">{c.desc}</p>
-              <div className="mt-4 space-y-1">
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>{solved} / {all.length} solved</span>
-                </div>
-                <ProgressBar value={solved} total={all.length} />
-              </div>
+            <Link key={c.href} href={c.href} className="group">
+              <Card className="h-full transition group-hover:border-primary">
+                <CardHeader>
+                  <CardTitle>{c.title}</CardTitle>
+                  <CardDescription>{c.desc}</CardDescription>
+                </CardHeader>
+                <CardContent className="mt-auto space-y-1">
+                  <div className="text-xs text-muted-foreground">{solved} / {all.length} solved</div>
+                  <ProgressBar value={solved} total={all.length} />
+                </CardContent>
+              </Card>
             </Link>
           );
         })}
