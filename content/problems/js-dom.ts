@@ -1,3 +1,125 @@
 import type { Problem } from "../types";
 
-export const jsDomProblems: Problem[] = [];
+const R = {
+  text: { label: "MDN: Node.textContent", url: "https://developer.mozilla.org/docs/Web/API/Node/textContent" },
+  classList: { label: "MDN: Element.classList", url: "https://developer.mozilla.org/docs/Web/API/Element/classList" },
+  create: { label: "MDN: Document.createElement", url: "https://developer.mozilla.org/docs/Web/API/Document/createElement" },
+  attr: { label: "MDN: HTMLElement.dataset", url: "https://developer.mozilla.org/docs/Web/API/HTMLElement/dataset" },
+  remove: { label: "MDN: Element.remove", url: "https://developer.mozilla.org/docs/Web/API/Element/remove" },
+  style: { label: "MDN: HTMLElement.style", url: "https://developer.mozilla.org/docs/Web/API/HTMLElement/style" },
+};
+
+export const jsDomProblems: Problem[] = [
+  {
+    id: "js-dom-003", track: "javascript", topic: "DOM Manipulation", difficulty: "easy",
+    title: "Set Text Content",
+    prompt: "The page has an empty `<h1 id='title'>`. Set its text content to `Hello`.",
+    kind: "dom",
+    html: "<h1 id='title'></h1>",
+    starterCode: "// Set the text of #title to 'Hello'\n",
+    solution: "document.getElementById('title').textContent = 'Hello';",
+    testCases: [
+      { description: "the heading text is 'Hello'", assert: "document.getElementById('title').textContent === 'Hello'" },
+      { description: "exactly one heading exists", assert: "document.querySelectorAll('h1').length === 1", hidden: true },
+    ],
+    resources: [R.text],
+  },
+  {
+    id: "js-dom-004", track: "javascript", topic: "DOM Manipulation", difficulty: "easy",
+    title: "Add a CSS Class",
+    prompt: "The page has a `<div id='box'>`. Add the class `active` to it.",
+    kind: "dom",
+    html: "<div id='box'></div>",
+    starterCode: "// Add the 'active' class to #box\n",
+    solution: "document.getElementById('box').classList.add('active');",
+    testCases: [
+      { description: "#box has the 'active' class", assert: "document.getElementById('box').classList.contains('active')" },
+      { description: "the class name contains 'active'", assert: "document.getElementById('box').className.includes('active')", hidden: true },
+    ],
+    resources: [R.classList],
+  },
+  {
+    id: "js-dom-005", track: "javascript", topic: "DOM Manipulation", difficulty: "medium",
+    title: "Append Three List Items",
+    prompt: "The page has an empty `<ul id='list'>`. Append three `<li>` elements with the text `Item 1`, `Item 2`, and `Item 3`.",
+    kind: "dom",
+    html: "<ul id='list'></ul>",
+    starterCode: "// Append three <li> items to #list\n",
+    solution: "const list = document.getElementById('list');\nfor (let i = 1; i <= 3; i++) {\n  const li = document.createElement('li');\n  li.textContent = 'Item ' + i;\n  list.appendChild(li);\n}",
+    testCases: [
+      { description: "three list items exist", assert: "document.querySelectorAll('#list li').length === 3" },
+      { description: "the first item reads 'Item 1'", assert: "document.querySelector('#list li').textContent === 'Item 1'", hidden: true },
+    ],
+    resources: [R.create],
+  },
+  {
+    id: "js-dom-006", track: "javascript", topic: "DOM Manipulation", difficulty: "easy",
+    title: "Reveal a Hidden Message",
+    prompt: "The page has `<p id='msg' hidden>` which is currently hidden. Make it visible by clearing the hidden state.",
+    kind: "dom",
+    html: "<p id='msg' hidden>Welcome</p>",
+    starterCode: "// Reveal #msg\n",
+    solution: "document.getElementById('msg').hidden = false;",
+    testCases: [
+      { description: "#msg is no longer hidden", assert: "document.getElementById('msg').hidden === false" },
+      { description: "the hidden attribute is gone", assert: "document.getElementById('msg').hasAttribute('hidden') === false", hidden: true },
+    ],
+    resources: [R.attr],
+  },
+  {
+    id: "js-dom-007", track: "javascript", topic: "DOM Manipulation", difficulty: "medium",
+    title: "Set a Data Attribute",
+    prompt: "The page has a `<button id='btn'>`. Set its `data-count` attribute to `5` using the dataset API.",
+    kind: "dom",
+    html: "<button id='btn'>Go</button>",
+    starterCode: "// Set data-count on #btn to '5'\n",
+    solution: "document.getElementById('btn').dataset.count = '5';",
+    testCases: [
+      { description: "dataset.count is '5'", assert: "document.getElementById('btn').dataset.count === '5'" },
+      { description: "the data-count attribute is '5'", assert: "document.getElementById('btn').getAttribute('data-count') === '5'", hidden: true },
+    ],
+    resources: [R.attr],
+  },
+  {
+    id: "js-dom-008", track: "javascript", topic: "DOM Manipulation", difficulty: "easy",
+    title: "Set an Input Value",
+    prompt: "The page has an empty `<input id='name'>`. Set its value to `Ada`.",
+    kind: "dom",
+    html: "<input id='name' value='' />",
+    starterCode: "// Set the value of #name to 'Ada'\n",
+    solution: "document.getElementById('name').value = 'Ada';",
+    testCases: [
+      { description: "the input value is 'Ada'", assert: "document.getElementById('name').value === 'Ada'" },
+      { description: "the input is reachable via querySelector", assert: "document.querySelector('#name').value === 'Ada'", hidden: true },
+    ],
+    resources: [R.attr],
+  },
+  {
+    id: "js-dom-009", track: "javascript", topic: "DOM Manipulation", difficulty: "medium",
+    title: "Remove an Element",
+    prompt: "Inside `<div id='parent'>` there are two spans. Remove the one with class `remove-me`, leaving the `keep` span in place.",
+    kind: "dom",
+    html: "<div id='parent'><span class='remove-me'></span><span class='keep'></span></div>",
+    starterCode: "// Remove the .remove-me span\n",
+    solution: "document.querySelector('.remove-me').remove();",
+    testCases: [
+      { description: "only one span remains", assert: "document.querySelectorAll('#parent span').length === 1" },
+      { description: "the .remove-me span is gone", assert: "document.querySelector('.remove-me') === null", hidden: true },
+    ],
+    resources: [R.remove],
+  },
+  {
+    id: "js-dom-010", track: "javascript", topic: "DOM Manipulation", difficulty: "medium",
+    title: "Style an Element",
+    prompt: "The page has a `<div id='box'>`. Set its text color to `red` using the inline style.",
+    kind: "dom",
+    html: "<div id='box'>Hi</div>",
+    starterCode: "// Set the color of #box to red\n",
+    solution: "document.getElementById('box').style.color = 'red';",
+    testCases: [
+      { description: "the inline color is red", assert: "document.getElementById('box').style.color === 'red'" },
+      { description: "the style attribute mentions red", assert: "document.getElementById('box').getAttribute('style').includes('red')", hidden: true },
+    ],
+    resources: [R.style],
+  },
+];
