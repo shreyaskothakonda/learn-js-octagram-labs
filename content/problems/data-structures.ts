@@ -289,36 +289,32 @@ export const dataStructureProblems: Problem[] = [
     id: "ds-linkedlists-003",
     track: "data-structures",
     topic: "Linked Lists",
-    difficulty: "hard",
-    title: "Detect a Cycle",
+    difficulty: "medium",
+    title: "Remove Nth Node From End",
     prompt:
-      "Nodes are `{ val, next }`. Implement `hasCycle(head)` that returns `true` if the linked list contains a cycle, `false` otherwise.\n\nUse the Floyd's tortoise-and-hare algorithm (O(1) space).",
+      "A linked list is given as an array of values in order (e.g. `[1,2,3,4,5]`). Implement `removeNthFromEnd(arr, n)` that removes the **n-th node from the end** of the list and returns the resulting array.\n\n`n` is always valid (1 ≤ n ≤ arr.length).\n\nExample: `removeNthFromEnd([1,2,3,4,5], 2)` → `[1,2,3,5]` (the 2nd from end, which is `4`, is removed).",
     kind: "function",
-    starterCode: "function hasCycle(head) {\n  // your code here\n}",
+    starterCode:
+      "function removeNthFromEnd(arr, n) {\n  // your code here\n}",
     solution:
-      "function hasCycle(head) {\n  let slow = head;\n  let fast = head;\n  while (fast !== null && fast.next !== null) {\n    slow = slow.next;\n    fast = fast.next.next;\n    if (slow === fast) return true;\n  }\n  return false;\n}",
-    functionName: "hasCycle",
+      "function removeNthFromEnd(arr, n) {\n  const result = [...arr];\n  const removeIdx = result.length - n;\n  result.splice(removeIdx, 1);\n  return result;\n}",
+    functionName: "removeNthFromEnd",
     testCases: [
-      { input: [null], expected: false },
-      {
-        input: [{ val: 1, next: null }],
-        expected: false,
-      },
-      {
-        input: [{ val: 1, next: { val: 2, next: { val: 3, next: null } } }],
-        expected: false,
-        hidden: true,
-      },
+      { input: [[1, 2, 3, 4, 5], 2], expected: [1, 2, 3, 5] },
+      { input: [[1, 2, 3, 4, 5], 1], expected: [1, 2, 3, 4] },
+      { input: [[1, 2, 3, 4, 5], 5], expected: [2, 3, 4, 5] },
+      { input: [[1, 2], 1], expected: [1], hidden: true },
+      { input: [[1], 1], expected: [], hidden: true },
     ],
     resources: [
       {
-        label: "MDN: while statement",
-        url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/while",
+        label: "MDN: Array.prototype.splice",
+        url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/splice",
       },
     ],
     hints: [
-      "Move `slow` one step and `fast` two steps per iteration.",
-      "If they meet, there is a cycle.",
+      "The n-th from end has index `length - n` in the array.",
+      "Use two pointers separated by n steps to find this position in a single pass over a real linked list — here you can compute it directly from the array length.",
     ],
   },
 ];
