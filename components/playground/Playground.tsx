@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import type { Problem } from "@/content/types";
@@ -18,6 +18,13 @@ export function Playground({ problem }: { problem: Problem }) {
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [solved, setSolved] = useState(false);
+  const [editorTheme, setEditorTheme] = useState("vs-dark");
+  useEffect(() => {
+    const sync = () => setEditorTheme(document.documentElement.classList.contains("dark") ? "vs-dark" : "vs");
+    sync();
+    window.addEventListener("themechange", sync);
+    return () => window.removeEventListener("themechange", sync);
+  }, []);
 
   async function execute(onlyVisible: boolean): Promise<RunResult> {
     const cases = onlyVisible ? problem.testCases.filter((t) => !t.hidden) : problem.testCases;
@@ -68,7 +75,7 @@ export function Playground({ problem }: { problem: Problem }) {
       <div className="border-r overflow-auto"><PromptPanel problem={problem} solved={solved} /></div>
       <div className="flex flex-col">
         <div className="flex-1 min-h-0">
-          <Editor height="100%" defaultLanguage="javascript" theme="vs-dark"
+          <Editor height="100%" defaultLanguage="javascript" theme={editorTheme}
             value={code} onChange={(v) => setCode(v ?? "")} options={{ minimap: { enabled: false }, fontSize: 14 }} />
         </div>
         <div className="flex gap-2 p-2 border-t">

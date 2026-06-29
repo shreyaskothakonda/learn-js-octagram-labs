@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getOptionalUser } from "@/lib/supabase/server";
 import { SignOutButton } from "./SignOutButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 export async function Nav() {
   const user = await getOptionalUser();
@@ -10,7 +11,8 @@ export async function Nav() {
       <Link href="/learn/javascript">JavaScript</Link>
       <Link href="/learn/data-structures">Data Structures</Link>
       <Link href="/learn/react">React</Link>
-      <div className="ml-auto flex gap-4">
+      <div className="ml-auto flex items-center gap-4">
+        <ThemeToggle />
         {user ? (
           <>
             <Link href="/dashboard">Dashboard</Link>
