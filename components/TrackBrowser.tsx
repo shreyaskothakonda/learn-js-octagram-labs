@@ -42,25 +42,33 @@ export function TrackBrowser({
         <ProgressBar value={solvedTotal} total={problems.length} />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search problems…" className="flex-1 min-w-[180px]" />
-        <Select value={diff} onValueChange={(v) => setDiff(v as "all" | Difficulty)}>
-          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All difficulties</SelectItem>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="hard">Hard</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={(v) => setStatus(v as "all" | "solved" | "unsolved")}>
-          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="unsolved">Unsolved</SelectItem>
-            <SelectItem value="solved">Solved</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="space-y-3">
+        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search problems…" className="w-full" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Difficulty</label>
+            <Select value={diff} onValueChange={(v) => setDiff(v as "all" | Difficulty)}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All difficulties</SelectItem>
+                <SelectItem value="easy">Easy</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="hard">Hard</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Status</label>
+            <Select value={status} onValueChange={(v) => setStatus(v as "all" | "solved" | "unsolved")}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All problems</SelectItem>
+                <SelectItem value="unsolved">Unsolved</SelectItem>
+                <SelectItem value="solved">Solved</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       {topics.map((t) => {

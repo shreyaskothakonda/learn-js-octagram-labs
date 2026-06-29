@@ -31,7 +31,7 @@ export default async function TrackPage({ params }: { params: Promise<{ track: s
   }
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
+    <main className="mx-auto max-w-5xl p-6">
       <h1 className="text-3xl font-bold mb-6">{titles[track]}</h1>
       <TrackBrowser topics={TOPICS[track as Track]} problems={problems} progress={progress} />
     </main>

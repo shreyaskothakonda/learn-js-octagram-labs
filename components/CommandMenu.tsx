@@ -34,10 +34,10 @@ export function CommandMenu({ problems }: { problems: Item[] }) {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2 text-muted-foreground">
-        <Search className="size-3.5" />
-        <span className="hidden sm:inline">Search</span>
-        <kbd className="hidden sm:inline rounded border px-1 text-[10px]">⌘K</kbd>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="w-40 lg:w-72 justify-start gap-2 text-muted-foreground">
+        <Search className="size-3.5 shrink-0" />
+        <span className="truncate">Search problems…</span>
+        <kbd className="ml-auto hidden sm:inline rounded border px-1 text-[10px]">⌘K</kbd>
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-0 gap-0 overflow-hidden sm:max-w-lg" showCloseButton={false}>
