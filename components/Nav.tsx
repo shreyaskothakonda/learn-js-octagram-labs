@@ -9,6 +9,7 @@ export async function Nav() {
       <Link href="/" className="font-semibold">Octagram Labs</Link>
       <Link href="/learn/javascript">JavaScript</Link>
       <Link href="/learn/data-structures">Data Structures</Link>
+      <Link href="/learn/react">React</Link>
       <div className="ml-auto flex gap-4">
         {user ? (
           <>
