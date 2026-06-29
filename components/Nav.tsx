@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { SignOutButton } from "./SignOutButton";
 
 export async function Nav() {
   const supabase = await createClient();
@@ -10,7 +11,14 @@ export async function Nav() {
       <Link href="/learn/javascript">JavaScript</Link>
       <Link href="/learn/data-structures">Data Structures</Link>
       <div className="ml-auto flex gap-4">
-        {user ? <Link href="/dashboard">Dashboard</Link> : <Link href="/login">Sign in</Link>}
+        {user ? (
+          <>
+            <Link href="/dashboard">Dashboard</Link>
+            <SignOutButton />
+          </>
+        ) : (
+          <Link href="/login">Sign in</Link>
+        )}
       </div>
     </nav>
   );

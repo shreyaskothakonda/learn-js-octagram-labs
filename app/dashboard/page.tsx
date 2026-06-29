@@ -9,7 +9,7 @@ export default async function Dashboard() {
 
   const { data: progress } = await supabase.from("progress").select("problem_id,status");
   const { data: attempts } = await supabase
-    .from("attempts").select("problem_id,passed,created_at")
+    .from("attempts").select("id,problem_id,passed,created_at")
     .order("created_at", { ascending: false }).limit(20);
 
   const solved = (progress ?? []).filter((p) => p.status === "solved").length;
@@ -25,14 +25,18 @@ export default async function Dashboard() {
         <Stat label="Total problems" value={total} />
       </div>
       <h2 className="font-semibold mb-2">Recent attempts</h2>
-      <ul className="divide-y border rounded-lg">
-        {(attempts ?? []).map((a, i) => (
-          <li key={i} className="flex justify-between px-4 py-2 text-sm">
-            <span>{a.problem_id}</span>
-            <span className={a.passed ? "text-green-500" : "text-red-500"}>{a.passed ? "Passed" : "Failed"}</span>
-          </li>
-        ))}
-      </ul>
+      {(attempts ?? []).length === 0 ? (
+        <p className="text-sm text-gray-400">No attempts yet — solve a problem to see it here.</p>
+      ) : (
+        <ul className="divide-y border rounded-lg">
+          {(attempts ?? []).map((a) => (
+            <li key={a.id} className="flex justify-between px-4 py-2 text-sm">
+              <span>{a.problem_id}</span>
+              <span className={a.passed ? "text-green-500" : "text-red-500"}>{a.passed ? "Passed" : "Failed"}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import type { AttemptRow, ProgressStatus, RecordAttemptInput } from "./types";
+import type { ProgressStatus, RecordAttemptInput } from "./types";
 
 export async function recordAttempt(input: RecordAttemptInput): Promise<void> {
   const supabase = createClient();
@@ -26,22 +26,4 @@ export async function recordAttempt(input: RecordAttemptInput): Promise<void> {
     { user_id: user.id, problem_id: input.problemId, status, best_attempt_id: attempt.id, updated_at: new Date().toISOString() },
     { onConflict: "user_id,problem_id" },
   );
-}
-
-export async function getProgressForUser(): Promise<Record<string, ProgressStatus>> {
-  const supabase = createClient();
-  const { data } = await supabase.from("progress").select("problem_id,status");
-  const map: Record<string, ProgressStatus> = {};
-  (data ?? []).forEach((r) => (map[r.problem_id] = r.status as ProgressStatus));
-  return map;
-}
-
-export async function getAttemptsForProblem(problemId: string): Promise<AttemptRow[]> {
-  const supabase = createClient();
-  const { data } = await supabase
-    .from("attempts")
-    .select("id,problem_id,passed,tests_passed,tests_total,created_at")
-    .eq("problem_id", problemId)
-    .order("created_at", { ascending: false });
-  return (data ?? []) as AttemptRow[];
 }
