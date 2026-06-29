@@ -18,6 +18,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function sumArgs(...nums) {\n  // your code here\n}`,
     solution: `function sumArgs(...nums) {\n  return nums.reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [1, 2, 3], expected: 6 }, { input: [], expected: 0 }, { input: [5], expected: 5, hidden: true }],
+    hints: [
+      "Rest parameters collect all arguments into an array.",
+      "reduce the array to a sum.",
+    ],
+    pitfalls: [
+      "Using the arguments object instead of rest params loses array methods.",
+    ],
+    explanation: "...nums gathers every argument into a real array, which reduce then sums.",
     resources: [R.fn],
   },
   {
@@ -28,6 +36,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function greet(name = "World") {\n  // your code here\n}`,
     solution: `function greet(name = "World") {\n  return "Hello, " + name;\n}`,
     testCases: [{ input: ["Alice"], expected: "Hello, Alice" }, { input: [undefined], expected: "Hello, World" }, { input: ["Bob"], expected: "Hello, Bob", hidden: true }],
+    hints: [
+      "A default parameter fills in when the argument is undefined.",
+      "Concatenate the greeting with the name.",
+    ],
+    pitfalls: [
+      "Defaults trigger only for undefined, not for empty string or null.",
+    ],
+    explanation: "name = 'World' supplies a fallback only when the caller passes undefined.",
     resources: [R.fn],
   },
   {
@@ -38,6 +54,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function maxOf(...nums) {\n  // your code here\n}`,
     solution: `function maxOf(...nums) {\n  return nums.length ? Math.max(...nums) : null;\n}`,
     testCases: [{ input: [3, 1, 2], expected: 3 }, { input: [], expected: null }, { input: [5], expected: 5, hidden: true }],
+    hints: [
+      "Rest gathers the arguments; guard the empty case.",
+      "Math.max with spread finds the max.",
+    ],
+    pitfalls: [
+      "Math.max() of no arguments returns -Infinity, so return null for the empty call.",
+    ],
+    explanation: "Collect arguments with rest, return null when none, otherwise spread into Math.max.",
     resources: [R.fn],
   },
   {
@@ -48,6 +72,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function concatAll(...arrs) {\n  // your code here\n}`,
     solution: `function concatAll(...arrs) {\n  return [].concat(...arrs);\n}`,
     testCases: [{ input: [[1], [2, 3]], expected: [1, 2, 3] }, { input: [[]], expected: [] }, { input: [[1, 2], [3]], expected: [1, 2, 3], hidden: true }],
+    hints: [
+      "concat with spread flattens the array arguments one level.",
+      "[].concat(...arrs).",
+    ],
+    pitfalls: [
+      "Pushing arrays in produces nested arrays rather than a flat result.",
+    ],
+    explanation: "Each argument is an array; spreading them into concat merges their elements in order.",
     resources: [R.fn],
   },
   {
@@ -58,6 +90,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function countdown(n) {\n  // your code here\n}`,
     solution: `function countdown(n) {\n  const out = [];\n  for (let i = n; i >= 1; i--) out.push(i);\n  return out;\n}`,
     testCases: [{ input: [3], expected: [3, 2, 1] }, { input: [1], expected: [1] }, { input: [0], expected: [], hidden: true }],
+    hints: [
+      "Count down from n with a loop.",
+      "Push each value into an array.",
+    ],
+    pitfalls: [
+      "An off-by-one bound that includes 0 or skips n.",
+    ],
+    explanation: "A loop from n down to 1 collects the descending sequence, returning [] when n is 0.",
     resources: [R.fn],
   },
   {
@@ -68,6 +108,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function incrementTimes(start, times) {\n  // your code here\n}`,
     solution: `function incrementTimes(start, times) {\n  let value = start;\n  for (let i = 0; i < times; i++) value++;\n  return value;\n}`,
     testCases: [{ input: [0, 3], expected: 3 }, { input: [10, 0], expected: 10 }, { input: [5, 2], expected: 7, hidden: true }],
+    hints: [
+      "Start from start and increment in a loop.",
+      "Return the final value after times iterations.",
+    ],
+    pitfalls: [
+      "Looping one time too many or too few.",
+    ],
+    explanation: "A simple loop adds one to a local copy of start, times times.",
     resources: [R.fn],
   },
   {
@@ -78,6 +126,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function sumEvenArgs(...nums) {\n  // your code here\n}`,
     solution: `function sumEvenArgs(...nums) {\n  return nums.filter((n) => n % 2 === 0).reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [1, 2, 3, 4], expected: 6 }, { input: [1, 3], expected: 0 }, { input: [2], expected: 2, hidden: true }],
+    hints: [
+      "Filter to even arguments, then sum.",
+      "Rest params give you the array.",
+    ],
+    pitfalls: [
+      "Negative even numbers still count as even (sign does not affect parity).",
+    ],
+    explanation: "Rest collects the arguments, filter keeps the evens, and reduce sums them.",
     resources: [R.fn],
   },
   {
@@ -88,6 +144,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function factorialLoop(n) {\n  // your code here\n}`,
     solution: `function factorialLoop(n) {\n  let result = 1;\n  for (let i = 2; i <= n; i++) result *= i;\n  return result;\n}`,
     testCases: [{ input: [5], expected: 120 }, { input: [0], expected: 1 }, { input: [1], expected: 1, hidden: true }],
+    hints: [
+      "Multiply 1 by each integer up to n.",
+      "Use a loop, not recursion.",
+    ],
+    pitfalls: [
+      "Starting the product at 0 makes everything 0; start at 1.",
+    ],
+    explanation: "An iterative product from 2 to n computes n! without recursion.",
     resources: [R.fn],
   },
 
@@ -100,6 +164,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function counterValues(n) {\n  // your code here\n}`,
     solution: `function counterValues(n) {\n  let count = 0;\n  const next = () => ++count;\n  const out = [];\n  for (let i = 0; i < n; i++) out.push(next());\n  return out;\n}`,
     testCases: [{ input: [3], expected: [1, 2, 3] }, { input: [0], expected: [] }, { input: [1], expected: [1], hidden: true }],
+    hints: [
+      "Define an inner function that closes over a private count.",
+      "Call it n times, collecting each return value.",
+    ],
+    pitfalls: [
+      "Resetting the counter inside the loop, losing the closed-over state.",
+    ],
+    explanation: "The inner function captures count by closure, so each call increments the same private variable, producing 1..n.",
     resources: [R.closure],
   },
   {
@@ -110,6 +182,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function accumulate(nums) {\n  // your code here\n}`,
     solution: `function accumulate(nums) {\n  let sum = 0;\n  const add = (n) => (sum += n);\n  return nums.map(add);\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [1, 3, 6] }, { input: [[]], expected: [] }, { input: [[5]], expected: [5], hidden: true }],
+    hints: [
+      "Keep a running sum in an enclosing variable.",
+      "map each input to the updated sum.",
+    ],
+    pitfalls: [
+      "Declaring the sum inside the mapper resets it every call.",
+    ],
+    explanation: "A closure over sum lets each mapped call add to and return the accumulating total.",
     resources: [R.closure],
   },
   {
@@ -120,6 +200,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function memoSquares(nums) {\n  // your code here\n}`,
     solution: `function memoSquares(nums) {\n  const cache = {};\n  const square = (n) => (n in cache ? cache[n] : (cache[n] = n * n));\n  return nums.map(square);\n}`,
     testCases: [{ input: [[2, 3, 2]], expected: [4, 9, 4] }, { input: [[]], expected: [] }, { input: [[5]], expected: [25], hidden: true }],
+    hints: [
+      "Hold a cache object in the closure.",
+      "Return the cached square or compute and store it.",
+    ],
+    pitfalls: [
+      "Putting the cache inside the per-call function defeats memoization.",
+    ],
+    explanation: "The cache lives in the closure, so repeated inputs reuse stored squares across calls.",
     resources: [R.closure],
   },
   {
@@ -130,6 +218,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function onceResults(values) {\n  // your code here\n}`,
     solution: `function onceResults(values) {\n  let called = false;\n  const once = (v) => { if (called) return null; called = true; return v; };\n  return values.map(once);\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [1, null, null] }, { input: [[5]], expected: [5] }, { input: [[]], expected: [], hidden: true }],
+    hints: [
+      "Track a called flag in the closure.",
+      "Return the value once, then null.",
+    ],
+    pitfalls: [
+      "Forgetting to set the flag, so it never stops returning the value.",
+    ],
+    explanation: "A captured boolean lets the wrapper return its argument on the first call and null on every later one.",
     resources: [R.closure],
   },
   {
@@ -140,6 +236,16 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function bankOps(ops) {\n  // your code here\n}`,
     solution: `function bankOps(ops) {\n  let balance = 0;\n  const apply = (amount) => { if (balance + amount >= 0) balance += amount; };\n  ops.forEach(apply);\n  return balance;\n}`,
     testCases: [{ input: [[100, -30, -50]], expected: 20 }, { input: [[100, -200]], expected: 100 }, { input: [[]], expected: 0, hidden: true }],
+    hints: [
+      "Keep balance private in the closure.",
+      "Apply each op, rejecting overdrafts.",
+      "Return the final balance.",
+    ],
+    pitfalls: [
+      "Allowing a withdrawal that drives the balance negative.",
+      "Exposing balance directly instead of through the closure.",
+    ],
+    explanation: "The balance is captured privately; each operation is applied only if it keeps the balance non-negative, modeling encapsulated state.",
     resources: [R.closure],
   },
   {
@@ -150,6 +256,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function applyMultiplier(factor, nums) {\n  // your code here\n}`,
     solution: `function applyMultiplier(factor, nums) {\n  const multiply = (n) => n * factor;\n  return nums.map(multiply);\n}`,
     testCases: [{ input: [3, [1, 2, 3]], expected: [3, 6, 9] }, { input: [0, [5]], expected: [0] }, { input: [2, []], expected: [], hidden: true }],
+    hints: [
+      "Build a multiplier that closes over factor.",
+      "map the numbers through it.",
+    ],
+    pitfalls: [
+      "Reading factor from outside instead of capturing it in the returned function.",
+    ],
+    explanation: "The inner multiplier captures factor by closure, so mapping applies the same bound factor to each number.",
     resources: [R.closure],
   },
 
@@ -162,6 +276,15 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function applyOp(nums, op) {\n  // your code here\n}`,
     solution: `function applyOp(nums, op) {\n  const ops = { double: (n) => n * 2, square: (n) => n * n, negate: (n) => -n };\n  return nums.map(ops[op]);\n}`,
     testCases: [{ input: [[1, 2, 3], "double"], expected: [2, 4, 6] }, { input: [[1, 2], "square"], expected: [1, 4] }, { input: [[1, 2], "negate"], expected: [-1, -2], hidden: true }],
+    hints: [
+      "Store the operations in a lookup object.",
+      "Pick the function by name and map with it.",
+    ],
+    pitfalls: [
+      "A long if/else chain instead of a function map.",
+      "No handling if an unknown op name is passed.",
+    ],
+    explanation: "A map from name to function lets you select the transform and apply it with map, the essence of higher-order design.",
     resources: [R.hof],
   },
   {
@@ -172,6 +295,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function pipeline(value, steps) {\n  // your code here\n}`,
     solution: `function pipeline(value, steps) {\n  const fns = { inc: (x) => x + 1, double: (x) => x * 2 };\n  return steps.reduce((acc, step) => fns[step](acc), value);\n}`,
     testCases: [{ input: [3, ["inc", "double"]], expected: 8 }, { input: [5, []], expected: 5 }, { input: [2, ["double", "double"]], expected: 8, hidden: true }],
+    hints: [
+      "reduce applies each step to the accumulator.",
+      "Look up each step function by name.",
+    ],
+    pitfalls: [
+      "Applying steps in the wrong order; reduce goes left to right.",
+    ],
+    explanation: "reduce threads the value through each named step in order, composing a small pipeline.",
     resources: [R.hof],
   },
   {
@@ -182,6 +313,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function filterBy(nums, kind) {\n  // your code here\n}`,
     solution: `function filterBy(nums, kind) {\n  const preds = { even: (n) => n % 2 === 0, odd: (n) => n % 2 !== 0, positive: (n) => n > 0 };\n  return nums.filter(preds[kind]);\n}`,
     testCases: [{ input: [[1, 2, 3, 4], "even"], expected: [2, 4] }, { input: [[-1, 2, -3], "positive"], expected: [2] }, { input: [[1, 2, 3], "odd"], expected: [1, 3], hidden: true }],
+    hints: [
+      "Map predicate names to functions.",
+      "filter with the chosen predicate.",
+    ],
+    pitfalls: [
+      "Hardcoding one predicate instead of selecting by name.",
+    ],
+    explanation: "Selecting a predicate from a map and passing it to filter shows functions used as values.",
     resources: [R.hof],
   },
   {
@@ -192,6 +331,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function tally(words) {\n  // your code here\n}`,
     solution: `function tally(words) {\n  return words.reduce((acc, w) => { acc[w] = (acc[w] || 0) + 1; return acc; }, {});\n}`,
     testCases: [{ input: [["a", "b", "a"]], expected: { a: 2, b: 1 } }, { input: [[]], expected: {} }, { input: [["x"]], expected: { x: 1 }, hidden: true }],
+    hints: [
+      "reduce into an object of counts.",
+      "Default a missing count to 0 before incrementing.",
+    ],
+    pitfalls: [
+      "Forgetting to return the accumulator from the reducer callback.",
+    ],
+    explanation: "reduce builds the tally object by incrementing each word's count, returning the accumulator each step.",
     resources: [R.reduce],
   },
   {
@@ -202,6 +349,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function evenSquares(nums) {\n  // your code here\n}`,
     solution: `function evenSquares(nums) {\n  return nums.filter((n) => n % 2 === 0).map((n) => n * n);\n}`,
     testCases: [{ input: [[1, 2, 3, 4]], expected: [4, 16] }, { input: [[1, 3]], expected: [] }, { input: [[2]], expected: [4], hidden: true }],
+    hints: [
+      "filter the evens, then map to squares.",
+      "Chain the two array methods.",
+    ],
+    pitfalls: [
+      "Squaring before filtering, which changes which values are even.",
+    ],
+    explanation: "Chaining filter then map keeps only evens and squares them, a common transform pipeline.",
     resources: [R.hof],
   },
   {
@@ -212,6 +367,15 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function myReduce(nums, op, initial) {\n  // your code here\n}`,
     solution: `function myReduce(nums, op, initial) {\n  const ops = { sum: (a, b) => a + b, product: (a, b) => a * b };\n  let acc = initial;\n  for (const n of nums) acc = ops[op](acc, n);\n  return acc;\n}`,
     testCases: [{ input: [[1, 2, 3, 4], "sum", 0], expected: 10 }, { input: [[1, 2, 3], "product", 1], expected: 6 }, { input: [[5], "sum", 10], expected: 15, hidden: true }],
+    hints: [
+      "Map operation names to binary functions.",
+      "Fold the array with the chosen op from the initial value.",
+    ],
+    pitfalls: [
+      "Ignoring the provided initial value.",
+      "Assuming an operation that is not in the map.",
+    ],
+    explanation: "A custom fold selects a binary operation by name and reduces the array from the given initial value.",
     resources: [R.reduce],
   },
 
@@ -224,6 +388,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function doubleAll(nums) {\n  // your code here\n}`,
     solution: `function doubleAll(nums) {\n  return nums.map((n) => n * 2);\n}`,
     testCases: [{ input: [[1, 2, 3]], expected: [2, 4, 6] }, { input: [[]], expected: [] }, { input: [[0]], expected: [0], hidden: true }],
+    hints: [
+      "map returns a new array.",
+      "Multiply each element by two.",
+    ],
+    pitfalls: [
+      "Mutating the original array in a loop instead of mapping.",
+    ],
+    explanation: "map produces a new array with each value doubled.",
     resources: [R.hof],
   },
   {
@@ -234,6 +406,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function positives(nums) {\n  // your code here\n}`,
     solution: `function positives(nums) {\n  return nums.filter((n) => n > 0);\n}`,
     testCases: [{ input: [[-1, 2, -3, 4]], expected: [2, 4] }, { input: [[-1]], expected: [] }, { input: [[1, 2]], expected: [1, 2], hidden: true }],
+    hints: [
+      "filter keeps elements passing a test.",
+      "Keep numbers greater than zero.",
+    ],
+    pitfalls: [
+      "Including zero when only strictly positive values are wanted.",
+    ],
+    explanation: "filter with n > 0 returns a new array of the positive numbers.",
     resources: [R.hof],
   },
   {
@@ -244,6 +424,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function sumAll(nums) {\n  // your code here\n}`,
     solution: `function sumAll(nums) {\n  return nums.reduce((a, b) => a + b, 0);\n}`,
     testCases: [{ input: [[1, 2, 3, 4]], expected: 10 }, { input: [[]], expected: 0 }, { input: [[5]], expected: 5, hidden: true }],
+    hints: [
+      "reduce accumulates a single value.",
+      "Start the accumulator at 0.",
+    ],
+    pitfalls: [
+      "Omitting the initial value, which breaks on an empty array.",
+    ],
+    explanation: "reduce with an initial 0 sums the array, working even when empty.",
     resources: [R.reduce],
   },
   {
@@ -254,6 +442,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function average(nums) {\n  // your code here\n}`,
     solution: `function average(nums) {\n  if (nums.length === 0) return 0;\n  return nums.reduce((a, b) => a + b, 0) / nums.length;\n}`,
     testCases: [{ input: [[2, 4, 6]], expected: 4 }, { input: [[]], expected: 0 }, { input: [[5]], expected: 5, hidden: true }],
+    hints: [
+      "Guard the empty array to avoid dividing by zero.",
+      "Sum then divide by length.",
+    ],
+    pitfalls: [
+      "Dividing by zero on an empty array yields NaN.",
+    ],
+    explanation: "Return 0 for an empty array, otherwise the sum divided by the count.",
     resources: [R.reduce],
   },
   {
@@ -264,6 +460,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function countWhere(nums, threshold) {\n  // your code here\n}`,
     solution: `function countWhere(nums, threshold) {\n  return nums.filter((n) => n > threshold).length;\n}`,
     testCases: [{ input: [[1, 5, 3, 8], 4], expected: 2 }, { input: [[1, 2], 5], expected: 0 }, { input: [[10], 1], expected: 1, hidden: true }],
+    hints: [
+      "filter to values above the threshold.",
+      "The count is the length.",
+    ],
+    pitfalls: [
+      "Using >= when strictly greater is required.",
+    ],
+    explanation: "filter on n > threshold then length counts the qualifying values.",
     resources: [R.hof],
   },
   {
@@ -274,6 +478,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function indexOfMax(nums) {\n  // your code here\n}`,
     solution: `function indexOfMax(nums) {\n  let best = 0;\n  for (let i = 1; i < nums.length; i++) if (nums[i] > nums[best]) best = i;\n  return best;\n}`,
     testCases: [{ input: [[3, 7, 7, 2]], expected: 1 }, { input: [[5]], expected: 0 }, { input: [[1, 9, 9]], expected: 1, hidden: true }],
+    hints: [
+      "Track the index of the best value while scanning.",
+      "Update only on a strictly greater value to keep the first max.",
+    ],
+    pitfalls: [
+      "Using >= updates to the last max instead of the first.",
+    ],
+    explanation: "Scanning and updating only when strictly greater returns the index of the first maximum.",
     resources: [R.hof],
   },
   {
@@ -284,6 +496,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function partition(nums, threshold) {\n  // your code here\n}`,
     solution: `function partition(nums, threshold) {\n  const below = [], atOrAbove = [];\n  for (const n of nums) (n < threshold ? below : atOrAbove).push(n);\n  return [below, atOrAbove];\n}`,
     testCases: [{ input: [[1, 5, 2, 8], 4], expected: [[1, 2], [5, 8]] }, { input: [[1, 2], 5], expected: [[1, 2], []] }, { input: [[10], 5], expected: [[], [10]], hidden: true }],
+    hints: [
+      "Push each value into the below or atOrAbove bucket.",
+      "Return the two arrays as a pair.",
+    ],
+    pitfalls: [
+      "Using <= when the boundary value should go into atOrAbove.",
+    ],
+    explanation: "One pass routes each value into below (less than threshold) or atOrAbove, returned as a tuple.",
     resources: [R.hof],
   },
   {
@@ -294,6 +514,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function sumNested(arrs) {\n  // your code here\n}`,
     solution: `function sumNested(arrs) {\n  return arrs.reduce((total, arr) => total + arr.reduce((a, b) => a + b, 0), 0);\n}`,
     testCases: [{ input: [[[1, 2], [3], [4, 5]]], expected: 15 }, { input: [[[]]], expected: 0 }, { input: [[[10]]], expected: 10, hidden: true }],
+    hints: [
+      "reduce over the outer array.",
+      "Sum each inner array and add to the total.",
+    ],
+    pitfalls: [
+      "Forgetting the inner reduce, trying to add arrays directly.",
+    ],
+    explanation: "An outer reduce accumulates the sum of each inner array's own reduce.",
     resources: [R.reduce],
   },
   {
@@ -304,6 +532,13 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function wordLengths(words) {\n  // your code here\n}`,
     solution: `function wordLengths(words) {\n  return words.map((w) => w.length);\n}`,
     testCases: [{ input: [["a", "abc", "ab"]], expected: [1, 3, 2] }, { input: [[]], expected: [] }, { input: [["hello"]], expected: [5], hidden: true }],
+    hints: [
+      "map each string to its length.",
+    ],
+    pitfalls: [
+      "Calling .length on a non-string if the data is mixed.",
+    ],
+    explanation: "map turns the list of strings into a list of their lengths.",
     resources: [R.hof],
   },
   {
@@ -314,6 +549,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function mostFrequent(arr) {\n  // your code here\n}`,
     solution: `function mostFrequent(arr) {\n  const count = {};\n  let best = arr[0], bestCount = 0;\n  for (const x of arr) {\n    count[x] = (count[x] || 0) + 1;\n    if (count[x] > bestCount) { bestCount = count[x]; best = x; }\n  }\n  return best;\n}`,
     testCases: [{ input: [["a", "b", "a", "c", "b", "a"]], expected: "a" }, { input: [[1, 2, 2, 3]], expected: 2 }, { input: [[5]], expected: 5, hidden: true }],
+    hints: [
+      "Count occurrences as you scan.",
+      "Track the element with the highest count, breaking ties by first to reach it.",
+    ],
+    pitfalls: [
+      "Using >= for the best-count comparison flips the tie-break to the later element.",
+    ],
+    explanation: "Counting while scanning and updating the best only on a strictly higher count returns the element that first reaches the maximum frequency.",
     resources: [R.reduce],
   },
 
@@ -326,6 +569,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function sumTo(n) {\n  // your code here\n}`,
     solution: `function sumTo(n) {\n  return n <= 0 ? 0 : n + sumTo(n - 1);\n}`,
     testCases: [{ input: [5], expected: 15 }, { input: [1], expected: 1 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Base case: sumTo(0) is 0.",
+      "Recurse: n plus sumTo(n-1).",
+    ],
+    pitfalls: [
+      "Missing the base case causes infinite recursion.",
+    ],
+    explanation: "Each call adds n to the sum of everything below it, bottoming out at 0.",
     resources: [R.rec],
   },
   {
@@ -336,6 +587,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function pow(base, exp) {\n  // your code here\n}`,
     solution: `function pow(base, exp) {\n  return exp === 0 ? 1 : base * pow(base, exp - 1);\n}`,
     testCases: [{ input: [2, 5], expected: 32 }, { input: [3, 0], expected: 1 }, { input: [5, 1], expected: 5, hidden: true }],
+    hints: [
+      "Base case: exponent 0 gives 1.",
+      "Recurse: base times pow(base, exp-1).",
+    ],
+    pitfalls: [
+      "No base case leads to a stack overflow.",
+    ],
+    explanation: "Repeated multiplication unwinds from exp down to 0, where the product is 1.",
     resources: [R.rec],
   },
   {
@@ -346,6 +605,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function reverseStr(s) {\n  // your code here\n}`,
     solution: `function reverseStr(s) {\n  return s.length <= 1 ? s : reverseStr(s.slice(1)) + s[0];\n}`,
     testCases: [{ input: ["abc"], expected: "cba" }, { input: [""], expected: "" }, { input: ["a"], expected: "a", hidden: true }],
+    hints: [
+      "Base case: a string of length 0 or 1 is its own reverse.",
+      "Recurse on the tail and append the head.",
+    ],
+    pitfalls: [
+      "Forgetting the base case for empty or single-character strings.",
+    ],
+    explanation: "Reversing the rest of the string and appending the first character builds the full reversal.",
     resources: [R.rec],
   },
   {
@@ -356,6 +623,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function countDown(n) {\n  // your code here\n}`,
     solution: `function countDown(n) {\n  return n <= 0 ? [] : [n, ...countDown(n - 1)];\n}`,
     testCases: [{ input: [3], expected: [3, 2, 1] }, { input: [1], expected: [1] }, { input: [0], expected: [], hidden: true }],
+    hints: [
+      "Base case: countDown(0) is an empty array.",
+      "Prepend n to countDown(n-1).",
+    ],
+    pitfalls: [
+      "Appending instead of prepending reverses the order.",
+    ],
+    explanation: "Prepending n to the countdown of n-1 produces the descending array, ending at [].",
     resources: [R.rec],
   },
   {
@@ -366,6 +641,15 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function deepFlatten(arr) {\n  // your code here\n}`,
     solution: `function deepFlatten(arr) {\n  const out = [];\n  for (const x of arr) {\n    if (Array.isArray(x)) out.push(...deepFlatten(x));\n    else out.push(x);\n  }\n  return out;\n}`,
     testCases: [{ input: [[1, [2, [3, [4]]]]], expected: [1, 2, 3, 4] }, { input: [[]], expected: [] }, { input: [[1, [2]]], expected: [1, 2], hidden: true }],
+    hints: [
+      "For each element, recurse if it is an array, else collect it.",
+      "Spread the recursive results into the output.",
+    ],
+    pitfalls: [
+      "Only flattening one level instead of recursing fully.",
+      "Treating non-array values as iterable.",
+    ],
+    explanation: "Recursing into nested arrays and collecting scalars flattens arbitrarily deep structures.",
     resources: [R.rec],
   },
   {
@@ -376,6 +660,14 @@ export const jsFunctionsProblems: Problem[] = [
     starterCode: `function hanoi(n) {\n  // your code here\n}`,
     solution: `function hanoi(n) {\n  return n === 0 ? 0 : 2 * hanoi(n - 1) + 1;\n}`,
     testCases: [{ input: [3], expected: 7 }, { input: [1], expected: 1 }, { input: [0], expected: 0, hidden: true }],
+    hints: [
+      "Base case: zero disks take zero moves.",
+      "Recurrence: 2 * hanoi(n-1) + 1.",
+    ],
+    pitfalls: [
+      "Trying to simulate the pegs when only the move count is needed.",
+    ],
+    explanation: "Moving n disks needs moving n-1 twice plus one move, which resolves to 2^n - 1.",
     resources: [R.rec],
   },
 ];
