@@ -5,7 +5,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arrays-001",
     track: "javascript",
-    topic: "Arrays",
+    topic: "Working With Arrays",
     difficulty: "easy",
     title: "Sum of an Array",
     prompt:
@@ -25,6 +25,7 @@ export const javascriptProblems: Problem[] = [
       "Omitting the initial value breaks on an empty array.",
     ],
     explanation: "reduce with an initial 0 sums every element, returning 0 for an empty array.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 149, lectureName: "Simple Array Methods" },
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -36,7 +37,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arrays-002",
     track: "javascript",
-    topic: "Arrays",
+    topic: "Working With Arrays",
     difficulty: "easy",
     title: "Find the Maximum",
     prompt:
@@ -54,6 +55,7 @@ export const javascriptProblems: Problem[] = [
       "Math.max() with no arguments returns -Infinity.",
     ],
     explanation: "Spreading the array into Math.max yields its maximum.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 149, lectureName: "Simple Array Methods" },
     resources: [
       {
         label: "MDN: Math.max",
@@ -65,7 +67,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arrays-003",
     track: "javascript",
-    topic: "Arrays",
+    topic: "Working With Arrays",
     difficulty: "medium",
     title: "Remove Duplicates",
     prompt:
@@ -85,6 +87,7 @@ export const javascriptProblems: Problem[] = [
       "Objects are compared by reference, so a Set will not dedupe equal-looking objects.",
     ],
     explanation: "new Set keeps first occurrences in order; spreading returns the deduplicated array.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 149, lectureName: "Simple Array Methods" },
     resources: [
       {
         label: "MDN: Set",
@@ -98,7 +101,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-strings-001",
     track: "javascript",
-    topic: "Strings",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "easy",
     title: "Reverse a String",
     prompt:
@@ -118,6 +121,7 @@ export const javascriptProblems: Problem[] = [
       "This splits by code unit, so it can mangle characters outside the basic plane (emoji).",
     ],
     explanation: "Splitting to an array lets you reverse and rejoin into the reversed string.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 128, lectureName: "Working With Strings - Part 1" },
     resources: [
       {
         label: "MDN: String.prototype.split",
@@ -129,7 +133,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-strings-002",
     track: "javascript",
-    topic: "Strings",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "easy",
     title: "Count Vowels",
     prompt:
@@ -149,6 +153,7 @@ export const javascriptProblems: Problem[] = [
       "match returns null when nothing matches, which breaks .length.",
     ],
     explanation: "A global case-insensitive vowel match, guarded against null, gives the vowel count.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 128, lectureName: "Working With Strings - Part 1" },
     resources: [
       {
         label: "MDN: String.prototype.match",
@@ -160,7 +165,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-strings-003",
     track: "javascript",
-    topic: "Strings",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "medium",
     title: "Is Palindrome",
     prompt:
@@ -181,6 +186,7 @@ export const javascriptProblems: Problem[] = [
       "Skipping case normalization misjudges mixed-case palindromes.",
     ],
     explanation: "Comparing the lowercased string to its reverse checks for a palindrome regardless of case.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 128, lectureName: "Working With Strings - Part 1" },
     resources: [
       {
         label: "MDN: String.prototype.replace",
@@ -197,7 +203,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-objects-001",
     track: "javascript",
-    topic: "Objects",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "easy",
     title: "Count Object Keys",
     prompt:
@@ -216,6 +222,7 @@ export const javascriptProblems: Problem[] = [
       "Inherited properties are not included, which is usually intended.",
     ],
     explanation: "Object.keys(obj).length counts the own enumerable properties.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 118, lectureName: "Enhanced Object Literals" },
     resources: [
       {
         label: "MDN: Object.keys",
@@ -227,7 +234,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-objects-002",
     track: "javascript",
-    topic: "Objects",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "medium",
     title: "Invert an Object",
     prompt:
@@ -247,6 +254,7 @@ export const javascriptProblems: Problem[] = [
       "Numeric values become string keys.",
     ],
     explanation: "Swapping each entry's key and value produces the inverted object.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 118, lectureName: "Enhanced Object Literals" },
     resources: [
       {
         label: "MDN: Object.fromEntries",
@@ -260,7 +268,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-scope-001",
     track: "javascript",
-    topic: "Functions & Scope",
+    topic: "A Closer Look at Functions",
     difficulty: "easy",
     title: "Default Parameter Greeting",
     prompt:
@@ -280,6 +288,7 @@ export const javascriptProblems: Problem[] = [
       "Defaults apply only to undefined, not to empty string or null.",
     ],
     explanation: "The default value supplies a fallback name only when the argument is undefined.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 135, lectureName: "Default Parameters" },
     resources: [
       {
         label: "MDN: Default parameters",
@@ -293,7 +302,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-closures-001",
     track: "javascript",
-    topic: "Closures",
+    topic: "A Closer Look at Functions",
     difficulty: "medium",
     title: "Counter via Closure",
     prompt:
@@ -313,6 +322,7 @@ export const javascriptProblems: Problem[] = [
       "Declaring the counter where it resets each call loses the closed-over state.",
     ],
     explanation: "The inner function captures a private counter by closure, so repeated calls advance the same state.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 144, lectureName: "Closures" },
     resources: [
       {
         label: "MDN: Closures",
@@ -327,7 +337,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-closures-002",
     track: "javascript",
-    topic: "Closures",
+    topic: "A Closer Look at Functions",
     difficulty: "medium",
     title: "Multiplier via Closure",
     prompt:
@@ -347,6 +357,7 @@ export const javascriptProblems: Problem[] = [
       "Reading the factor from outside instead of capturing it.",
     ],
     explanation: "The returned multiplier captures factor by closure and applies it to each value.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 144, lectureName: "Closures" },
     resources: [
       {
         label: "MDN: Closures",
@@ -363,7 +374,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-hof-001",
     track: "javascript",
-    topic: "Higher-Order Functions",
+    topic: "A Closer Look at Functions",
     difficulty: "easy",
     title: "Apply a Function N Times",
     prompt:
@@ -383,6 +394,7 @@ export const javascriptProblems: Problem[] = [
       "Off-by-one in how many times the transform is applied.",
     ],
     explanation: "Repeatedly applying the operation n times folds the starting value forward, a higher-order pattern.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 137, lectureName: "First-Class and Higher-Order Functions" },
     resources: [
       {
         label: "MDN: Functions as first-class objects",
@@ -397,7 +409,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-hof-002",
     track: "javascript",
-    topic: "Higher-Order Functions",
+    topic: "A Closer Look at Functions",
     difficulty: "medium",
     title: "Pipeline of Transformations",
     prompt:
@@ -417,6 +429,7 @@ export const javascriptProblems: Problem[] = [
       "Applying steps out of order; reduce runs left to right.",
     ],
     explanation: "reduce threads the value through each named transform, composing a pipeline.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 137, lectureName: "First-Class and Higher-Order Functions" },
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -432,7 +445,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arraymethods-001",
     track: "javascript",
-    topic: "Array Methods",
+    topic: "Working With Arrays",
     difficulty: "easy",
     title: "Double Every Element",
     prompt:
@@ -450,6 +463,7 @@ export const javascriptProblems: Problem[] = [
       "Mutating the source array in a loop instead of mapping.",
     ],
     explanation: "map produces a new array with each value doubled.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 156, lectureName: "Data Transformations: map, filter, reduce" },
     resources: [
       {
         label: "MDN: Array.prototype.map",
@@ -461,7 +475,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arraymethods-002",
     track: "javascript",
-    topic: "Array Methods",
+    topic: "Working With Arrays",
     difficulty: "easy",
     title: "Filter Even Numbers",
     prompt:
@@ -480,6 +494,7 @@ export const javascriptProblems: Problem[] = [
       "Negative evens still qualify; sign does not affect parity.",
     ],
     explanation: "filter on even values returns a new array of the evens.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 156, lectureName: "Data Transformations: map, filter, reduce" },
     resources: [
       {
         label: "MDN: Array.prototype.filter",
@@ -491,7 +506,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-arraymethods-003",
     track: "javascript",
-    topic: "Array Methods",
+    topic: "Working With Arrays",
     difficulty: "medium",
     title: "Group By Length",
     prompt:
@@ -517,6 +532,7 @@ export const javascriptProblems: Problem[] = [
       "Forgetting to initialize the group array before pushing.",
     ],
     explanation: "Bucketing each string by its length produces an object mapping length to the matching words.",
+    course: { section: 11, sectionTitle: "Working With Arrays", lecture: 156, lectureName: "Data Transformations: map, filter, reduce" },
     resources: [
       {
         label: "MDN: Array.prototype.reduce",
@@ -533,7 +549,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-recursion-001",
     track: "javascript",
-    topic: "Recursion",
+    topic: "A Closer Look at Functions",
     difficulty: "easy",
     title: "Factorial",
     prompt:
@@ -553,6 +569,7 @@ export const javascriptProblems: Problem[] = [
       "No base case causes infinite recursion.",
     ],
     explanation: "Each call multiplies n by the factorial of n-1, bottoming out at 1.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 137, lectureName: "First-Class and Higher-Order Functions" },
     resources: [
       {
         label: "MDN: Recursion (glossary)",
@@ -564,7 +581,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-recursion-002",
     track: "javascript",
-    topic: "Recursion",
+    topic: "A Closer Look at Functions",
     difficulty: "medium",
     title: "Flatten Nested Array",
     prompt:
@@ -584,6 +601,7 @@ export const javascriptProblems: Problem[] = [
       "Only flattening one level instead of recursing fully.",
     ],
     explanation: "Recursing into nested arrays and gathering non-array values flattens arbitrarily deep structures.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 137, lectureName: "First-Class and Higher-Order Functions" },
     resources: [
       {
         label: "MDN: Array.prototype.flat",
@@ -600,7 +618,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-es6-001",
     track: "javascript",
-    topic: "ES6+",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "easy",
     title: "Destructure and Swap",
     prompt:
@@ -619,6 +637,7 @@ export const javascriptProblems: Problem[] = [
       "Trying to swap in place without a structure to return.",
     ],
     explanation: "Returning the reversed pair is the destructuring swap idiom.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [
       {
         label: "MDN: Destructuring assignment",
@@ -630,7 +649,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-es6-002",
     track: "javascript",
-    topic: "ES6+",
+    topic: "Data Structures, Operators & Strings",
     difficulty: "medium",
     title: "Merge Objects with Spread",
     prompt:
@@ -653,6 +672,7 @@ export const javascriptProblems: Problem[] = [
       "Spreading overrides before defaults lets defaults clobber them.",
     ],
     explanation: "Spreading defaults then the override object merges so provided values take precedence.",
+    course: { section: 9, sectionTitle: "Data Structures, Modern Operators and Strings", lecture: 111, lectureName: "The Spread Operator (...)" },
     resources: [
       {
         label: "MDN: Spread syntax",
@@ -666,7 +686,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-recursion-003",
     track: "javascript",
-    topic: "Recursion",
+    topic: "A Closer Look at Functions",
     difficulty: "hard",
     title: "Permutations of a String",
     prompt:
@@ -687,6 +707,7 @@ export const javascriptProblems: Problem[] = [
       "Building permutations without a clear base case.",
     ],
     explanation: "Choosing each character in turn and permuting the remainder generates all orderings recursively.",
+    course: { section: 10, sectionTitle: "A Closer Look at Functions", lecture: 137, lectureName: "First-Class and Higher-Order Functions" },
     resources: [
       {
         label: "MDN: Recursion (glossary)",
@@ -703,7 +724,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-dom-001",
     track: "javascript",
-    topic: "DOM Manipulation",
+    topic: "DOM & Events",
     difficulty: "easy",
     title: "Append a List Item",
     prompt:
@@ -728,6 +749,7 @@ export const javascriptProblems: Problem[] = [
       "Building HTML strings instead of creating nodes invites bugs.",
     ],
     explanation: "Creating an element node and appending it adds the list item to the DOM safely.",
+    course: { section: 7, sectionTitle: "JavaScript in the Browser: DOM and Events", lecture: 76, lectureName: "Selecting and Manipulating Elements" },
     resources: [
       {
         label: "MDN: Document.createElement",
@@ -742,7 +764,7 @@ export const javascriptProblems: Problem[] = [
   {
     id: "js-dom-002",
     track: "javascript",
-    topic: "DOM Manipulation",
+    topic: "DOM & Events",
     difficulty: "medium",
     title: "Toggle a CSS Class",
     prompt:
@@ -767,6 +789,7 @@ export const javascriptProblems: Problem[] = [
       "Manually checking and editing className is more error-prone than classList.toggle.",
     ],
     explanation: "classList.toggle flips the presence of a class in one call.",
+    course: { section: 7, sectionTitle: "JavaScript in the Browser: DOM and Events", lecture: 76, lectureName: "Selecting and Manipulating Elements" },
     resources: [
       {
         label: "MDN: Element.classList",

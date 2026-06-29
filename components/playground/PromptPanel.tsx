@@ -7,6 +7,11 @@ export function PromptPanel({ problem, solved }: { problem: Problem; solved: boo
       <div>
         <h1 className="text-xl font-bold">{problem.title}</h1>
         <span className="text-xs uppercase text-gray-400">{problem.topic} · {problem.difficulty}</span>
+        {problem.course && (
+          <p className="text-xs text-gray-400 mt-1">
+            Course · Section {problem.course.section}: {problem.course.sectionTitle} · Lecture {problem.course.lecture}: {problem.course.lectureName}
+          </p>
+        )}
       </div>
       <p className="whitespace-pre-wrap text-sm">{problem.prompt}</p>
 

@@ -10,7 +10,7 @@ const R = {
 export const jsAsyncRegexErrorsProblems: Problem[] = [
   // ---------- Async & Promises ----------
   {
-    id: "js-async-001", track: "javascript", topic: "Async & Promises", difficulty: "easy",
+    id: "js-async-001", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "easy",
     title: "Async Identity",
     prompt: "Implement an async function `asyncIdentity(x)` that resolves to `x`.",
     kind: "function", functionName: "asyncIdentity",
@@ -24,10 +24,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning a promise of a promise; just return the value.",
     ],
     explanation: "Marking the function async means returning x resolves to x for the awaiting caller.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
   {
-    id: "js-async-002", track: "javascript", topic: "Async & Promises", difficulty: "easy",
+    id: "js-async-002", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "easy",
     title: "Async Double",
     prompt: "Implement an async function `asyncDouble(n)` that resolves to `n * 2`.",
     kind: "function", functionName: "asyncDouble",
@@ -41,10 +42,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Forgetting async, so the caller cannot await it.",
     ],
     explanation: "The async function resolves to the doubled value.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
   {
-    id: "js-async-003", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-003", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Await a Promise",
     prompt: "Implement `resolveAfter(value)` that returns the result of awaiting `Promise.resolve(value)`.",
     kind: "function", functionName: "resolveAfter",
@@ -58,10 +60,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning the promise without awaiting still works for an async function, but the task asks you to await.",
     ],
     explanation: "await unwraps Promise.resolve(value) to the underlying value.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.promise],
   },
   {
-    id: "js-async-004", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-004", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Promise.all Sum",
     prompt: "Implement `sumAll(nums)` that wraps each number in a resolved promise, awaits them all with `Promise.all`, and returns the sum.",
     kind: "function", functionName: "sumAll",
@@ -76,10 +79,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "awaiting promises sequentially in a loop is slower than Promise.all.",
     ],
     explanation: "Promise.all resolves all values in parallel; reduce then sums the resolved array.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.promise],
   },
   {
-    id: "js-async-005", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-005", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Chained Then",
     prompt: "Implement `chainAdd(n)` returning a promise that resolves `n`, adds 1, then doubles the result, using `.then` chaining.",
     kind: "function", functionName: "chainAdd",
@@ -94,10 +98,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning before the chain resolves; return the chain itself.",
     ],
     explanation: "Each .then transforms the resolved value, composing add-one then double.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.promise],
   },
   {
-    id: "js-async-006", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-006", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Double All Async",
     prompt: "Implement `doubleAllAsync(nums)` that resolves each doubled value and returns them with `Promise.all`.",
     kind: "function", functionName: "doubleAllAsync",
@@ -111,10 +116,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning an array of promises instead of awaiting/returning Promise.all.",
     ],
     explanation: "Promise.all over the mapped doubled promises resolves to the array of doubled numbers.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.promise],
   },
   {
-    id: "js-async-007", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-007", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Catch a Rejection",
     prompt: "Implement an async function `safeDivide(a, b)` that returns `a / b`, but if `b` is `0` it throws and catches the error, returning `null`.",
     kind: "function", functionName: "safeDivide",
@@ -129,10 +135,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Throwing without a catch rejects the promise instead of returning null.",
     ],
     explanation: "Wrapping the divide in try/catch converts the zero-divisor error into a null result.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
   {
-    id: "js-async-008", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-008", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Await with Default",
     prompt: "Implement an async function `fetchOrDefault(value, fallback)` returning `value` when it is not null or undefined, otherwise `fallback`.",
     kind: "function", functionName: "fetchOrDefault",
@@ -147,10 +154,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Using || would replace valid falsy values like 0.",
     ],
     explanation: "?? returns the value unless it is nullish, otherwise the fallback, inside an async function.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
   {
-    id: "js-async-009", track: "javascript", topic: "Async & Promises", difficulty: "medium",
+    id: "js-async-009", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Sequential Accumulate",
     prompt: "Implement an async function `accumulateAsync(nums)` that awaits each number in sequence and returns the total.",
     kind: "function", functionName: "accumulateAsync",
@@ -165,10 +173,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Sequential awaits are slower than Promise.all when order does not matter.",
     ],
     explanation: "Awaiting each value in sequence and accumulating gives the total, demonstrating for-await-style flow.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
   {
-    id: "js-async-010", track: "javascript", topic: "Async & Promises", difficulty: "hard",
+    id: "js-async-010", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "hard",
     title: "Async Step Pipeline",
     prompt: "Implement an async function `pipelineAsync(value, steps)` that awaits each named step applied to `value` in order. Steps are `inc` (add 1) or `double` (multiply by 2).",
     kind: "function", functionName: "pipelineAsync",
@@ -183,12 +192,13 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Not awaiting inside the loop, mixing pending promises into the value.",
     ],
     explanation: "Awaiting each named step in order builds an async pipeline over the starting value.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 263, lectureName: "Promises and the Fetch API" },
     resources: [R.async],
   },
 
   // ---------- Regex ----------
   {
-    id: "js-regex-001", track: "javascript", topic: "Regex", difficulty: "easy",
+    id: "js-regex-001", track: "javascript", topic: "Beyond the Course", difficulty: "easy",
     title: "Contains a Digit",
     prompt: "Implement `hasDigit(s)` returning whether `s` contains at least one digit.",
     kind: "function", functionName: "hasDigit",
@@ -206,7 +216,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-002", track: "javascript", topic: "Regex", difficulty: "easy",
+    id: "js-regex-002", track: "javascript", topic: "Beyond the Course", difficulty: "easy",
     title: "Extract Number Groups",
     prompt: "Implement `extractNumbers(s)` returning an array of the digit-runs found in `s`, or an empty array if there are none.",
     kind: "function", functionName: "extractNumbers",
@@ -224,7 +234,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-003", track: "javascript", topic: "Regex", difficulty: "easy",
+    id: "js-regex-003", track: "javascript", topic: "Beyond the Course", difficulty: "easy",
     title: "Simple Email Check",
     prompt: "Implement `isEmail(s)` returning whether `s` looks like `name@host.tld` (no spaces, exactly one at-sign, and a dot in the host part).",
     kind: "function", functionName: "isEmail",
@@ -242,7 +252,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-004", track: "javascript", topic: "Regex", difficulty: "medium",
+    id: "js-regex-004", track: "javascript", topic: "Beyond the Course", difficulty: "medium",
     title: "Collapse Whitespace",
     prompt: "Implement `collapseSpaces(s)` that replaces any run of whitespace with a single space and trims the ends.",
     kind: "function", functionName: "collapseSpaces",
@@ -260,7 +270,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-005", track: "javascript", topic: "Regex", difficulty: "medium",
+    id: "js-regex-005", track: "javascript", topic: "Beyond the Course", difficulty: "medium",
     title: "Count Words with Regex",
     prompt: "Implement `countWords(s)` returning the number of word tokens in `s`, matching runs of word characters.",
     kind: "function", functionName: "countWords",
@@ -278,7 +288,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-006", track: "javascript", topic: "Regex", difficulty: "medium",
+    id: "js-regex-006", track: "javascript", topic: "Beyond the Course", difficulty: "medium",
     title: "Mask Digits",
     prompt: "Implement `maskDigits(s)` replacing every digit with an asterisk.",
     kind: "function", functionName: "maskDigits",
@@ -295,7 +305,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
     resources: [R.regex],
   },
   {
-    id: "js-regex-007", track: "javascript", topic: "Regex", difficulty: "hard",
+    id: "js-regex-007", track: "javascript", topic: "Beyond the Course", difficulty: "hard",
     title: "Reformat a Date",
     prompt: "Implement `reformatDate(s)` converting a date from `YYYY-MM-DD` to `DD/MM/YYYY` using capture groups.",
     kind: "function", functionName: "reformatDate",
@@ -315,7 +325,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
 
   // ---------- Error Handling ----------
   {
-    id: "js-errors-001", track: "javascript", topic: "Error Handling", difficulty: "easy",
+    id: "js-errors-001", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "easy",
     title: "Safe JSON Parse",
     prompt: "Implement `safeParse(s)` returning the parsed JSON value, or `null` if `s` is not valid JSON.",
     kind: "function", functionName: "safeParse",
@@ -330,10 +340,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Letting the parse error propagate instead of catching it.",
     ],
     explanation: "try/catch around JSON.parse returns the parsed value or null for invalid JSON.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 275, lectureName: "Error Handling With try...catch" },
     resources: [R.errors],
   },
   {
-    id: "js-errors-002", track: "javascript", topic: "Error Handling", difficulty: "easy",
+    id: "js-errors-002", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "easy",
     title: "Safe Divide",
     prompt: "Implement `safeDiv(a, b)` that throws when `b` is `0`, catches it, and returns `null`; otherwise returns `a / b`.",
     kind: "function", functionName: "safeDiv",
@@ -348,10 +359,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning Infinity by dividing by zero without the guard.",
     ],
     explanation: "The try/catch converts the zero-divisor error into a null result.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 275, lectureName: "Error Handling With try...catch" },
     resources: [R.errors],
   },
   {
-    id: "js-errors-003", track: "javascript", topic: "Error Handling", difficulty: "medium",
+    id: "js-errors-003", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Default on Out-of-Range",
     prompt: "Implement `tryOrDefault(arr, index, fallback)` that reads `arr[index]` from a helper which throws when the index is out of range, returning `fallback` if it throws.",
     kind: "function", functionName: "tryOrDefault",
@@ -366,10 +378,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning undefined for an out-of-range index instead of the fallback.",
     ],
     explanation: "Wrapping a throwing accessor in try/catch lets you supply a fallback on bad indices.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 275, lectureName: "Error Handling With try...catch" },
     resources: [R.errors],
   },
   {
-    id: "js-errors-004", track: "javascript", topic: "Error Handling", difficulty: "medium",
+    id: "js-errors-004", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Validate with Thrown Errors",
     prompt: "Implement `checkAge(age)` returning `ok` when `age` is between 0 and 120 inclusive, otherwise `invalid`. Use a thrown error and a catch internally.",
     kind: "function", functionName: "checkAge",
@@ -384,10 +397,11 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Returning a boolean instead of the expected strings.",
     ],
     explanation: "Validation via thrown errors and a catch maps in-range ages to 'ok' and the rest to 'invalid'.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 275, lectureName: "Error Handling With try...catch" },
     resources: [R.errors],
   },
   {
-    id: "js-errors-005", track: "javascript", topic: "Error Handling", difficulty: "medium",
+    id: "js-errors-005", track: "javascript", topic: "Asynchronous JavaScript", difficulty: "medium",
     title: "Try, Catch, Finally Order",
     prompt: "Implement `trace(shouldThrow)` that records which blocks run. Push `try` on success or `catch` on failure, and always push `finally`, returning the log array.",
     kind: "function", functionName: "trace",
@@ -402,6 +416,7 @@ export const jsAsyncRegexErrorsProblems: Problem[] = [
       "Assuming finally is skipped on error; it always runs.",
     ],
     explanation: "The log records which path ran, showing that finally executes whether or not an error was thrown.",
+    course: { section: 16, sectionTitle: "Asynchronous JavaScript: Promises, Async/Await, and AJAX", lecture: 275, lectureName: "Error Handling With try...catch" },
     resources: [R.errors],
   },
 ];

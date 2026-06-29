@@ -14,6 +14,13 @@ export type TestCase = {
 
 export type Resource = { label: string; url: string };
 
+export type CourseRef = {
+  section: number;
+  sectionTitle: string;
+  lecture: number;
+  lectureName: string;
+};
+
 export type Problem = {
   id: string;
   track: Track;
@@ -31,4 +38,5 @@ export type Problem = {
   hints?: string[];
   pitfalls?: string[];
   explanation?: string;
+  course?: CourseRef;
 };
