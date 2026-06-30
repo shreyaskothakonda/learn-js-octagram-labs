@@ -13,6 +13,7 @@ import { dataStructureProblems } from "./problems/data-structures";
 import { algorithmProblems } from "./problems/algorithms";
 import { dsExtraProblems } from "./problems/ds-extra";
 import { dsExtra2Problems } from "./problems/ds-extra-2";
+import { dsExtra3Problems } from "./problems/ds-extra-3";
 import { interviewProblems } from "./problems/interview";
 import { interview2Problems } from "./problems/interview-2";
 import { reactDesignProblems } from "./problems/react-design";
@@ -31,6 +32,7 @@ const ALL: Problem[] = [
   ...algorithmProblems,
   ...dsExtraProblems,
   ...dsExtra2Problems,
+  ...dsExtra3Problems,
   ...interviewProblems,
   ...interview2Problems,
   ...reactDesignProblems,
