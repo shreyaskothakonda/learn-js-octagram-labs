@@ -8,6 +8,7 @@ import { jsDomProblems } from "./problems/js-dom";
 import { jsCourseExtraProblems } from "./problems/js-course-extra";
 import { jsCourseExtra2Problems } from "./problems/js-course-extra-2";
 import { jsCourseExtra3Problems } from "./problems/js-course-extra-3";
+import { jsHardExtraProblems } from "./problems/js-hard-extra";
 import { reactProblems } from "./problems/react";
 import { dataStructureProblems } from "./problems/data-structures";
 import { algorithmProblems } from "./problems/algorithms";
@@ -28,6 +29,7 @@ const ALL: Problem[] = [
   ...jsCourseExtraProblems,
   ...jsCourseExtra2Problems,
   ...jsCourseExtra3Problems,
+  ...jsHardExtraProblems,
   ...dataStructureProblems,
   ...algorithmProblems,
   ...dsExtraProblems,
