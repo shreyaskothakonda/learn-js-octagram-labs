@@ -613,7 +613,7 @@ export const javascriptConcepts: Concept[] = [
       "Ordering a list of dates or timestamps chronologically.",
       "Alphabetizing names or labels correctly with localeCompare instead of the default string sort.",
     ],
-    relatedProblemIds: ["js-arrays-004", "js-arraymethods-009", "js-arraymethods-010", "js-arrays-010"],
+    relatedProblemIds: ["js-s11-007", "js-arrays-004", "js-arraymethods-009", "js-arraymethods-010"],
     visual: "sorting-arrays",
     furtherReading: [
       { label: "MDN: Array.prototype.sort()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" },
