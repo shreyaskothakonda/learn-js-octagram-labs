@@ -16,6 +16,16 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "primitives-vs-references": lazy(() =>
     import("./primitives-vs-references").then((m) => ({ default: m.PrimitivesVsReferencesVisual })),
   ),
+  "data-types-and-coercion": lazy(() =>
+    import("./data-types-and-coercion").then((m) => ({ default: m.DataTypesAndCoercionVisual })),
+  ),
+  "let-const-var-tdz": lazy(() =>
+    import("./let-const-var-tdz").then((m) => ({ default: m.LetConstVarTdzVisual })),
+  ),
+  "truthy-falsy": lazy(() => import("./truthy-falsy").then((m) => ({ default: m.TruthyFalsyVisual }))),
+  "operators-precedence": lazy(() =>
+    import("./operators-precedence").then((m) => ({ default: m.OperatorsPrecedenceVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

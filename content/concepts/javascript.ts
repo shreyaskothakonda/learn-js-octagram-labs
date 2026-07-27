@@ -176,4 +176,140 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: JavaScript data types and data structures", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures" },
     ],
   },
+  {
+    slug: "data-types-and-coercion",
+    track: "javascript",
+    topic: "Fundamentals: Part 1",
+    title: "Data Types and Coercion",
+    oneLiner: "JavaScript has a small set of built-in types, and it converts between them automatically when an operator expects a different one.",
+    definition:
+      "JavaScript has seven primitive types (string, number, boolean, null, undefined, symbol, bigint) plus object, and `typeof` tells you which one a value currently is. Primitives are compared and copied by value, while objects (including arrays and functions) are reference types.\n\nType coercion is the automatic conversion the engine performs when an operator or context expects a different type than the one it got. The `+` operator prefers strings: if either operand is a string, the other is converted to a string and the two are concatenated. Every other arithmetic operator (`-`, `*`, `/`) prefers numbers, so it converts both operands to numbers first. This is why `\"5\" + 1` produces the string `\"51\"` but `\"5\" - 1` produces the number `4`: the same numeric-looking string takes two different paths depending on which operator is asking.",
+    examples: [
+      {
+        code: "typeof \"hi\";    // \"string\"\ntypeof 42;      // \"number\"\ntypeof true;    // \"boolean\"\ntypeof undefined; // \"undefined\"\ntypeof null;    // \"object\" (a long-standing quirk)",
+        explanation: "typeof reports the current type of a value; null famously reports \"object\" due to a bug preserved for compatibility.",
+      },
+      {
+        code: "\"5\" + 1;  // \"51\" (+ prefers strings, so 1 becomes \"1\")\n\"5\" - 1;  // 4    (- prefers numbers, so \"5\" becomes 5)\n\"5\" * \"2\"; // 10   (both operands coerce to numbers)",
+        explanation: "The operator decides the coercion direction: + concatenates when a string is involved, while -, *, and / always coerce toward numbers.",
+      },
+      {
+        code: "Number(\"42\");   // 42\nString(42);      // \"42\"\nBoolean(\"\");     // false",
+        explanation: "Number(), String(), and Boolean() perform the same conversions explicitly, which is clearer and safer than relying on an operator to coerce implicitly.",
+      },
+    ],
+    realWorldUseCases: [
+      "Converting form input (always strings) into numbers with Number() before doing math on it.",
+      "Debugging a bug where + concatenated two values instead of adding them.",
+      "Using explicit String()/Number() conversions instead of relying on implicit coercion at API boundaries.",
+      "Understanding why == triggers coercion while === does not, and why the strict operator is usually preferred.",
+    ],
+    relatedProblemIds: ["js-types-001", "js-types-004", "js-types-006", "js-operators-003"],
+    visual: "data-types-and-coercion",
+    furtherReading: [
+      { label: "MDN: Type coercion", url: "https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion" },
+    ],
+  },
+  {
+    slug: "let-const-var-tdz",
+    track: "javascript",
+    topic: "Fundamentals: Part 2",
+    title: "let, const, var, and the Temporal Dead Zone",
+    oneLiner: "let and const are block-scoped and unreachable until their line runs, while var is function-scoped and available as undefined from the top.",
+    definition:
+      "`var` declarations are function-scoped (or global-scoped) and hoisted with an initial value of `undefined`, so a `var` variable exists and reads as `undefined` from the very top of its scope, even before its declaration line runs. This makes `var` easy to misuse: it ignores block boundaries like `if` and `for`, so the same name can leak out of a loop or conditional.\n\n`let` and `const` are block-scoped, confined to the nearest `{}`. They are registered ahead of time like `var`, but they stay in the temporal dead zone (TDZ) from the start of the block until their declaration line actually executes. Accessing a `let`/`const` variable inside its TDZ throws a `ReferenceError` instead of silently returning `undefined`. `const` additionally forbids reassigning the binding after it is set (though the value it points to, if an object, can still be mutated).",
+    examples: [
+      {
+        code: "console.log(count); // ReferenceError: Cannot access 'count' before initialization\nlet count = 5;\nconsole.log(count); // 5",
+        explanation: "count exists as soon as the block starts, but it stays in the temporal dead zone until its declaration line runs, so reading it earlier throws instead of returning undefined.",
+      },
+      {
+        code: "console.log(msg); // undefined (no error)\nvar msg = \"hi\";\nconsole.log(msg); // \"hi\"",
+        explanation: "var is hoisted and initialized to undefined immediately, so reading it before its assignment line is legal but returns undefined rather than the eventual value.",
+      },
+      {
+        code: "for (var i = 0; i < 3; i++) {}\nconsole.log(i); // 3, i leaked out of the loop\n\nfor (let j = 0; j < 3; j++) {}\nconsole.log(j); // ReferenceError, j is block-scoped to the loop",
+        explanation: "var ignores the for loop's block boundary and leaks into the enclosing scope, while let is confined to the loop body.",
+      },
+    ],
+    realWorldUseCases: [
+      "Choosing let/const by default so a typo or early read throws immediately instead of silently producing undefined.",
+      "Avoiding the classic var-in-a-loop bug where every closure captures the same leaked variable.",
+      "Reasoning about a 'Cannot access before initialization' error, which points at a TDZ violation, not a missing declaration.",
+      "Using const to signal a binding will never be reassigned, catching accidental reassignment at parse time.",
+    ],
+    relatedProblemIds: ["js-fund2-003", "js-fund2-008", "js-fund2-010"],
+    visual: "let-const-var-tdz",
+    furtherReading: [
+      { label: "MDN: Temporal dead zone (TDZ)", url: "https://developer.mozilla.org/en-US/docs/Glossary/Temporal_dead_zone_TDZ" },
+    ],
+  },
+  {
+    slug: "truthy-falsy",
+    track: "javascript",
+    topic: "Fundamentals: Part 2",
+    title: "Truthy and Falsy Values",
+    oneLiner: "Every value is truthy unless it is one of a short, memorizable list of falsy values.",
+    definition:
+      "In a boolean context, such as an `if` condition or the `!` operator, JavaScript coerces any value to `true` or `false`. There are only eight falsy values: `false`, `0`, `-0`, `0n`, `\"\"` (empty string), `null`, `undefined`, and `NaN`. Every other value is truthy, including values that might feel empty or negative, like `\"0\"` (a non-empty string), an empty array `[]`, and an empty object `{}`, because arrays and objects are always truthy regardless of what they contain.\n\nThis rule powers common patterns like `if (value)` as a shorthand null/empty check, `value || fallback` for defaults, and `!!value` to force a value into an explicit boolean. It is also a common source of bugs: `value || fallback` treats a legitimate `0` or `\"\"` as missing, which is why the nullish coalescing operator `??` (which only falls back on `null`/`undefined`) is often the safer choice.",
+    examples: [
+      {
+        code: "Boolean(0);         // false\nBoolean(\"\");         // false\nBoolean(null);       // false\nBoolean(undefined);  // false\nBoolean(NaN);        // false",
+        explanation: "These are five of the eight falsy values; false, -0, and 0n round out the full list.",
+      },
+      {
+        code: "Boolean(\"0\");  // true, a non-empty string\nBoolean([]);    // true, an array is always truthy\nBoolean({});    // true, an object is always truthy",
+        explanation: "The string \"0\" and empty containers are common gotchas: they look empty but coerce to true because only the eight exact falsy values coerce to false.",
+      },
+      {
+        code: "const count = 0;\nconst shown = count || \"no items\"; // \"no items\", a bug: 0 was meaningful\nconst safe = count ?? \"no items\";  // 0, correct: only null/undefined fall back",
+        explanation: "|| falls back on any falsy value, so a real 0 gets discarded; ?? only falls back on null or undefined, preserving 0 as a valid value.",
+      },
+    ],
+    realWorldUseCases: [
+      "Writing guard clauses like if (!user) return; to short-circuit on null, undefined, or empty values.",
+      "Using !!value to coerce an arbitrary value into an explicit true/false for a UI flag.",
+      "Debugging a default value that silently overrides a legitimate 0 or empty string because || was used instead of ??.",
+      "Checking array.length (truthy when non-zero, falsy when 0) instead of the array itself, which is always truthy.",
+    ],
+    relatedProblemIds: ["js-fund2-005", "js-fund2-006", "js-fund2-009"],
+    visual: "truthy-falsy",
+    furtherReading: [
+      { label: "MDN: Truthy", url: "https://developer.mozilla.org/en-US/docs/Glossary/Truthy" },
+    ],
+  },
+  {
+    slug: "operators-precedence",
+    track: "javascript",
+    topic: "Fundamentals: Part 1",
+    title: "Operator Precedence and Associativity",
+    oneLiner: "When an expression mixes operators, precedence decides which one runs first, and associativity decides the order among operators of equal precedence.",
+    definition:
+      "Every operator has a precedence level that determines how tightly it binds its operands. Multiplication and division bind tighter than addition and subtraction, so `2 + 3 * 4` evaluates the multiplication first (`3 * 4` → `12`) and then the addition (`2 + 12` → `14`), the same left-to-right-by-precedence rule taught in arithmetic. Comparison operators bind looser than arithmetic, logical `&&` binds tighter than `||`, and the assignment operators bind loosest of all, which is why `a = b + c` assigns the sum rather than trying to add `c` to the result of `a = b`.\n\nWhen two operators share the same precedence, associativity breaks the tie. Most binary operators, like `+` and `-`, are left-associative, evaluating left to right. A few, like the exponentiation operator `**` and the assignment operators, are right-associative, so `2 ** 3 ** 2` evaluates the rightmost `**` first (`3 ** 2` → `9`, then `2 ** 9` → `512`). Parentheses always override both rules, which is why wrapping a sub-expression in `()` is the clearest way to force a specific evaluation order.",
+    examples: [
+      {
+        code: "2 + 3 * 4;   // 14, not 20: * runs before +\n(2 + 3) * 4; // 20: parentheses override precedence",
+        explanation: "Multiplication has higher precedence than addition, so it evaluates first unless parentheses force a different order.",
+      },
+      {
+        code: "2 ** 3 ** 2; // 512, not 64: ** is right-associative\n(2 ** 3) ** 2; // 64",
+        explanation: "Exponentiation groups from the right, so the rightmost ** evaluates first: 3 ** 2 is 9, then 2 ** 9 is 512.",
+      },
+      {
+        code: "true || false && false; // true, && binds tighter than ||\n(true || false) && false; // false",
+        explanation: "&& has higher precedence than ||, so it is evaluated as true || (false && false), not (true || false) && false.",
+      },
+    ],
+    realWorldUseCases: [
+      "Adding parentheses around a mixed && / || condition so the intended grouping is obvious, not just technically correct.",
+      "Debugging a calculation that silently used the wrong order of operations because of missing parentheses.",
+      "Understanding why a = b = 5 works (assignment is right-associative) when chaining assignments.",
+      "Reading dense conditional expressions in existing code by mentally applying precedence before associativity.",
+    ],
+    relatedProblemIds: ["js-operators-001", "js-operators-002", "js-operators-006", "js-types-002"],
+    visual: "operators-precedence",
+    furtherReading: [
+      { label: "MDN: Operator precedence", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence" },
+    ],
+  },
 ];
