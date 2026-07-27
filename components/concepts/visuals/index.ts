@@ -47,6 +47,13 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "sorting-arrays": lazy(() =>
     import("./sorting-arrays").then((m) => ({ default: m.SortingArraysVisual })),
   ),
+  "prototypes-inheritance": lazy(() =>
+    import("./prototypes-inheritance").then((m) => ({ default: m.PrototypesInheritanceVisual })),
+  ),
+  "es6-classes": lazy(() => import("./es6-classes").then((m) => ({ default: m.Es6ClassesVisual }))),
+  "getters-setters": lazy(() =>
+    import("./getters-setters").then((m) => ({ default: m.GettersSettersVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

@@ -619,4 +619,107 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: Array.prototype.sort()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" },
     ],
   },
+  {
+    slug: "prototypes-inheritance",
+    track: "javascript",
+    topic: "Object-Oriented Programming",
+    title: "Prototypes and Inheritance",
+    oneLiner: "When an object does not have a property itself, JavaScript looks for it on the object's prototype instead.",
+    definition:
+      "Every JavaScript object has an internal link to another object called its prototype, accessible through `Object.getPrototypeOf(obj)` or the legacy `__proto__` accessor. When you read a property, the engine first checks the object's own properties. If the property is not there, it does not give up, it follows the prototype link and checks that object's own properties, then that object's prototype, and so on. This sequence of linked objects is the prototype chain, and it ends at `Object.prototype`, whose own prototype is `null`. If the chain runs out with no match, the read returns `undefined` instead of throwing.\n\nThis is how methods are shared without copying them onto every object. A constructor function's methods usually live on `Constructor.prototype`, one shared object, and every instance created with `new Constructor()` gets its `[[Prototype]]` set to that same object. So `instance.method()` works even though `method` is never an own property of `instance`, the lookup walks up to the prototype and finds it there. Own properties always win over inherited ones: if an instance defines its own version of a name, the chain walk stops at the instance and the prototype's version is never reached.",
+    examples: [
+      {
+        code: "function Dog(name) {\n  this.name = name;\n}\nDog.prototype.speak = function () {\n  return this.name + \" barks\";\n};\nconst rex = new Dog(\"Rex\");\nrex.speak(); // \"Rex barks\"",
+        explanation: "rex has no own speak property, so the lookup walks up rex's prototype link to Dog.prototype, finds speak there, and calls it with this bound to rex.",
+      },
+      {
+        code: "const rex = { name: \"Rex\" };\nconst animal = { legs: 4 };\nObject.setPrototypeOf(rex, animal);\nrex.legs; // 4, found on the prototype\nrex.hasOwnProperty(\"legs\"); // false",
+        explanation: "legs is not an own property of rex, but the prototype chain reaches animal and finds it there, while hasOwnProperty correctly reports that rex itself never had it.",
+      },
+      {
+        code: "function Base() {}\nBase.prototype.greet = () => \"hi\";\nconst obj = {};\nObject.setPrototypeOf(obj, Base.prototype);\nobj.missing; // undefined, chain reaches Object.prototype then null",
+        explanation: "When no object in the chain has the property, the walk reaches Object.prototype, then its prototype null, and the read quietly returns undefined.",
+      },
+    ],
+    realWorldUseCases: [
+      "Understanding why every array has methods like map and push without those methods being copied onto each array.",
+      "Debugging why a method call works on an object that never explicitly defined that method.",
+      "Reasoning about memory: shared prototype methods cost one function per class, not one per instance.",
+      "Recognizing why own properties (like an instance field) shadow a same-named prototype method.",
+      "Understanding how class syntax and Object.create both build on this same underlying mechanism.",
+    ],
+    relatedProblemIds: ["js-s14-007", "js-s14-002", "js-classes-007", "js-s14-005"],
+    visual: "prototypes-inheritance",
+    furtherReading: [
+      { label: "MDN: Object prototypes", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Object_prototypes" },
+    ],
+  },
+  {
+    slug: "es6-classes",
+    track: "javascript",
+    topic: "Object-Oriented Programming",
+    title: "ES6 Classes",
+    oneLiner: "A class is syntax on top of a constructor function and its prototype, not a new kind of object.",
+    definition:
+      "The `class` keyword, introduced in ES6, is syntactic sugar over the constructor function and prototype pattern JavaScript already had. Writing `class Dog { constructor(name) { this.name = name; } bark() { return this.name + \" barks\"; } }` produces the same shape under the hood as a `function Dog(name)` with `this.name = name`, plus a `bark` method assigned to `Dog.prototype`. Every method written inside the class body, other than the constructor, is placed on the prototype automatically, so all instances share one copy instead of getting their own.\n\nCalling `new Dog(\"Rex\")` creates a new plain object, sets its internal prototype to `Dog.prototype`, runs the constructor with `this` bound to that new object, and returns it. `class Puppy extends Dog` builds `Puppy.prototype` with `Dog.prototype` as its own prototype, chaining the two, and `super(name)` inside `Puppy`'s constructor calls `Dog`'s constructor first. Classes add conveniences the older pattern does not have for free, like a body that throws if called without `new`, and methods that are non-enumerable by default, but the underlying mechanism is the same prototype chain.",
+    examples: [
+      {
+        code: "class Dog {\n  constructor(name) {\n    this.name = name;\n  }\n  bark() {\n    return this.name + \" barks\";\n  }\n}\nconst rex = new Dog(\"Rex\");\nrex.bark(); // \"Rex barks\"\ntypeof Dog.prototype.bark; // \"function\"",
+        explanation: "bark is defined in the class body but ends up on Dog.prototype, exactly where a hand-written prototype method would live.",
+      },
+      {
+        code: "class Animal {\n  constructor(name) { this.name = name; }\n  speak() { return this.name + \" makes a sound\"; }\n}\nclass Cat extends Animal {\n  speak() { return this.name + \" meows\"; }\n}\nnew Cat(\"Milo\").speak(); // \"Milo meows\"",
+        explanation: "extends links Cat.prototype to Animal.prototype, and Cat's own speak on its prototype shadows Animal's version for Cat instances.",
+      },
+      {
+        code: "class Counter {\n  static instances = 0;\n  constructor() {\n    Counter.instances++;\n  }\n}\nnew Counter();\nnew Counter();\nCounter.instances; // 2",
+        explanation: "static fields and methods live on the class itself, Counter, rather than on Counter.prototype or on individual instances.",
+      },
+    ],
+    realWorldUseCases: [
+      "Modeling domain objects like ShoppingCart or BankAccount with clear constructors and shared methods.",
+      "Building inheritance hierarchies, like a base Shape class with Square and Rect subclasses overriding area().",
+      "Reading unfamiliar codebases that mix class syntax with older constructor-function code, knowing they compile to the same thing.",
+      "Using static methods for utilities that belong to the class itself rather than to any one instance.",
+    ],
+    relatedProblemIds: ["js-classes-001", "js-classes-004", "js-classes-005", "js-s14-005"],
+    visual: "es6-classes",
+    furtherReading: [
+      { label: "MDN: Classes", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes" },
+    ],
+  },
+  {
+    slug: "getters-setters",
+    track: "javascript",
+    topic: "Object-Oriented Programming",
+    title: "Getters and Setters",
+    oneLiner: "A getter runs code when a property is read, and a setter runs code when a property is assigned.",
+    definition:
+      "A getter, defined with `get propName()`, and a setter, defined with `set propName(value)`, let a property look like a plain field from the outside while actually running a function underneath. Reading `obj.propName` invokes the getter and uses its return value, no parentheses needed, and writing `obj.propName = value` invokes the setter with `value` as its argument instead of just storing it directly.\n\nThis makes two things possible that a plain property cannot do. A getter can compute a value on the fly from other data, like a `fullName` getter that joins `first` and `last`, so there is nothing to keep in sync. A setter can validate or transform an incoming value before it is stored, like rejecting a negative age, throwing, or clamping it, so invalid state never gets written to the backing field. By convention the real data is kept in a differently named property, often prefixed with an underscore like `_age`, since a setter named `age` that also tries to write directly to `this.age` would call itself again and overflow the call stack.",
+    examples: [
+      {
+        code: "class Temperature {\n  constructor(celsius) {\n    this.celsius = celsius;\n  }\n  get fahrenheit() {\n    return this.celsius * 9 / 5 + 32;\n  }\n}\nnew Temperature(20).fahrenheit; // 68, computed on read, no parentheses",
+        explanation: "fahrenheit is not stored anywhere, the getter recomputes it from celsius every time it is read.",
+      },
+      {
+        code: "class Account {\n  #balance = 0;\n  get balance() {\n    return this.#balance;\n  }\n  set balance(value) {\n    if (value < 0) throw new Error(\"Balance cannot be negative\");\n    this.#balance = value;\n  }\n}\nconst a = new Account();\na.balance = 100; // setter runs, passes validation\na.balance; // 100\na.balance = -5; // throws, #balance stays 100",
+        explanation: "Assigning to balance routes through the setter, which validates the incoming value before touching the private #balance field, so an invalid assignment never changes the stored value.",
+      },
+      {
+        code: "const obj = {\n  _name: \"Ada\",\n  get name() { return this._name; },\n  set name(value) { this._name = value.trim(); },\n};\nobj.name = \"  Grace \";\nobj.name; // \"Grace\", whitespace trimmed by the setter",
+        explanation: "The setter transforms the incoming string before storing it, and the getter always reads back the already-cleaned value.",
+      },
+    ],
+    realWorldUseCases: [
+      "Validating a value, like rejecting a negative age or an empty username, before it is ever stored.",
+      "Exposing a computed, always-up-to-date value, like a fullName or a total, without a separate field to keep in sync.",
+      "Normalizing input on write, like trimming whitespace or lowercasing an email, so callers cannot forget to do it.",
+      "Guarding a private field so external code can only change it through a validated setter, never directly.",
+    ],
+    relatedProblemIds: ["js-s14-003", "js-classes-006", "js-s14-006"],
+    visual: "getters-setters",
+    furtherReading: [
+      { label: "MDN: get", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get" },
+    ],
+  },
 ];
