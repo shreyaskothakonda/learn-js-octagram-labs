@@ -722,4 +722,124 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: get", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get" },
     ],
   },
+  {
+    slug: "the-event-loop",
+    track: "javascript",
+    topic: "Asynchronous JavaScript",
+    title: "The Event Loop",
+    oneLiner: "The engine finishes the current script, drains every pending microtask, then runs one task from the macrotask queue, on repeat.",
+    definition:
+      "JavaScript runs on a single thread with one call stack, so it can only execute one piece of code at a time. Asynchronous work, like timers, network responses, and promise resolutions, does not run on that stack while your code is busy; instead the browser or Node schedules the associated callback to run later and holds it in a queue until the stack is free. The event loop is the mechanism that watches the call stack and, once it is empty, decides which queued callback gets to run next.\n\nThere are two kinds of queues involved. The microtask queue holds jobs like resolved-promise `.then`/`.catch`/`.finally` callbacks and `queueMicrotask` callbacks. The macrotask queue, sometimes called the task or callback queue, holds things like `setTimeout`, `setInterval`, and I/O callbacks. Every time the call stack becomes empty, the event loop first drains the entire microtask queue, running every microtask, including any new ones those microtasks schedule, before it looks at the macrotask queue at all. Only once the microtask queue is completely empty does it pull one macrotask off the queue, run it to completion, and then repeat the cycle: drain microtasks again, then take the next macrotask.\n\nThis ordering explains a common surprise: a `setTimeout(fn, 0)` does not run immediately after zero milliseconds, it runs after all synchronous code and all microtasks scheduled up to that point, because the timer callback has to wait its turn in the macrotask queue while promise callbacks jump the line in the microtask queue.",
+    examples: [
+      {
+        code: "console.log(1);\nsetTimeout(() => console.log(4), 0);\nPromise.resolve().then(() => console.log(3));\nconsole.log(2);\n// logs: 1, 2, 3, 4",
+        explanation: "1 and 2 run synchronously on the call stack. The Promise callback becomes a microtask and the setTimeout callback becomes a macrotask; once the stack empties, the microtask (3) drains before the single macrotask (4) gets a turn.",
+      },
+      {
+        code: "Promise.resolve().then(() => {\n  console.log(\"microtask A\");\n  Promise.resolve().then(() => console.log(\"microtask B\"));\n});\nsetTimeout(() => console.log(\"macrotask\"), 0);\n// logs: microtask A, microtask B, macrotask",
+        explanation: "Microtask A schedules a brand new microtask B while it runs. The event loop keeps draining the microtask queue until it is completely empty, so B also runs before the waiting macrotask gets a turn.",
+      },
+    ],
+    realWorldUseCases: [
+      "Explaining why a setTimeout(fn, 0) runs after promise callbacks that were scheduled after it.",
+      "Debugging UI updates that seem to lag one tick behind a promise resolution.",
+      "Understanding why a long chain of .then() calls can starve macrotasks like rendering or timers if it never stops producing new microtasks.",
+      "Reasoning about the order of async/await code relative to setTimeout and DOM events.",
+    ],
+    relatedProblemIds: ["js-async-003", "js-async-005", "js-s16-003"],
+    visual: "the-event-loop",
+    furtherReading: [
+      { label: "MDN: The event loop", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop" },
+    ],
+  },
+  {
+    slug: "promises",
+    track: "javascript",
+    topic: "Asynchronous JavaScript",
+    title: "Promises",
+    oneLiner: "A promise is a placeholder for a value that starts pending and settles exactly once, to fulfilled or rejected.",
+    definition:
+      "A `Promise` represents the eventual result of an asynchronous operation. It starts in the pending state and settles exactly one time, either to fulfilled, meaning the operation succeeded and produced a value, or rejected, meaning the operation failed and produced a reason. Once a promise settles, its state and value are locked in forever: calling `.then()` on an already-fulfilled promise, or `.catch()` on an already-rejected one, still runs the handler, just as if the settlement had just happened.\n\n`.then(onFulfilled, onRejected)` registers callbacks for the two outcomes, `.catch(onRejected)` is shorthand for `.then(undefined, onRejected)`, and `.finally(onSettled)` runs regardless of which way the promise settled, without receiving the value or reason. Each of these methods returns a new promise, which is what makes chaining possible: whatever a handler returns becomes the fulfillment value of that new promise, and a thrown error inside a handler becomes its rejection reason.\n\nHandlers registered with `.then`, `.catch`, and `.finally` never run synchronously, even if the promise is already settled when you attach them; they are always scheduled as microtasks, which is why a `.then()` callback runs after all currently running synchronous code, but before any setTimeout callback.",
+    examples: [
+      {
+        code: "const p = new Promise((resolve, reject) => {\n  const ok = Math.random() > 0.5;\n  if (ok) resolve(\"done\");\n  else reject(new Error(\"failed\"));\n});\np.then((value) => console.log(\"fulfilled:\", value))\n .catch((err) => console.log(\"rejected:\", err.message));",
+        explanation: "The executor settles the promise once, to fulfilled or rejected. Only the matching handler runs, .then's callback for a resolve, .catch's callback for a reject, never both.",
+      },
+      {
+        code: "Promise.resolve(1)\n  .then((n) => n + 1)\n  .then((n) => n * 10)\n  .then((n) => console.log(n)); // 20",
+        explanation: "Each .then returns a new promise fulfilled with whatever the callback returns, so the value flows through the chain from one handler to the next.",
+      },
+    ],
+    realWorldUseCases: [
+      "Wrapping a fetch() call so callers can .then() the parsed response or .catch() a network failure.",
+      "Chaining dependent asynchronous steps, like reading a file then parsing then validating, without nesting callbacks.",
+      "Using .finally() to hide a loading spinner regardless of whether a request succeeded or failed.",
+      "Combining several independent promises with Promise.all or Promise.allSettled.",
+    ],
+    relatedProblemIds: ["js-async-004", "js-async-007", "js-s16-002", "js-errors-005"],
+    visual: "promises",
+    furtherReading: [
+      { label: "MDN: Promise", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" },
+    ],
+  },
+  {
+    slug: "async-await",
+    track: "javascript",
+    topic: "Asynchronous JavaScript",
+    title: "Async/Await",
+    oneLiner: "await pauses an async function until a promise settles, without blocking the rest of the program.",
+    definition:
+      "The `async` keyword turns a function into one that always returns a promise; whatever it returns becomes the fulfillment value, and a thrown error becomes the rejection reason. Inside an async function, the `await` keyword can be placed in front of a promise, or any thenable, to pause that function's execution until the promise settles.\n\nPausing only affects that one function's frame, not the whole program: control returns to whatever called the async function while the awaited promise is still pending, so other code keeps running normally. When the awaited promise settles, the async function's frame resumes exactly where it left off. If the promise fulfilled, await evaluates to the fulfillment value, and if it rejected, await throws that rejection reason, which a surrounding try/catch can catch.\n\nasync/await is built on top of promises, it is syntax that lets promise-based code read like sequential, synchronous code, but it does not change the underlying scheduling: resuming an async function after an await still happens as a microtask, in the same event loop that runs .then() callbacks.",
+    examples: [
+      {
+        code: "async function getUser(id) {\n  const response = await fetch(`/api/users/${id}`);\n  const user = await response.json();\n  return user;\n}",
+        explanation: "Each await pauses getUser's frame until the fetch and then the JSON parsing settle; the calling code was free to keep running while getUser was paused.",
+      },
+      {
+        code: "async function safeFetch(url) {\n  try {\n    const res = await fetch(url);\n    return await res.json();\n  } catch (err) {\n    console.log(\"request failed:\", err.message);\n    return null;\n  }\n}",
+        explanation: "If the awaited fetch or json() call rejects, await throws that rejection inside safeFetch, and the try/catch handles it just like a synchronous error.",
+      },
+    ],
+    realWorldUseCases: [
+      "Writing sequential-looking code for a series of dependent API calls instead of nesting .then() callbacks.",
+      "Wrapping awaited calls in try/catch to handle network or parsing failures in one place.",
+      "Awaiting Promise.all([...]) to run independent requests concurrently while still writing linear code.",
+      "Pausing a function until a database query or file read resolves without blocking the rest of the app.",
+    ],
+    relatedProblemIds: ["js-async-001", "js-async-008", "js-s16-004"],
+    visual: "async-await",
+    furtherReading: [
+      { label: "MDN: async function", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function" },
+    ],
+  },
+  {
+    slug: "microtasks-vs-macrotasks",
+    track: "javascript",
+    topic: "Asynchronous JavaScript",
+    title: "Microtasks vs. Macrotasks",
+    oneLiner: "Microtasks, like promise callbacks, always run before the next macrotask, like a setTimeout, even a zero-delay one.",
+    definition:
+      "The event loop pulls work from two different queues. The macrotask queue, sometimes called the task or callback queue, holds things like setTimeout and setInterval callbacks, UI events, and I/O callbacks. The microtask queue holds promise callbacks, `.then`, `.catch`, `.finally`, and jobs scheduled with `queueMicrotask`.\n\nThe two queues are not treated equally. After the currently running script finishes and the call stack empties, the event loop drains the microtask queue completely, running every microtask currently in it, plus any new ones those microtasks add along the way, before it is allowed to touch the macrotask queue. Only when the microtask queue is fully empty does the loop take a single macrotask, run it, and then drain microtasks again before considering another macrotask.\n\nThis is why `Promise.resolve().then(fn)` reliably runs before `setTimeout(fn, 0)`, even though both were scheduled at essentially the same moment: the promise callback goes into the higher-priority microtask queue, while the timer callback has to wait in the macrotask queue behind every pending microtask.",
+    examples: [
+      {
+        code: "setTimeout(() => console.log(\"timeout\"), 0);\nPromise.resolve().then(() => console.log(\"promise\"));\n// logs: promise, timeout",
+        explanation: "Both are scheduled back to back, but the promise callback is a microtask and always drains before the timer callback, a macrotask, gets its turn.",
+      },
+      {
+        code: "queueMicrotask(() => console.log(\"micro\"));\nsetTimeout(() => console.log(\"macro\"), 0);\nconsole.log(\"sync\");\n// logs: sync, micro, macro",
+        explanation: "The synchronous log runs first. Then the microtask queue drains (micro), and only after it is empty does the event loop take the setTimeout callback (macro).",
+      },
+    ],
+    realWorldUseCases: [
+      "Predicting whether a setTimeout(fn, 0) will run before or after a chain of .then() callbacks.",
+      "Using queueMicrotask to defer work until right after the current synchronous code, but before any timers or rendering.",
+      "Debugging why UI updates queued in a promise chain appear before a scheduled timer fires.",
+      "Understanding why a runaway chain of microtasks can delay timers and I/O from ever getting a turn.",
+    ],
+    relatedProblemIds: ["js-async-005", "js-async-006", "js-s16-001"],
+    visual: "microtasks-vs-macrotasks",
+    furtherReading: [
+      { label: "MDN: In depth: Microtasks and the JavaScript runtime environment", url: "https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide" },
+    ],
+  },
 ];

@@ -54,6 +54,16 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "getters-setters": lazy(() =>
     import("./getters-setters").then((m) => ({ default: m.GettersSettersVisual })),
   ),
+  "the-event-loop": lazy(() =>
+    import("./the-event-loop").then((m) => ({ default: m.TheEventLoopVisual })),
+  ),
+  promises: lazy(() => import("./promises").then((m) => ({ default: m.PromisesVisual }))),
+  "async-await": lazy(() =>
+    import("./async-await").then((m) => ({ default: m.AsyncAwaitVisual })),
+  ),
+  "microtasks-vs-macrotasks": lazy(() =>
+    import("./microtasks-vs-macrotasks").then((m) => ({ default: m.MicrotasksVsMacrotasksVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);
