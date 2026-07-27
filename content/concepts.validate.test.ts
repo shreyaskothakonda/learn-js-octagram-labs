@@ -38,3 +38,21 @@ describe("validateConcept", () => {
       .toContain("concept closures references unknown visual: ghost");
   });
 });
+
+import { getAllConcepts } from "./concepts";
+import { getAllProblems } from "./index";
+import { visualKeys as registryVisualKeys } from "../components/concepts/visuals";
+
+describe("concept registry integrity", () => {
+  const problemIds = new Set(getAllProblems().map((p) => p.id));
+  const keys = new Set(registryVisualKeys);
+  it("every concept passes validation", () => {
+    for (const c of getAllConcepts()) {
+      expect(validateConcept(c, problemIds, keys), c.slug).toEqual([]);
+    }
+  });
+  it("slugs are unique", () => {
+    const slugs = getAllConcepts().map((c) => c.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+});
