@@ -551,4 +551,72 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: Function.prototype.bind()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind" },
     ],
   },
+  {
+    slug: "map-filter-reduce",
+    track: "javascript",
+    topic: "Working With Arrays",
+    title: "map, filter, and reduce",
+    oneLiner: "map transforms every element, filter keeps a subset, and reduce folds everything into one value.",
+    definition:
+      "map calls a function on every element of an array and returns a brand new array of the same length, made up of whatever that function returns for each element. The original array is left untouched, and no elements are added or removed, only transformed.\n\nfilter also calls a function on every element, but it keeps the element only when that function returns a truthy value, dropping the rest. The result is a new array that can be shorter than the original, or the same length if everything passes, but it is never longer.\n\nreduce walks the array from left to right, calling a function with an accumulator and the current element, and returns whatever that function produces as the new accumulator for the next step. Given an initial value as its second argument, reduce starts the accumulator there and folds every element into it one at a time, ending with a single value, a sum, an object, another array, whatever the callback builds. Chaining the three together, nums.map(...).filter(...).reduce(...), is a common way to transform, narrow, and total a list in one readable pipeline.",
+    examples: [
+      {
+        code: "[1, 2, 3].map((n) => n * 2);\n// [2, 4, 6]",
+        explanation: "map returns a new array of the same length, with each value transformed independently of the others.",
+      },
+      {
+        code: "[1, -2, 3, -4].filter((n) => n > 0);\n// [1, 3]",
+        explanation: "filter keeps only the elements where the callback returns true, so the result can be shorter than the input.",
+      },
+      {
+        code: "[1, 2, 3, 4].reduce((total, n) => total + n, 0);\n// 10",
+        explanation: "reduce walks the array left to right, folding each value into the accumulator that started at the initial value, 0.",
+      },
+    ],
+    realWorldUseCases: [
+      "Transforming a list of API records into the shape a component needs to render, with map.",
+      "Narrowing a list down to matching rows for a search box or a status filter, with filter.",
+      "Totaling a shopping cart's line items into a single price, with reduce.",
+      "Folding a list into a lookup object or a count of occurrences, with reduce and an object as the initial value.",
+    ],
+    relatedProblemIds: ["js-arraymethods-004", "js-arraymethods-005", "js-arraymethods-006", "js-arraymethods-007"],
+    visual: "map-filter-reduce",
+    furtherReading: [
+      { label: "MDN: Array.prototype.reduce()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce" },
+    ],
+  },
+  {
+    slug: "sorting-arrays",
+    track: "javascript",
+    topic: "Working With Arrays",
+    title: "Sorting Arrays",
+    oneLiner: "Array.prototype.sort reorders elements in place, using a comparator's sign to decide each swap.",
+    definition:
+      "sort reorders the elements of an array in place and returns the same array reference, it does not make a copy. Called with no arguments, it converts every element to a string and sorts those strings in Unicode code point order, which is why the numbers 10 and 2 end up as [10, 2] instead of [2, 10], the character \"1\" simply sorts before \"2\".\n\nA comparator function, passed as sort's argument, controls the order directly: for two elements a and b, returning a negative number means a should come before b, returning a positive number means b should come before a, and returning 0 leaves their relative order unchanged (this has been guaranteed stable since ES2019). The idiomatic comparator for ascending numbers is (a, b) => a - b: when a is bigger than b the subtraction is positive, so b moves first, when a is smaller the subtraction is negative, so a stays first. Flipping it to (a, b) => b - a sorts descending instead. Because sort mutates, copying the array first with [...arr] or arr.slice() before sorting keeps the original untouched.",
+    examples: [
+      {
+        code: "[10, 1, 2].sort();\n// [1, 10, 2]",
+        explanation: "With no comparator, sort converts each value to a string, so \"10\" sorts before \"2\" alphabetically instead of numerically.",
+      },
+      {
+        code: "[10, 1, 2].sort((a, b) => a - b);\n// [1, 2, 10]",
+        explanation: "A negative a - b keeps a first, a positive one swaps the pair, giving the correct ascending numeric order.",
+      },
+      {
+        code: "const nums = [3, 1, 2];\nconst sorted = [...nums].sort((a, b) => a - b);\n// sorted is [1, 2, 3], nums is still [3, 1, 2]",
+        explanation: "Spreading into a new array before calling sort avoids mutating the original nums array, since sort would otherwise reorder it in place.",
+      },
+    ],
+    realWorldUseCases: [
+      "Sorting a table's rows by whichever column the user clicks to sort on.",
+      "Ranking a leaderboard of scores from highest to lowest.",
+      "Ordering a list of dates or timestamps chronologically.",
+      "Alphabetizing names or labels correctly with localeCompare instead of the default string sort.",
+    ],
+    relatedProblemIds: ["js-arrays-004", "js-arraymethods-009", "js-arraymethods-010", "js-arrays-010"],
+    visual: "sorting-arrays",
+    furtherReading: [
+      { label: "MDN: Array.prototype.sort()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" },
+    ],
+  },
 ];

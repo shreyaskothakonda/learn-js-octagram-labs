@@ -41,6 +41,12 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "call-apply-bind": lazy(() =>
     import("./call-apply-bind").then((m) => ({ default: m.CallApplyBindVisual })),
   ),
+  "map-filter-reduce": lazy(() =>
+    import("./map-filter-reduce").then((m) => ({ default: m.MapFilterReduceVisual })),
+  ),
+  "sorting-arrays": lazy(() =>
+    import("./sorting-arrays").then((m) => ({ default: m.SortingArraysVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);
