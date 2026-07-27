@@ -2,7 +2,7 @@ import { getConceptsByTrack } from "@/content/concepts";
 import { TOPICS } from "@/content/manifest";
 import { ConceptCard } from "@/components/concepts/ConceptCard";
 
-export const metadata = { title: "Concepts — Octagram Labs" };
+export const metadata = { title: "Concepts: Octagram Labs" };
 
 export default function ConceptsIndex() {
   const concepts = getConceptsByTrack("javascript");

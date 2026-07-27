@@ -6,6 +6,7 @@ export function validateConcept(
   c: Concept,
   knownProblemIds: Set<string>,
   knownVisualKeys: Set<string>,
+  knownTopics: Set<string>,
 ): string[] {
   const errors: string[] = [];
   if (!KEBAB.test(c.slug)) errors.push(`slug must be kebab-case: ${c.slug}`);
@@ -18,5 +19,6 @@ export function validateConcept(
     if (!knownProblemIds.has(id)) errors.push(`concept ${c.slug} references unknown problem: ${id}`);
   }
   if (!knownVisualKeys.has(c.visual)) errors.push(`concept ${c.slug} references unknown visual: ${c.visual}`);
+  if (!knownTopics.has(c.topic)) errors.push(`concept ${c.slug} references unknown topic: ${c.topic}`);
   return errors;
 }

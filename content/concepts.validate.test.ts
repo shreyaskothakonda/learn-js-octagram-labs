@@ -16,39 +16,46 @@ const base: Concept = {
 };
 const problemIds = new Set(["js-closures-001"]);
 const visualKeys = new Set(["closures"]);
+const topics = new Set(["A Closer Look at Functions"]);
 
 describe("validateConcept", () => {
   it("accepts a valid concept", () => {
-    expect(validateConcept(base, problemIds, visualKeys)).toEqual([]);
+    expect(validateConcept(base, problemIds, visualKeys, topics)).toEqual([]);
   });
   it("rejects a non-kebab slug", () => {
-    expect(validateConcept({ ...base, slug: "Closures" }, problemIds, visualKeys))
+    expect(validateConcept({ ...base, slug: "Closures" }, problemIds, visualKeys, topics))
       .toContain("slug must be kebab-case: Closures");
   });
   it("rejects an empty definition", () => {
-    expect(validateConcept({ ...base, definition: "" }, problemIds, visualKeys))
+    expect(validateConcept({ ...base, definition: "" }, problemIds, visualKeys, topics))
       .toContain("concept closures missing definition");
   });
   it("rejects an unknown related problem id", () => {
-    expect(validateConcept({ ...base, relatedProblemIds: ["nope"] }, problemIds, visualKeys))
+    expect(validateConcept({ ...base, relatedProblemIds: ["nope"] }, problemIds, visualKeys, topics))
       .toContain("concept closures references unknown problem: nope");
   });
   it("rejects an unregistered visual", () => {
-    expect(validateConcept({ ...base, visual: "ghost" }, problemIds, visualKeys))
+    expect(validateConcept({ ...base, visual: "ghost" }, problemIds, visualKeys, topics))
       .toContain("concept closures references unknown visual: ghost");
+  });
+  it("rejects an unknown topic", () => {
+    expect(validateConcept({ ...base, topic: "Nope" }, problemIds, visualKeys, new Set(["A Closer Look at Functions"])))
+      .toContain("concept closures references unknown topic: Nope");
   });
 });
 
 import { getAllConcepts } from "./concepts";
 import { getAllProblems } from "./index";
 import { visualKeys as registryVisualKeys } from "../components/concepts/visuals";
+import { TOPICS } from "./manifest";
 
 describe("concept registry integrity", () => {
   const problemIds = new Set(getAllProblems().map((p) => p.id));
   const keys = new Set(registryVisualKeys);
   it("every concept passes validation", () => {
     for (const c of getAllConcepts()) {
-      expect(validateConcept(c, problemIds, keys), c.slug).toEqual([]);
+      const knownTopics = new Set(TOPICS[c.track].map((t) => t.topic));
+      expect(validateConcept(c, problemIds, keys, knownTopics), c.slug).toEqual([]);
     }
   });
   it("slugs are unique", () => {
