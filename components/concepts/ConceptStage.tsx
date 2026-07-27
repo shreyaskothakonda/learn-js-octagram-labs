@@ -1,20 +1,33 @@
 "use client";
-import { Suspense, useRef, useState, type ComponentType } from "react";
-import { gsap } from "gsap";
+import { Suspense, useCallback, useRef, useState, useSyncExternalStore, type ComponentType } from "react";
+import type { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { getVisual, type ConceptVisualProps } from "./visuals";
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
+}
 
 export function ConceptStage({ visual }: { visual: string }) {
   const Visual = getVisual(visual) as ComponentType<ConceptVisualProps> | undefined;
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const reduced = usePrefersReducedMotion();
 
-  function register(tl: gsap.core.Timeline) {
+  const register = useCallback((tl: gsap.core.Timeline) => {
     tlRef.current = tl;
     tl.eventCallback("onUpdate", () => setProgress(tl.progress()));
     tl.eventCallback("onComplete", () => setPlaying(false));
-  }
+  }, []);
   function replay() { tlRef.current?.restart(); setPlaying(true); }
   function toggle() {
     const tl = tlRef.current;
@@ -32,16 +45,18 @@ export function ConceptStage({ visual }: { visual: string }) {
           <Visual register={register} />
         </Suspense>
       </div>
-      <div className="mt-3 flex items-center gap-3">
-        <Button size="sm" variant="outline" onClick={toggle}>{playing ? "Pause" : "Play"}</Button>
-        <Button size="sm" variant="outline" onClick={replay}>Replay</Button>
-        <input
-          type="range" min={0} max={1} step={0.001} value={progress}
-          onChange={(e) => scrub(Number(e.target.value))}
-          className="flex-1 accent-[var(--color-primary)]"
-          aria-label="Scrub animation"
-        />
-      </div>
+      {!reduced && (
+        <div className="mt-3 flex items-center gap-3">
+          <Button size="sm" variant="outline" onClick={toggle}>{playing ? "Pause" : "Play"}</Button>
+          <Button size="sm" variant="outline" onClick={replay}>Replay</Button>
+          <input
+            type="range" min={0} max={1} step={0.001} value={progress}
+            onChange={(e) => scrub(Number(e.target.value))}
+            className="flex-1 accent-[var(--color-primary)]"
+            aria-label="Scrub animation"
+          />
+        </div>
+      )}
     </div>
   );
 }
