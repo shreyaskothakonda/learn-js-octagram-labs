@@ -23,11 +23,20 @@ export function ConceptStage({ visual }: { visual: string }) {
   const [progress, setProgress] = useState(0);
   const reduced = usePrefersReducedMotion();
 
+  // `register` is only ever invoked once per visual mount (each visual's
+  // useGSAP call has no dependency array, so its timeline is built exactly
+  // once regardless of `register`'s identity). Including `reduced` here lets
+  // the autoplay decision below use the current value without causing the
+  // visual's timeline to rebuild/replay on every render.
   const register = useCallback((tl: gsap.core.Timeline) => {
     tlRef.current = tl;
     tl.eventCallback("onUpdate", () => setProgress(tl.progress()));
     tl.eventCallback("onComplete", () => setPlaying(false));
-  }, []);
+    if (!reduced) {
+      tl.play(0);
+      setPlaying(true);
+    }
+  }, [reduced]);
   function replay() { tlRef.current?.restart(); setPlaying(true); }
   function toggle() {
     const tl = tlRef.current;
