@@ -75,7 +75,7 @@ export function MapsAndSetsVisual({ register }: ConceptVisualProps) {
     <svg ref={scope} viewBox="0 0 380 320" className="w-full max-w-md" role="img"
       aria-label="A Set already holding 1, 2, 3 rejects a second add of 2, size stays 3, then accepts a new add of 4, size becomes 4. A Map of names to scores highlights the grace entry directly on lookup and pops out its value 95, an O(1) jump rather than a scan through every entry">
       <text id="set-label" x="15" y="20" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        Set — rejects duplicates
+        Set: rejects duplicates
       </text>
       <g id="set-box">
         <rect x="20" y="40" width="230" height="44" rx="10" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
@@ -124,7 +124,7 @@ export function MapsAndSetsVisual({ register }: ConceptVisualProps) {
       <line x1="10" y1="150" x2="370" y2="150" className="stroke-[var(--color-border)]" />
 
       <text id="map-label" x="15" y="178" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        Map — O(1) key lookup
+        Map: O(1) key lookup
       </text>
       <g id="map-box">
         <rect x="20" y="190" width="230" height="95" rx="10" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
