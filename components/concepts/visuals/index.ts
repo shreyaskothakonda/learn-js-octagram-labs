@@ -34,6 +34,13 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
     import("./optional-chaining-nullish").then((m) => ({ default: m.OptionalChainingNullishVisual })),
   ),
   "maps-and-sets": lazy(() => import("./maps-and-sets").then((m) => ({ default: m.MapsAndSetsVisual }))),
+  "higher-order-functions": lazy(() =>
+    import("./higher-order-functions").then((m) => ({ default: m.HigherOrderFunctionsVisual })),
+  ),
+  currying: lazy(() => import("./currying").then((m) => ({ default: m.CurryingVisual }))),
+  "call-apply-bind": lazy(() =>
+    import("./call-apply-bind").then((m) => ({ default: m.CallApplyBindVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

@@ -448,4 +448,107 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: Map", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" },
     ],
   },
+  {
+    slug: "higher-order-functions",
+    track: "javascript",
+    topic: "A Closer Look at Functions",
+    title: "Higher-Order Functions",
+    oneLiner: "A function that takes another function in, gives one back out, or both.",
+    definition:
+      "A higher-order function is a function that does at least one of two things: it accepts one or more functions as arguments, or it returns a function as its result. This is possible because functions in JavaScript are first-class values, they can be stored in a variable, passed around like any other argument, and returned from another function, so nothing special has to happen for a function to end up as data flowing through your program.\n\nWhen a function is passed in as an argument, it is usually called a callback, and the outer function decides when to call it back, sometimes once, sometimes many times, sometimes not at all. `Array.prototype.map`, `filter`, and `reduce` are the most common higher-order functions you will use day to day: each one takes a function describing what to do with an element and calls it back for every item in the array. A higher-order function can also build and return a brand new function, which is how function factories work, a call like `multiplyBy(3)` does not multiply anything itself, it hands back a new function that will multiply by 3 whenever it is eventually called.",
+    examples: [
+      {
+        code: "const numbers = [1, 2, 3, 4];\nconst doubled = numbers.map((n) => n * 2);\n// [2, 4, 6, 8]",
+        explanation: "map is a higher-order function: it takes the arrow function in as an argument and calls it back once per element.",
+      },
+      {
+        code: "function withLogging(fn) {\n  return (...args) => {\n    console.log(\"calling with\", args);\n    return fn(...args);\n  };\n}\nconst loggedAdd = withLogging((a, b) => a + b);\nloggedAdd(2, 3); // logs, then returns 5",
+        explanation: "withLogging both takes a function in and returns a new function out, wrapping the original with extra behavior without changing its code.",
+      },
+      {
+        code: "function multiplyBy(factor) {\n  return (n) => n * factor;\n}\nconst triple = multiplyBy(3);\ntriple(5); // 15",
+        explanation: "multiplyBy returns a function instead of a number. Calling triple later runs that returned function with the factor already locked in.",
+      },
+    ],
+    realWorldUseCases: [
+      "Array methods like map, filter, and reduce, which take a function describing what to do with each element.",
+      "Wrapping a function with extra behavior, such as logging, timing, or memoizing, without editing its original code.",
+      "Middleware in web frameworks, where each layer receives the next handler as a function and decides whether to call it.",
+      "Function factories that produce a family of related functions, like validators or formatters, from one shared setup.",
+      "Registering event listeners, since addEventListener itself is a higher-order function that calls your handler back.",
+    ],
+    relatedProblemIds: ["js-hof-003", "js-hof-005", "js-hof-006", "js-hof-007"],
+    visual: "higher-order-functions",
+    furtherReading: [
+      { label: "MDN: Higher-order function", url: "https://developer.mozilla.org/en-US/docs/Glossary/Higher-order_function" },
+    ],
+  },
+  {
+    slug: "currying",
+    track: "javascript",
+    topic: "A Closer Look at Functions",
+    title: "Currying",
+    oneLiner: "Turning a multi-argument function into a chain of one-argument functions.",
+    definition:
+      "Currying transforms a function that takes several arguments into a sequence of functions that each take one argument, returning a new function after every call until enough arguments have arrived, at which point the result computes. A curried `add` called as `add(1)(2)(3)` works like this: `add(1)` returns a function that remembers 1 and is waiting for the next argument; calling that with `2` returns another function that remembers 1 and 2; calling that with `3` finally has all three arguments, so instead of returning another function it computes and returns `6`.\n\nEach step works because of closures, every returned function keeps a reference to the arguments captured so far. Currying does not change what gets computed, `add(1)(2)(3)` and `add(1, 2, 3)` can produce the same sum, it changes the shape of the calls, splitting one call with three arguments into three calls with one argument each. That shape is useful on its own: you can call a curried function partway, hold onto the result, and reuse it later with different final arguments, which is how currying enables partial application.",
+    examples: [
+      {
+        code: "function add(a) {\n  return function (b) {\n    return function (c) {\n      return a + b + c;\n    };\n  };\n}\nadd(1)(2)(3); // 6",
+        explanation: "Each call returns a new function that closes over the arguments seen so far. Only the third call has enough arguments to compute a result.",
+      },
+      {
+        code: "const addTo10 = add(10);\naddTo10(20)(5); // 35\naddTo10(1)(1);  // 12",
+        explanation: "Stopping after the first call keeps a reusable function with 10 already captured, which can be finished off with different remaining arguments later.",
+      },
+      {
+        code: "function curry(fn) {\n  return function curried(...args) {\n    if (args.length >= fn.length) return fn(...args);\n    return (...more) => curried(...args, ...more);\n  };\n}\nconst curriedAdd = curry((a, b, c) => a + b + c);\ncurriedAdd(1)(2)(3); // 6\ncurriedAdd(1, 2)(3); // 6",
+        explanation: "A generic curry helper checks fn.length, the declared arity, against how many arguments have arrived, and only calls the original function once enough are collected.",
+      },
+    ],
+    realWorldUseCases: [
+      "Pre-configuring a reusable function, like fixing a tax rate once and reusing calculateTax(rate) across many amounts.",
+      "Building small variants of a general function, such as deriving double and triple from a single curried multiply.",
+      "Composing pipelines of transformations where each stage is set up once with its configuration and reused per item.",
+      "Creating event handlers bound to specific data, like handleClick(id) returning the actual listener for that id.",
+    ],
+    relatedProblemIds: ["js-fp-001", "js-fp-002", "js-fp-003", "js-hof-004"],
+    visual: "currying",
+    furtherReading: [
+      { label: "MDN: Currying", url: "https://developer.mozilla.org/en-US/docs/Glossary/Currying" },
+    ],
+  },
+  {
+    slug: "call-apply-bind",
+    track: "javascript",
+    topic: "A Closer Look at Functions",
+    title: "call, apply, and bind",
+    oneLiner: "Three ways to control what this refers to when a function runs.",
+    definition:
+      "Every function has access to call, apply, and bind, three methods for controlling what `this` refers to inside it. `fn.call(thisArg, arg1, arg2)` invokes fn immediately, with `this` set to thisArg and the remaining arguments passed in one by one. `fn.apply(thisArg, [arg1, arg2])` does the same thing, invoking fn right away with `this` set to thisArg, but takes the arguments as a single array instead of a list, which is convenient when the arguments are already collected in an array or the count varies.\n\n`fn.bind(thisArg, arg1)` behaves differently: it does not call fn at all. Instead it returns a brand new function with `this` (and optionally some leading arguments) permanently locked to what was passed in, ready to be called later, as many times as needed, with `this` never changing again regardless of how that new function is eventually invoked. One exception applies to all three: arrow functions ignore call, apply, and bind for the purpose of setting `this`, because an arrow function has no `this` of its own, it always uses `this` from the scope where it was defined.",
+    examples: [
+      {
+        code: "function greet() {\n  return `Hi, ${this.name}`;\n}\ngreet.call({ name: \"Ada\" });  // \"Hi, Ada\"\ngreet.apply({ name: \"Ada\" }); // \"Hi, Ada\"",
+        explanation: "call and apply both run greet immediately with this pointed at the given object. With no extra arguments, they behave the same here.",
+      },
+      {
+        code: "function introduce(greeting, punctuation) {\n  return `${greeting}, ${this.name}${punctuation}`;\n}\nintroduce.call({ name: \"Grace\" }, \"Hello\", \"!\");\nintroduce.apply({ name: \"Grace\" }, [\"Hello\", \"!\"]);\n// both: \"Hello, Grace!\"",
+        explanation: "call takes the extra arguments individually, apply takes them as one array. Both produce the same result, only the argument shape differs.",
+      },
+      {
+        code: "function greet() {\n  return `Hi, ${this.name}`;\n}\nconst boundGreet = greet.bind({ name: \"Alan\" });\n// nothing runs yet\nboundGreet(); // \"Hi, Alan\", called later",
+        explanation: "bind returns a new function with this locked to the given object. The original greet is untouched, and boundGreet can be called anywhere, any number of times, always with the same this.",
+      },
+    ],
+    realWorldUseCases: [
+      "Locking this for a class method used as a callback, such as this.handleClick = this.handleClick.bind(this) in a constructor.",
+      "Borrowing an array method for an array-like object, like Array.prototype.slice.call(arguments) to turn arguments into a real array.",
+      "Calling a function with an argument list that is already an array, using apply instead of manually spreading it out.",
+      "Pre-filling some arguments of a function with bind to create a smaller, more specific function, like multiply.bind(null, 2) for double.",
+    ],
+    relatedProblemIds: ["js-scope-002", "js-scope-004", "js-fp-003", "js-multi-001"],
+    visual: "call-apply-bind",
+    furtherReading: [
+      { label: "MDN: Function.prototype.bind()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind" },
+    ],
+  },
 ];
