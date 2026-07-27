@@ -1,4 +1,6 @@
 import type { Problem, TestCase } from "@/content/types";
+import Link from "next/link";
+import { getConceptForProblem } from "@/content/concepts";
 import { Hints } from "./Hints";
 import { DifficultyBadge } from "../ui/DifficultyBadge";
 
@@ -16,6 +18,7 @@ function sampleIO(problem: Problem, tc: TestCase): { input: string; output: stri
 export function PromptPanel({ problem, solved }: { problem: Problem; solved: boolean }) {
   const visible = problem.testCases.filter((t) => !t.hidden);
   const hiddenCount = problem.testCases.length - visible.length;
+  const concept = getConceptForProblem(problem.id);
 
   return (
     <div className="p-5 overflow-auto space-y-4">
@@ -87,6 +90,12 @@ export function PromptPanel({ problem, solved }: { problem: Problem; solved: boo
             ))}
           </ul>
         </div>
+      )}
+
+      {concept && (
+        <Link href={`/learn/concepts/${concept.slug}`} className="inline-block text-sm text-blue-500 underline">
+          Visualize this concept: {concept.title} →
+        </Link>
       )}
 
       {problem.explanation && (

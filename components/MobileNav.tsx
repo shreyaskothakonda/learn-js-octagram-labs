@@ -12,6 +12,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
     ["/learn/javascript", "JavaScript"],
     ["/learn/data-structures", "Data Structures"],
     ["/learn/react", "React"],
+    ["/learn/concepts", "Concepts"],
     signedIn ? ["/dashboard", "Dashboard"] : ["/login", "Sign in"],
   ] as const;
   return (

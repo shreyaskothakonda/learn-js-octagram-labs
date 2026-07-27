@@ -18,6 +18,7 @@ export async function Nav() {
         <NavLink href="/learn/javascript">JavaScript</NavLink>
         <NavLink href="/learn/data-structures">Data Structures</NavLink>
         <NavLink href="/learn/react">React</NavLink>
+        <NavLink href="/learn/concepts">Concepts</NavLink>
       </div>
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
         <CommandMenu problems={problems} />
