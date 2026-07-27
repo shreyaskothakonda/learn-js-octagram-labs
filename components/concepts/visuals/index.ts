@@ -26,6 +26,14 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "operators-precedence": lazy(() =>
     import("./operators-precedence").then((m) => ({ default: m.OperatorsPrecedenceVisual })),
   ),
+  destructuring: lazy(() => import("./destructuring").then((m) => ({ default: m.DestructuringVisual }))),
+  "spread-and-rest": lazy(() =>
+    import("./spread-and-rest").then((m) => ({ default: m.SpreadAndRestVisual })),
+  ),
+  "optional-chaining-nullish": lazy(() =>
+    import("./optional-chaining-nullish").then((m) => ({ default: m.OptionalChainingNullishVisual })),
+  ),
+  "maps-and-sets": lazy(() => import("./maps-and-sets").then((m) => ({ default: m.MapsAndSetsVisual }))),
 };
 
 export const visualKeys = Object.keys(registry);

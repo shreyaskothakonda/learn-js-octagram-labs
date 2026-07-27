@@ -312,4 +312,140 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: Operator precedence", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence" },
     ],
   },
+  {
+    slug: "destructuring",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Destructuring",
+    oneLiner: "Destructuring unpacks values from an array or an object straight into named variables.",
+    definition:
+      "Destructuring is a syntax for pulling values out of an array or object and binding them to variables in one step, instead of reading each one off by index or property name. Array destructuring matches by position, `const [a, b] = arr` takes the first two elements. Object destructuring matches by property name, `const { name, age } = user` looks up `name` and `age` regardless of where they sit in the object, and `const { name: userName } = user` renames the binding while it unpacks.\n\nBoth forms support defaults for when a value is missing (`const [a = 1] = []`) and nesting, so a property inside a property, or an element inside an element, can be pulled out in the same pattern (`const { address: { city } } = user`). Destructuring also appears in function parameters, letting a function accept an object and immediately unpack the fields it needs.",
+    examples: [
+      {
+        code: "const [first, second] = [10, 20, 30];\n// first = 10, second = 20 (30 is ignored)",
+        explanation: "Array destructuring matches by position; extra elements that are not named are simply left alone.",
+      },
+      {
+        code: "const user = { name: \"Ada\", age: 30 };\nconst { name, age: years } = user;\n// name = \"Ada\", years = 30",
+        explanation: "Object destructuring matches by key name and can rename the local variable with a colon.",
+      },
+      {
+        code: "function greet({ name = \"friend\" } = {}) {\n  return `Hi, ${name}`;\n}\ngreet(); // \"Hi, friend\"\ngreet({ name: \"Ada\" }); // \"Hi, Ada\"",
+        explanation: "A default on the parameter itself covers a missing argument; a default inside the pattern covers a missing property.",
+      },
+    ],
+    realWorldUseCases: [
+      "Unpacking named fields straight out of a function's object parameter, like a React component's props.",
+      "Pulling specific values off an API response without writing response.data.user.name repeatedly.",
+      "Swapping two variables in one line: [a, b] = [b, a].",
+      "Reading only the pieces you need from a large config object, with defaults for the rest.",
+    ],
+    relatedProblemIds: ["js-s9-001", "js-s9-002", "js-es6-008", "js-es6-009"],
+    visual: "destructuring",
+    furtherReading: [
+      { label: "MDN: Destructuring assignment", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment" },
+    ],
+  },
+  {
+    slug: "spread-and-rest",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Spread and Rest",
+    oneLiner: "The same ... syntax expands a value out in one context and gathers values together in the other.",
+    definition:
+      "Spread and rest share the `...` syntax, but they do opposite jobs depending on where they appear. Spread expands an iterable, like an array, or an object's own properties, into the surrounding context: `[...a, ...b]` unpacks every element of `a` and `b` into a new array, and `{ ...obj, extra: 1 }` copies every property of `obj` into a new object. Because it builds a new array or object, spread makes a shallow copy: top-level values are duplicated, but nested objects or arrays are still shared by reference with the original.\n\nRest does the reverse: it gathers the remaining items into a single array. In a destructuring pattern, `const [first, ...rest] = arr` collects everything after `first`. In a function signature, `function sum(...nums)` collects every argument the function was called with. A rest element must be the last item in its pattern or parameter list, since it claims everything left over.",
+    examples: [
+      {
+        code: "const a = [1, 2];\nconst b = [3, 4];\nconst combined = [...a, ...b];\n// [1, 2, 3, 4]",
+        explanation: "Spread unpacks both arrays' elements into a brand new array; a and b are left untouched.",
+      },
+      {
+        code: "const base = { role: \"user\" };\nconst admin = { ...base, role: \"admin\" };\n// { role: \"admin\" }, base is still { role: \"user\" }",
+        explanation: "Spreading an object copies its own properties first, so a later key with the same name overrides the spread value.",
+      },
+      {
+        code: "function sum(first, ...rest) {\n  return first + rest.reduce((a, b) => a + b, 0);\n}\nsum(1, 2, 3, 4); // 10",
+        explanation: "Rest collects every argument after the first one into a real array, which is why reduce works on it directly.",
+      },
+    ],
+    realWorldUseCases: [
+      "Merging or cloning objects and arrays without mutating the originals, like spreading previous state in a reducer.",
+      "Writing a function that accepts any number of arguments, such as a custom Math.max or a logging helper.",
+      "Passing an array of values as individual arguments to a function, like Math.max(...scores).",
+      "Splitting an array into a head element and the remaining tail with a rest pattern.",
+    ],
+    relatedProblemIds: ["js-s9-003", "js-s9-004", "js-es6-003", "js-es6-004"],
+    visual: "spread-and-rest",
+    furtherReading: [
+      { label: "MDN: Spread syntax", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" },
+    ],
+  },
+  {
+    slug: "optional-chaining-nullish",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Optional Chaining and Nullish Coalescing",
+    oneLiner: "?. stops a property lookup safely at the first null or undefined instead of throwing; ?? picks a default only for null or undefined.",
+    definition:
+      "Optional chaining, `?.`, checks whether the value to its left is `null` or `undefined` before continuing the lookup. If it is, the whole expression short-circuits to `undefined` immediately, no error is thrown, and nothing further to the right is evaluated. If it is not, the chain continues as a normal property access or method call. This makes it safe to read a deeply nested path like `user?.address?.city` even when `address` might not exist, instead of writing a chain of manual `&&` checks or a try/catch.\n\nNullish coalescing, `??`, returns its right-hand side only when the left-hand side is `null` or `undefined`, and returns the left-hand side unchanged for any other value, including falsy ones like `0`, `\"\"`, `false`, and `NaN`. This is the key difference from `||`, which falls through to its right-hand side for any falsy value. `0 ?? 5` is `0`, but `0 || 5` is `5`. The two operators are often combined: `user?.settings?.volume ?? 100` safely reads a possibly-missing setting and only substitutes a default when it is genuinely absent.",
+    examples: [
+      {
+        code: "const user = { address: null };\nuser.address.city;   // TypeError: Cannot read properties of null\nuser?.address?.city;  // undefined, no error",
+        explanation: "Optional chaining stops the lookup the moment it hits null, returning undefined instead of throwing.",
+      },
+      {
+        code: "0 ?? 5;   // 0 (0 is not null/undefined)\n0 || 5;   // 5 (0 is falsy)\n\"\" ?? \"x\"; // \"\" \nnull ?? \"x\"; // \"x\"",
+        explanation: "?? only falls back for null or undefined; || falls back for any falsy value, which is why 0 and \"\" behave differently between the two.",
+      },
+      {
+        code: "const settings = { volume: 0 };\nconst volume = settings?.volume ?? 100;\n// 0, not 100",
+        explanation: "Even though 0 is falsy, ?? treats it as a present value because it is not null or undefined, so the real setting wins over the default.",
+      },
+    ],
+    realWorldUseCases: [
+      "Safely reading a nested API field that might be missing, like response?.data?.user?.email.",
+      "Calling an optional callback only if it was provided: onSave?.().",
+      "Applying a default for a config value that may legitimately be 0 or an empty string, without accidentally overwriting it.",
+      "Replacing long defensive chains of if (a && a.b && a.b.c) checks with a single optional chain.",
+    ],
+    relatedProblemIds: ["js-s9-005", "js-s9-006", "js-s9-007"],
+    visual: "optional-chaining-nullish",
+    furtherReading: [
+      { label: "MDN: Optional chaining", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining" },
+    ],
+  },
+  {
+    slug: "maps-and-sets",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Maps and Sets",
+    oneLiner: "A Set stores unique values with no duplicates; a Map stores key-value pairs with keys of any type and fast lookup.",
+    definition:
+      "A `Set` is a collection of unique values. Adding a value that already exists is a no-op, `set.add(x)` twice still leaves one `x`, which makes Sets a natural way to deduplicate data or track membership. Values are compared with the same-value-zero algorithm, close to `===` but treating `NaN` as equal to itself, and the collection remembers insertion order when you iterate it.\n\nA `Map` is a collection of key-value pairs, similar to a plain object, but with two practical advantages: any value can be a key, not just strings and symbols, so objects, functions, or numbers all work as keys directly; and a Map preserves insertion order and reports its size directly through `map.size`. Both `Map` and `Set` offer `O(1)` average-time lookup, `map.get(key)` or `set.has(value)`, because they are backed by a hash table rather than requiring a scan, which is what makes them faster than an array's `includes` or `find` for membership checks on larger collections.",
+    examples: [
+      {
+        code: "const seen = new Set();\nseen.add(\"a\");\nseen.add(\"a\");\nseen.add(\"b\");\n// seen has 2 values: \"a\", \"b\"",
+        explanation: "Adding a value that is already in the Set changes nothing; a Set never holds duplicates.",
+      },
+      {
+        code: "const scores = new Map();\nscores.set(\"ada\", 90);\nscores.set(\"grace\", 95);\nscores.get(\"grace\"); // 95\nscores.has(\"linus\"); // false",
+        explanation: "get and has look a key up directly in the hash table, an O(1) operation on average regardless of how many entries the Map holds.",
+      },
+      {
+        code: "const unique = [...new Set([1, 2, 2, 3, 1])];\n// [1, 2, 3]",
+        explanation: "Spreading a Set built from an array back into an array is a common one-line way to deduplicate a list.",
+      },
+    ],
+    realWorldUseCases: [
+      "Deduplicating an array of ids or tags while preserving their original order.",
+      "Tracking which items have already been processed in a loop to avoid doing the work twice.",
+      "Building a fast lookup table from an array of records, keyed by id, instead of calling find repeatedly.",
+      "Using non-string keys, like DOM nodes or objects, as lookup keys in a Map when a plain object cannot express that.",
+    ],
+    relatedProblemIds: ["js-s9-008", "js-s9-009", "js-s9-010", "js-es6-006"],
+    visual: "maps-and-sets",
+    furtherReading: [
+      { label: "MDN: Map", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" },
+    ],
+  },
 ];
