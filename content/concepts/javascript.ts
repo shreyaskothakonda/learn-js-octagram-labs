@@ -876,4 +876,68 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: JavaScript modules", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" },
     ],
   },
+  {
+    slug: "regular-expressions",
+    track: "javascript",
+    topic: "Beyond the Course",
+    title: "Regular Expressions",
+    oneLiner: "A pattern language for finding, testing, and pulling pieces out of text.",
+    definition:
+      "A regular expression, or regex, is a pattern that describes a shape of text. You write one as a literal between slashes, like /\\d+/, or by constructing a `new RegExp(\"\\\\d+\")`, and pair it with methods such as `RegExp.prototype.test`, `String.prototype.match`, `String.prototype.matchAll`, and `String.prototype.replace` to check, extract, or rewrite text that fits the pattern.\n\nParentheses inside a pattern create a capture group: `(\\d{3})-(\\d{4})` matches a run of three digits, a dash, and a run of four digits, while also remembering what each parenthesized part matched so you can read it back afterward, as `match[1]` and `match[2]`, or as `$1` and `$2` inside a replacement string. Flags placed after the closing slash change how the pattern is applied: `g` (global) finds every match in the string instead of stopping at the first one, and `i` (ignore case) makes letters match regardless of case. Without the `g` flag, methods like `match` return only the first match along with its capture groups; with it, they return every matched substring but drop the group detail, which is why `matchAll` exists for getting every match's groups at once.",
+    examples: [
+      {
+        code: "/\\d/.test(\"room A12\"); // true\n/^\\d+$/.test(\"room A12\"); // false",
+        explanation: "The first pattern only asks whether a digit appears anywhere. Anchoring with ^ and $ requires the entire string to be digits, which \"room A12\" is not.",
+      },
+      {
+        code: "const re = /(\\d{3})-(\\d{4})/;\nconst match = \"call 555-1234\".match(re);\nmatch[0]; // \"555-1234\"\nmatch[1]; // \"555\"\nmatch[2]; // \"1234\"",
+        explanation: "match[0] is the whole matched substring; match[1] and match[2] are what each parenthesized capture group matched, in order.",
+      },
+      {
+        code: "\"2024-01-15\".replace(/(\\d{4})-(\\d{2})-(\\d{2})/, \"$3/$2/$1\");\n// \"15/01/2024\"",
+        explanation: "$1, $2, and $3 in the replacement string refer back to the three capture groups, letting the date be reordered without hardcoding its parts.",
+      },
+    ],
+    realWorldUseCases: [
+      "Validating the shape of user input, like checking a string looks like an email address or a phone number.",
+      "Extracting structured pieces out of unstructured text, such as pulling numbers or dates out of a log line.",
+      "Search-and-replace across text, including reformatting captured groups into a different order.",
+      "Splitting or tokenizing a string on something more flexible than a fixed character, like runs of whitespace.",
+    ],
+    relatedProblemIds: ["js-regex-001", "js-regex-002", "js-regex-006", "js-regex-007"],
+    visual: "regular-expressions",
+    furtherReading: [
+      { label: "MDN: Regular expressions", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions" },
+    ],
+  },
+  {
+    slug: "iterators-generators",
+    track: "javascript",
+    topic: "Beyond the Course",
+    title: "Iterators and Generators",
+    oneLiner: "A generator writes a pausable, resumable function that hands out one value at a time.",
+    definition:
+      "An iterator is any object with a `next()` method that returns `{ value, done }`: `value` is the next item, and `done` is true once there is nothing left. An object is iterable if it implements `Symbol.iterator`, a method that returns an iterator, which is what lets it work with `for...of`, spread syntax, and destructuring. Arrays, strings, Maps, and Sets are all built-in iterables.\n\nA generator function, written with `function*`, is a shortcut for building an iterator by hand. Calling it does not run the function body; it returns a generator object, which is itself an iterator. Each call to that generator's `next()` runs the body forward until it hits a `yield` expression, at which point execution pauses, the yielded value comes back as `{ value, done: false }`, and every local variable's state is preserved exactly where it left off. The next call to `next()` resumes right after that `yield` and runs until the next one, or until the function returns, which produces `{ value: returnValue, done: true }`. Because a generator only computes the next value when asked, it can represent lazy or even infinite sequences, like a counter that yields forever, without ever running out of memory.",
+    examples: [
+      {
+        code: "function* count() {\n  let i = 0;\n  while (true) yield i++;\n}\nconst it = count();\nit.next(); // { value: 0, done: false }\nit.next(); // { value: 1, done: false }",
+        explanation: "Each next() call resumes count() right after its last yield, hands back the current i, and pauses again, with i preserved between calls.",
+      },
+      {
+        code: "function* upTo(n) {\n  for (let i = 1; i <= n; i++) yield i;\n}\n[...upTo(3)]; // [1, 2, 3]",
+        explanation: "Spreading a generator drains it by calling next() until done is true, collecting every yielded value into an array.",
+      },
+    ],
+    realWorldUseCases: [
+      "Building a lazy, possibly infinite sequence, like an ID generator or a stream of Fibonacci numbers, that only computes the next value when asked.",
+      "Implementing Symbol.iterator on a custom class so instances work directly with for...of and spread syntax.",
+      "Processing a large collection one item at a time instead of building the whole result in memory up front.",
+      "Pausing and resuming a step-by-step process, like paging through an API's results one page per call.",
+    ],
+    relatedProblemIds: ["js-iterators-001", "js-iterators-002", "js-iterators-003", "js-iterators-005"],
+    visual: "iterators-generators",
+    furtherReading: [
+      { label: "MDN: Iterators and generators", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators" },
+    ],
+  },
 ];

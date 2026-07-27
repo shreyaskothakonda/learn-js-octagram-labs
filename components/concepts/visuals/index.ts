@@ -65,6 +65,12 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
     import("./microtasks-vs-macrotasks").then((m) => ({ default: m.MicrotasksVsMacrotasksVisual })),
   ),
   "es-modules": lazy(() => import("./es-modules").then((m) => ({ default: m.EsModulesVisual }))),
+  "regular-expressions": lazy(() =>
+    import("./regular-expressions").then((m) => ({ default: m.RegularExpressionsVisual })),
+  ),
+  "iterators-generators": lazy(() =>
+    import("./iterators-generators").then((m) => ({ default: m.IteratorsGeneratorsVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);
