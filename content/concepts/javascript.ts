@@ -842,4 +842,38 @@ export const javascriptConcepts: Concept[] = [
       { label: "MDN: In depth: Microtasks and the JavaScript runtime environment", url: "https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide" },
     ],
   },
+  {
+    slug: "es-modules",
+    track: "javascript",
+    topic: "Modern JavaScript",
+    title: "ES Modules",
+    oneLiner: "Each file is its own module with its own scope, and export/import wire live values between files, not copies.",
+    definition:
+      "An ES module is just a JavaScript file that uses export to expose bindings and import to read bindings exposed by other files. Each module has its own top level scope, so a variable declared in one file is not visible in another unless it is explicitly exported. A module can export multiple named values with export, and at most one default export with export default, which is meant to be the file's main thing and is imported without curly braces.\n\nAn import is a live, read only binding to the exporting module's variable, not a copied snapshot taken at import time. If the exporting module later reassigns an exported let, every module that imported it sees the updated value the next time it reads that binding, because they are all looking at the same underlying variable. Modules are also singletons: no matter how many files import a given module, its code runs once, the first time it is loaded, and every importer shares that same single instance. On top of that, module code always runs in strict mode automatically, even without a \"use strict\" directive.",
+    examples: [
+      {
+        code: "// math.js\nexport const PI = 3.14159;\nexport function double(n) {\n  return n * 2;\n}\n\n// app.js\nimport { PI, double } from \"./math.js\";\ndouble(PI); // 6.28318",
+        explanation: "math.js exposes two named exports. app.js imports them by name inside curly braces, matching the names they were exported with.",
+      },
+      {
+        code: "// logger.js\nexport default function log(msg) {\n  console.log(msg);\n}\n\n// app.js\nimport log from \"./logger.js\";\nlog(\"ready\"); // ready",
+        explanation: "logger.js has one default export, so app.js imports it without curly braces and can name it anything on the way in.",
+      },
+      {
+        code: "// counter.js\nexport let total = 0;\nexport function increment() {\n  total++;\n}\n\n// app.js\nimport { total, increment } from \"./counter.js\";\ntotal; // 0\nincrement();\ntotal; // 1",
+        explanation: "increment() mutates counter.js's total. Because the import is a live binding and not a copy, app.js reads the updated value of total after the call, without importing anything new.",
+      },
+    ],
+    realWorldUseCases: [
+      "Splitting an app into focused files (a math helper, a logger, a set of constants) instead of one giant script.",
+      "Sharing a single configuration object or cache across every file that imports it, since modules run once and are shared.",
+      "Choosing a default export for a file's one main component or function, and named exports for its smaller supporting pieces.",
+      "Bundlers and build tools like webpack, Rollup, and Vite relying on static export/import syntax to tree shake unused code.",
+    ],
+    relatedProblemIds: ["js-s17-006", "js-s17-001", "js-s17-003"],
+    visual: "es-modules",
+    furtherReading: [
+      { label: "MDN: JavaScript modules", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" },
+    ],
+  },
 ];
