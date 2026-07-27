@@ -19,8 +19,10 @@ function usePrefersReducedMotion() {
 export function ConceptStage({ visual }: { visual: string }) {
   const Visual = getVisual(visual) as ComponentType<ConceptVisualProps> | undefined;
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const speedRef = useRef(1);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [speed, setSpeed] = useState(1);
   const reduced = usePrefersReducedMotion();
 
   // `register` is only ever invoked once per visual mount (each visual's
@@ -30,6 +32,7 @@ export function ConceptStage({ visual }: { visual: string }) {
   // visual's timeline to rebuild/replay on every render.
   const register = useCallback((tl: gsap.core.Timeline) => {
     tlRef.current = tl;
+    tl.timeScale(speedRef.current);
     tl.eventCallback("onUpdate", () => setProgress(tl.progress()));
     tl.eventCallback("onComplete", () => setPlaying(false));
     if (!reduced) {
@@ -37,6 +40,11 @@ export function ConceptStage({ visual }: { visual: string }) {
       setPlaying(true);
     }
   }, [reduced]);
+  function changeSpeed(s: number) {
+    speedRef.current = s;
+    setSpeed(s);
+    tlRef.current?.timeScale(s);
+  }
   function replay() { tlRef.current?.restart(); setPlaying(true); }
   function toggle() {
     const tl = tlRef.current;
@@ -55,15 +63,29 @@ export function ConceptStage({ visual }: { visual: string }) {
         </Suspense>
       </div>
       {!reduced && (
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button size="sm" variant="outline" onClick={toggle}>{playing ? "Pause" : "Play"}</Button>
           <Button size="sm" variant="outline" onClick={replay}>Replay</Button>
           <input
             type="range" min={0} max={1} step={0.001} value={progress}
             onChange={(e) => scrub(Number(e.target.value))}
-            className="flex-1 accent-[var(--color-primary)]"
+            className="flex-1 min-w-[120px] accent-[var(--color-primary)]"
             aria-label="Scrub animation"
           />
+          <div className="flex items-center gap-1" role="group" aria-label="Playback speed">
+            {[0.25, 0.5, 1, 1.5, 2].map((s) => (
+              <Button
+                key={s}
+                size="sm"
+                variant={speed === s ? "default" : "outline"}
+                className="px-2"
+                aria-pressed={speed === s}
+                onClick={() => changeSpeed(s)}
+              >
+                {s}x
+              </Button>
+            ))}
+          </div>
         </div>
       )}
     </div>
