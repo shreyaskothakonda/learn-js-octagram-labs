@@ -3,51 +3,66 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, Eyebrow, enter, pop, focusOn, focusOff } from "./kit";
 
+// Two module panels: math.js exports a live `total` binding, app.js imports
+// it. A connector arrow bridges the named export to the import; when math.js
+// mutates total, the exporter's value chip updates, a pulse travels the
+// connector, and the importer's chip updates to match, since an import is a
+// live reference to the same binding, not a copy taken at import time.
 export function EsModulesVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: two module boxes, math.js (exporter) and app.js (importer). An
-      // arrow connects the named export to the import that reads it. math.js
-      // mutates the exported binding, a dot travels the arrow, and the
-      // importer's value updates to match: a live binding, not a copy.
-      gsap.set(["#box-exporter", "#box-importer"], { opacity: 0 });
-      gsap.set("#arrow-path", { opacity: 0 });
-      gsap.set("#arrow-label", { opacity: 0 });
-      gsap.set(["#chip-exporter", "#chip-importer"], { opacity: 0 });
-      gsap.set(".exporter-value", { textContent: "0" });
-      gsap.set(".importer-value", { textContent: "0" });
-      gsap.set("#pulse", { opacity: 0, attr: { cx: 172 } });
-      gsap.set("#highlight-exporter", { opacity: 0 });
-      gsap.set("#highlight-importer", { opacity: 0 });
+      gsap.set(["#panel-exporter", "#panel-importer"], { opacity: 0, y: 12 });
+      gsap.set(["#export-line", "#mutate-line", "#import-line1", "#import-line2"], { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
+      gsap.set(["#chip-exporter", "#chip-importer"], { opacity: 0, scale: 0.8 });
+      gsap.set("#arrow-base", { opacity: 0 });
+      gsap.set("#arrow-active", { opacity: 0 });
+      gsap.set("#arrow-pulse", { opacity: 0, cx: 4 });
+      gsap.set("#arrow-eyebrow", { opacity: 0 });
+      gsap.set("#val-exporter", { textContent: "0" });
+      gsap.set("#val-importer", { textContent: "0" });
 
       if (animate) {
-        tl.to("#box-exporter", { opacity: 1, duration: 0.35 })
-          .to("#box-importer", { opacity: 1, duration: 0.35 }, "+=0.1")
-          .to("#arrow-path", { opacity: 1, duration: 0.3 }, "+=0.2")
-          .to("#arrow-label", { opacity: 1, duration: 0.3 }, "<")
-          .to(["#chip-exporter", "#chip-importer"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#highlight-exporter", { opacity: 1, duration: 0.2 }, "+=0.4")
-          .to(".exporter-value", { textContent: "1", duration: 0.2, snap: { textContent: 1 } }, "<")
-          .to("#highlight-exporter", { opacity: 0, duration: 0.2 }, "+=0.15")
-          .to("#pulse", { opacity: 1, attr: { cx: 172 }, duration: 0.01 }, "+=0.1")
-          .to("#pulse", { attr: { cx: 228 }, duration: 0.6, ease: "power2.inOut" })
-          .to("#highlight-importer", { opacity: 1, duration: 0.2 }, "-=0.1")
-          .to(".importer-value", { textContent: "1", duration: 0.2, snap: { textContent: 1 } }, "<")
-          .to("#pulse", { opacity: 0, duration: 0.2 })
-          .to("#highlight-importer", { opacity: 0, duration: 0.2 }, "+=0.15");
+        enter(tl, "#panel-exporter");
+        enter(tl, "#panel-importer", "<");
+        enter(tl, ["#export-line", "#import-line1"], "+=0.1");
+        enter(tl, ["#mutate-line", "#import-line2"], "+=0.05");
+        pop(tl, "#chip-exporter", "+=0.15");
+        pop(tl, "#chip-importer", "<");
+        tl.to("#arrow-base", { opacity: 1, duration: 0.3 }, "+=0.15")
+          .to("#arrow-eyebrow", { opacity: 1, duration: 0.3 }, "<");
+        // math.js runs total++: the mutate line lights up and the exporter's
+        // chip value updates first.
+        focusOn(tl, "#mutate-line", "+=0.25");
+        tl.to("#val-exporter", { textContent: "1", duration: 0.2, snap: { textContent: 1 } }, "+=0.1");
+        focusOff(tl, "#mutate-line", "+=0.25");
+        // the update propagates across the live binding: the connector goes
+        // active and a pulse travels from the export to the import.
+        tl.to("#arrow-active", { opacity: 1, duration: 0.2 }, "+=0.15")
+          .to("#arrow-pulse", { opacity: 1, cx: 4, duration: 0.01 }, "<")
+          .to("#arrow-pulse", { cx: 60, duration: 0.5, ease: "power2.inOut" });
+        tl.to("#chip-importer", { scale: 1.08, duration: 0.15, ease: "power2.out" }, "-=0.15")
+          .to("#val-importer", { textContent: "1", duration: 0.2, snap: { textContent: 1 } }, "<")
+          .to("#chip-importer", { scale: 1, duration: 0.2, ease: "power2.out" }, "+=0.1");
+        tl.to("#arrow-pulse", { opacity: 0, duration: 0.2 }, "-=0.15");
+        tl.to("#arrow-active", { opacity: 0, duration: 0.3 }, "+=0.1");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#box-exporter", "#box-importer"], { opacity: 1 })
-          .set("#arrow-path", { opacity: 1 })
-          .set("#arrow-label", { opacity: 1 })
-          .set(["#chip-exporter", "#chip-importer"], { opacity: 1 })
-          .set(".exporter-value", { textContent: "1" })
-          .set(".importer-value", { textContent: "1" });
+        // reduced motion: jump to labeled end-state, propagation already done
+        tl.set(["#panel-exporter", "#panel-importer"], { opacity: 1, y: 0 })
+          .set(["#export-line", "#mutate-line", "#import-line1", "#import-line2"], { opacity: 1, y: 0 })
+          .set(["#chip-exporter", "#chip-importer"], { opacity: 1, scale: 1 })
+          .set("#arrow-base", { opacity: 1 })
+          .set("#arrow-active", { opacity: 0 })
+          .set("#arrow-eyebrow", { opacity: 1 })
+          .set("#arrow-pulse", { opacity: 0 })
+          .set("#val-exporter", { textContent: "1" })
+          .set("#val-importer", { textContent: "1" });
       }
       register(tl);
       return tl;
@@ -58,53 +73,69 @@ export function EsModulesVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 400 200" className="w-full max-w-md" role="img"
-      aria-label="math.js exports a live total binding that app.js imports. When math.js increments total, a dot travels the connecting arrow and app.js's copy updates to match, showing the import is a live reference, not a copy">
-      <g id="box-exporter" opacity="0">
-        <rect id="highlight-exporter" x="18" y="28" width="150" height="140" rx="10"
-          className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-        <rect x="20" y="30" width="146" height="136" rx="10"
-          className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="30" y="50" className="fill-[var(--color-muted-foreground)] text-[11px]">math.js</text>
-        <text x="30" y="75" className="fill-[var(--color-foreground)] text-[10px]">export let total</text>
-        <text x="30" y="90" className="fill-[var(--color-foreground)] text-[10px]">  = 0;</text>
-        <text x="30" y="110" className="fill-[var(--color-foreground)] text-[10px]">total++;</text>
-        <g id="chip-exporter" opacity="0">
-          <rect x="30" y="122" width="70" height="30" rx="8" className="fill-[var(--color-primary)]" opacity="0.15" />
-          <rect x="30" y="122" width="70" height="30" rx="8" className="fill-none stroke-[var(--color-primary)]" />
-          <text x="40" y="141" className="fill-[var(--color-foreground)] text-[11px]">total:</text>
-          <text x="82" y="141" className="exporter-value fill-[var(--color-foreground)] text-[11px]">0</text>
-        </g>
-      </g>
+    <Stage
+      refEl={scope}
+      height={210}
+      label="math.js exports a live total binding that app.js imports. When math.js runs total++, the exporter's value chip updates first, a pulse travels the connector between the modules, and the importer's chip updates to match, showing the import is a live reference and not a copy"
+    >
+      <Panel id="panel-exporter" label="math.js" style={{ left: 0, top: 0, width: 172, height: 190 }} />
+      <Panel id="panel-importer" label="app.js" style={{ left: 228, top: 0, width: 172, height: 190 }} />
 
-      <g id="box-importer" opacity="0">
-        <rect id="highlight-importer" x="232" y="28" width="150" height="140" rx="10"
-          className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-        <rect x="234" y="30" width="146" height="136" rx="10"
-          className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="244" y="50" className="fill-[var(--color-muted-foreground)] text-[11px]">app.js</text>
-        <text x="244" y="75" className="fill-[var(--color-foreground)] text-[10px]">{"import { total }"}</text>
-        <text x="244" y="90" className="fill-[var(--color-foreground)] text-[10px]">{"  from \"./math.js\";"}</text>
-        <g id="chip-importer" opacity="0">
-          <rect x="244" y="122" width="70" height="30" rx="8" className="fill-[var(--color-primary)]" opacity="0.15" />
-          <rect x="244" y="122" width="70" height="30" rx="8" className="fill-none stroke-[var(--color-primary)]" />
-          <text x="254" y="141" className="fill-[var(--color-foreground)] text-[11px]">total:</text>
-          <text x="296" y="141" className="importer-value fill-[var(--color-foreground)] text-[11px]">0</text>
-        </g>
-      </g>
+      <Frame id="export-line" style={{ left: 12, top: 30, width: 148, height: 26 }} className="text-[11px]">
+        export let total
+      </Frame>
+      <Frame id="mutate-line" style={{ left: 12, top: 60, width: 148, height: 26 }} className="text-[11px]">
+        total++;
+      </Frame>
+      <Chip id="chip-exporter" className="absolute" style={{ left: 12, top: 100, width: 148 }}>
+        total: <span id="val-exporter" className="ml-1">0</span>
+      </Chip>
 
-      <defs>
-        <marker id="arrow-head" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 Z" className="fill-[var(--color-primary)]" />
-        </marker>
-      </defs>
-      <line id="arrow-path" x1="172" y1="137" x2="228" y2="137"
-        className="stroke-[var(--color-primary)]" strokeWidth="2" markerEnd="url(#arrow-head)" opacity="0" />
-      <text id="arrow-label" x="200" y="185" textAnchor="middle"
-        className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        live binding
-      </text>
-      <circle id="pulse" cx="172" cy="137" r="6" className="fill-[var(--color-primary)]" opacity="0" />
-    </svg>
+      <Frame id="import-line1" style={{ left: 240, top: 30, width: 148, height: 26 }} className="text-[11px]">
+        import {"{ total }"}
+      </Frame>
+      <Frame id="import-line2" style={{ left: 240, top: 60, width: 148, height: 26 }} className="text-[11px]">
+        {"from \"./math.js\""}
+      </Frame>
+      <Chip id="chip-importer" className="absolute" style={{ left: 240, top: 100, width: 148 }}>
+        total: <span id="val-importer" className="ml-1">0</span>
+      </Chip>
+
+      <Eyebrow id="arrow-eyebrow" className="absolute" style={{ left: 172, top: 148, width: 56, textAlign: "center" }}>
+        live
+      </Eyebrow>
+
+      <svg
+        className="absolute overflow-visible"
+        style={{ left: 172, top: 104 }}
+        width={56}
+        height={20}
+        viewBox="0 0 56 20"
+      >
+        <defs>
+          <marker id="es-arrow-head" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" className="fill-[var(--color-border)]" />
+          </marker>
+          <marker id="es-arrow-head-active" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" className="fill-[var(--color-primary)]" />
+          </marker>
+        </defs>
+        <line
+          id="arrow-base"
+          x1={0} y1={10} x2={48} y2={10}
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+          markerEnd="url(#es-arrow-head)"
+        />
+        <line
+          id="arrow-active"
+          x1={0} y1={10} x2={48} y2={10}
+          className="stroke-[var(--color-primary)]"
+          strokeWidth={2}
+          markerEnd="url(#es-arrow-head-active)"
+        />
+        <circle id="arrow-pulse" cx={4} cy={10} r={4} className="fill-[var(--color-primary)]" />
+      </svg>
+    </Stage>
   );
 }
