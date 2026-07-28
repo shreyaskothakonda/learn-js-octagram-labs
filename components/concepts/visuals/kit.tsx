@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { gsap } from "gsap";
 
 // ============================================================================
-// Concept-animation kit — the shared "Runtime Instruments" visual + motion
+// Concept-animation kit: the shared "Runtime Instruments" visual + motion
 // language. Every concept visual composes these primitives and motion helpers
 // so the 29 animations read as one system. Colors come from theme tokens only.
 //
@@ -62,16 +62,19 @@ export function Stage({
 
 /** A labeled region (call stack, queue, scope, module). */
 export function Panel({
+  id,
   label,
   style,
   className = "",
 }: {
+  id?: string;
   label: string;
   style?: CSSProperties;
   className?: string;
 }) {
   return (
     <div
+      id={id}
       className={`absolute rounded-xl border border-border bg-[var(--color-muted)]/30 ${className}`}
       style={style}
     >
@@ -131,16 +134,19 @@ export function Chip({
 
 /** An uppercase micro-label (an eyebrow like OUTPUT, RESULT, STEP). */
 export function Eyebrow({
+  id,
   children,
   style,
   className = "",
 }: {
+  id?: string;
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
 }) {
   return (
     <span
+      id={id}
       className={`font-sans text-[10px] font-medium uppercase tracking-wide text-muted-foreground ${className}`}
       style={style}
     >
@@ -177,7 +183,7 @@ export function CodeLine({
 }
 
 // ---------------------------------------------------------------------------
-// Motion helpers — each takes the timeline and returns it for chaining.
+// Motion helpers: each takes the timeline and returns it for chaining.
 // `at` is a GSAP position parameter (e.g. "+=0.2" for a breathing hold, "<" to
 // start with the previous tween).
 // ---------------------------------------------------------------------------
