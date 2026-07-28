@@ -3,55 +3,56 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, Eyebrow, CodeLine, enter, pop, travel } from "./kit";
 
+// A user object with name and age properties splits apart: each value chip
+// peels off the source and travels into its own named destructuring target,
+// ending with const { name, age } = user.
 export function DestructuringVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a user object with name/age properties splits apart. Two
-      // carrier chips peel off the object's values, one at a time, and
-      // travel into their own named destination boxes on the right.
-      gsap.set(["#source-box", "#source-title", "#src-name-row", "#src-age-row"], { opacity: 0 });
       gsap.set(
-        ["#target-name-box", "#target-name-label", "#target-age-box", "#target-age-label"],
-        { opacity: 0 },
+        [
+          "#source-header",
+          "#src-name-label",
+          "#src-age-label",
+          "#target-name-frame",
+          "#target-age-frame",
+          "#final-code",
+        ],
+        { opacity: 0, y: 12 },
       );
-      gsap.set(["#target-name-value", "#target-age-value"], { opacity: 0 });
-      gsap.set("#carrier-name", { x: 100, y: 88, opacity: 0 });
-      gsap.set("#carrier-age", { x: 100, y: 138, opacity: 0 });
-      gsap.set("#code-line", { opacity: 0 });
+      gsap.set(["#chip-name", "#chip-age"], { opacity: 0, scale: 0.8 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to(["#source-box", "#source-title"], { opacity: 1, duration: 0.4 })
-          .to(["#src-name-row", "#src-age-row"], { opacity: 1, duration: 0.3, stagger: 0.1 }, "+=0.1")
-          .to(
-            ["#target-name-box", "#target-name-label", "#target-age-box", "#target-age-label"],
-            { opacity: 1, duration: 0.3 },
-            "+=0.2",
-          )
-          .to("#carrier-name", { opacity: 1, duration: 0.25 }, "+=0.2")
-          .to("#carrier-name", { x: 305, y: 87, duration: 0.6, ease: "power2.inOut" }, "+=0.1")
-          .to("#carrier-name", { opacity: 0, duration: 0.2 }, "+=0.05")
-          .to("#target-name-value", { opacity: 1, duration: 0.2 }, "<")
-          .to("#carrier-age", { opacity: 1, duration: 0.25 }, "+=0.2")
-          .to("#carrier-age", { x: 305, y: 147, duration: 0.6, ease: "power2.inOut" }, "+=0.1")
-          .to("#carrier-age", { opacity: 0, duration: 0.2 }, "+=0.05")
-          .to("#target-age-value", { opacity: 1, duration: 0.2 }, "<")
-          .to("#code-line", { opacity: 1, duration: 0.4 }, "+=0.3");
+        enter(tl, "#source-header");
+        enter(tl, ["#src-name-label", "#src-age-label"], "+=0.1", 0.1);
+        pop(tl, ["#chip-name", "#chip-age"], "+=0.15");
+        enter(tl, ["#target-name-frame", "#target-age-frame"], "+=0.25", 0.1);
+        travel(tl, "#chip-name", { x: 230, y: -20 }, "+=0.2");
+        travel(tl, "#chip-age", { x: 230, y: 0 }, "+=0.15");
+        enter(tl, "#final-code", "+=0.3");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#source-box", "#source-title", "#src-name-row", "#src-age-row"], { opacity: 1 })
-          .set(
-            ["#target-name-box", "#target-name-label", "#target-age-box", "#target-age-label"],
-            { opacity: 1 },
-          )
-          .set(["#target-name-value", "#target-age-value"], { opacity: 1 })
-          .set("#carrier-name", { opacity: 0 })
-          .set("#carrier-age", { opacity: 0 })
-          .set("#code-line", { opacity: 1 });
+        // reduced motion: jump to labeled end-state (both values landed in their targets)
+        tl.set(
+          [
+            "#source-header",
+            "#src-name-label",
+            "#src-age-label",
+            "#target-name-frame",
+            "#target-age-frame",
+            "#final-code",
+          ],
+          { opacity: 1, y: 0 },
+        )
+          .set(["#chip-name", "#chip-age"], { opacity: 1, scale: 1 })
+          .set("#chip-name", { x: 230, y: -20 })
+          .set("#chip-age", { x: 230, y: 0 });
       }
       register(tl);
       return tl;
@@ -62,70 +63,35 @@ export function DestructuringVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 380 240" className="w-full max-w-md" role="img"
-      aria-label="A user object with name and age properties splits apart. Carrier chips peel off each value and travel into their own named variable box, ending with const name, age equals user">
-      <rect id="source-box" x="20" y="55" width="170" height="120" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="source-title" x="25" y="45" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        const user = {"{ ... }"}
-      </text>
-
-      <g id="src-name-row" opacity="0">
-        <text x="35" y="95" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">name:</text>
-        <text x="90" y="95" className="fill-[var(--color-foreground)] text-[11px] font-mono">&quot;Ada&quot;</text>
-      </g>
-      <g id="src-age-row" opacity="0">
-        <text x="35" y="140" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">age:</text>
-        <text x="90" y="140" className="fill-[var(--color-foreground)] text-[11px] font-mono">30</text>
-      </g>
-
-      <g id="target-name-box" opacity="0">
-        <rect x="245" y="65" width="120" height="44" rx="8"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="245" y="65" width="120" height="44" rx="8" className="fill-none stroke-[var(--color-primary)]" />
-      </g>
-      <text id="target-name-label" x="253" y="80" className="fill-[var(--color-muted-foreground)] text-[9px]" opacity="0">
-        name
-      </text>
-      <text id="target-name-value" x="253" y="101" opacity="0"
-        className="fill-[var(--color-foreground)] text-[13px] font-mono">
+    <Stage
+      refEl={scope}
+      height={220}
+      label="A user object with name and age properties splits apart. The name value Ada and the age value 30 each peel off the source and travel into their own named destructuring target, ending with const name, age equals user"
+    >
+      <Panel label="Source" style={{ left: 0, top: 0, width: 170, height: 140 }} />
+      <CodeLine id="source-header" className="whitespace-nowrap" style={{ left: 12, top: 26, width: 150 }}>
+        user = {"{ ... }"}
+      </CodeLine>
+      <Eyebrow id="src-name-label" className="absolute" style={{ left: 16, top: 68 }}>
+        name:
+      </Eyebrow>
+      <Chip id="chip-name" className="absolute z-10" style={{ left: 70, top: 60 }}>
         &quot;Ada&quot;
-      </text>
-
-      <g id="target-age-box" opacity="0">
-        <rect x="245" y="125" width="120" height="44" rx="8"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="245" y="125" width="120" height="44" rx="8" className="fill-none stroke-[var(--color-primary)]" />
-      </g>
-      <text id="target-age-label" x="253" y="140" className="fill-[var(--color-muted-foreground)] text-[9px]" opacity="0">
-        age
-      </text>
-      <text id="target-age-value" x="253" y="161" opacity="0"
-        className="fill-[var(--color-foreground)] text-[13px] font-mono">
+      </Chip>
+      <Eyebrow id="src-age-label" className="absolute" style={{ left: 16, top: 104 }}>
+        age:
+      </Eyebrow>
+      <Chip id="chip-age" className="absolute z-10" style={{ left: 70, top: 96 }}>
         30
-      </text>
+      </Chip>
 
-      <g id="carrier-name">
-        <rect x="-30" y="-12" width="60" height="24" rx="6"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="-30" y="-12" width="60" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="4" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">
-          &quot;Ada&quot;
-        </text>
-      </g>
-      <g id="carrier-age">
-        <rect x="-30" y="-12" width="60" height="24" rx="6"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="-30" y="-12" width="60" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="4" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">
-          30
-        </text>
-      </g>
+      <Panel label="Destructured" style={{ left: 210, top: 0, width: 190, height: 140 }} />
+      <Frame id="target-name-frame" style={{ left: 222, top: 30, width: 166, height: 44 }}>name =</Frame>
+      <Frame id="target-age-frame" style={{ left: 222, top: 86, width: 166, height: 44 }}>age =</Frame>
 
-      <text id="code-line" x="20" y="215" opacity="0"
-        className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">
+      <CodeLine id="final-code" className="whitespace-nowrap" style={{ left: 8, top: 182, width: 380 }}>
         const {"{ name, age }"} = user;
-      </text>
-    </svg>
+      </CodeLine>
+    </Stage>
   );
 }
