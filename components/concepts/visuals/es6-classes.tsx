@@ -3,43 +3,53 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Eyebrow, CodeLine, enter, focusOn, focusOff } from "./kit";
 
+// class Dog is sugar: the execution focus lights it up, then it desugars into
+// a constructor Frame and a Dog.prototype Frame holding bark. new Dog("Rex")
+// then builds an instance Frame, linked back up to Dog.prototype by the same
+// __proto__ connector the prototype-chain visual uses.
 export function Es6ClassesVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a class Dog box splits into the two things it desugars to, a
-      // constructor function and a Dog.prototype with bark on it. Then new
-      // Dog("Rex") builds an instance box, linked back up to the prototype
-      // box by a __proto__ arrow.
-      gsap.set(["#class-box", "#class-text"], { opacity: 0 });
-      gsap.set(["#split-arrow-left", "#split-arrow-right", "#ctor-box", "#ctor-text", "#proto-box", "#proto-label", "#proto-text"], {
+      gsap.set(["#class-frame", "#ctor-panel", "#ctor-frame", "#proto-panel", "#proto-frame"], {
         opacity: 0,
+        y: 12,
       });
-      gsap.set(["#new-call", "#instance-box", "#instance-label", "#instance-prop"], { opacity: 0 });
-      gsap.set(["#link-arrow", "#link-arrowhead", "#link-label", "#highlight-link"], { opacity: 0 });
+      gsap.set(["#new-call", "#instance-panel", "#instance-frame"], { opacity: 0, y: 12 });
+      gsap.set(["#link-base", "#link-label"], { opacity: 0 });
+      gsap.set("#link-active", { opacity: 0 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to(["#class-box", "#class-text"], { opacity: 1, duration: 0.4 })
-          .to(["#split-arrow-left", "#split-arrow-right"], { opacity: 1, duration: 0.3 }, "+=0.15")
-          .to(["#ctor-box", "#ctor-text", "#proto-box", "#proto-label", "#proto-text"], { opacity: 1, duration: 0.4 }, "+=0.05")
-          .to("#new-call", { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to(["#instance-box", "#instance-label", "#instance-prop"], { opacity: 1, duration: 0.4 }, "+=0.2")
-          .to(["#link-arrow", "#link-arrowhead", "#link-label"], { opacity: 1, duration: 0.3 }, "+=0.2")
-          .to("#highlight-link", { opacity: 1, duration: 0.3 })
-          .to("#highlight-link", { opacity: 0, duration: 0.4 }, "+=0.35");
+        enter(tl, "#class-frame");
+        focusOn(tl, "#class-frame", "+=0.2");
+        focusOff(tl, "#class-frame", "+=0.35");
+        enter(tl, "#ctor-panel", "+=0.15");
+        enter(tl, "#ctor-frame", "<");
+        enter(tl, "#proto-panel", "+=0.05");
+        enter(tl, "#proto-frame", "<");
+        enter(tl, "#new-call", "+=0.4");
+        enter(tl, "#instance-panel", "+=0.2");
+        enter(tl, "#instance-frame", "<");
+        enter(tl, "#link-base", "+=0.15");
+        enter(tl, "#link-label", "<");
+        tl.to("#link-active", { opacity: 1, duration: 0.35, ease: "power2.inOut" }, "+=0.05");
+        focusOn(tl, "#proto-frame", "<");
+        tl.to("#link-active", { opacity: 0, duration: 0.3 }, "+=0.3");
+        focusOff(tl, "#proto-frame", "+=0.4");
       } else {
-        // reduced motion: jump to labeled end-state
+        // reduced motion: jump to labeled end-state (instance linked to the prototype)
         tl.set(
           [
-            "#class-box", "#class-text", "#split-arrow-left", "#split-arrow-right", "#ctor-box", "#ctor-text",
-            "#proto-box", "#proto-label", "#proto-text", "#new-call", "#instance-box", "#instance-label",
-            "#instance-prop", "#link-arrow", "#link-arrowhead", "#link-label",
+            "#class-frame", "#ctor-panel", "#ctor-frame", "#proto-panel", "#proto-frame",
+            "#new-call", "#instance-panel", "#instance-frame", "#link-base", "#link-label",
           ],
-          { opacity: 1 },
+          { opacity: 1, y: 0 },
         );
       }
       register(tl);
@@ -51,60 +61,69 @@ export function Es6ClassesVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 300" className="w-full max-w-md" role="img"
-      aria-label="class Dog desugars into a constructor function and a Dog.prototype holding bark, then new Dog creates an instance linked to that prototype">
-      <rect id="class-box" x="30" y="10" width="300" height="55" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="class-text" x="42" y="42" className="fill-[var(--color-foreground)] text-[11px]" opacity="0">
-        class Dog {"{"} constructor(name) {"{"}...{"}"} bark() {"{"}...{"}"} {"}"}
-      </text>
+    <Stage
+      refEl={scope}
+      height={300}
+      label="class Dog desugars into a constructor function and a Dog.prototype holding bark, then new Dog(Rex) creates an instance linked back to that prototype by the same proto link the prototype chain uses"
+    >
+      <Frame id="class-frame" className="whitespace-nowrap justify-center" style={{ left: 60, top: 0, width: 280, height: 40 }}>
+        class Dog {"{"} ... {"}"}
+      </Frame>
 
-      <line id="split-arrow-left" x1="130" y1="65" x2="80" y2="93" className="stroke-[var(--color-muted-foreground)]"
-        strokeWidth="2" opacity="0" />
-      <line id="split-arrow-right" x1="230" y1="65" x2="280" y2="93" className="stroke-[var(--color-muted-foreground)]"
-        strokeWidth="2" opacity="0" />
-
-      <rect id="ctor-box" x="15" y="95" width="150" height="55" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="ctor-text" x="25" y="118" className="fill-[var(--color-foreground)] text-[10px]" opacity="0">
+      <Panel id="ctor-panel" label="Constructor function" style={{ left: 12, top: 66, width: 180, height: 80 }} />
+      <Frame id="ctor-frame" className="whitespace-nowrap" style={{ left: 24, top: 92, width: 156, height: 38 }}>
         function Dog(name)
-      </text>
-      <text x="25" y="136" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        this.name = name;
-      </text>
+      </Frame>
 
-      <rect id="proto-box" x="195" y="95" width="150" height="55" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="proto-label" x="205" y="115" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        Dog.prototype
-      </text>
-      <text id="proto-text" x="205" y="135" className="fill-[var(--color-foreground)] text-[10px]" opacity="0">
+      <Panel id="proto-panel" label="Dog.prototype" style={{ left: 208, top: 66, width: 180, height: 80 }} />
+      <Frame id="proto-frame" className="whitespace-nowrap" style={{ left: 220, top: 92, width: 156, height: 38 }}>
         bark() {"{"} ... {"}"}
-      </text>
+      </Frame>
 
-      <text id="new-call" x="180" y="185" textAnchor="middle" opacity="0"
-        className="fill-[var(--color-primary)] text-[11px]">
+      <CodeLine id="new-call" className="whitespace-nowrap" style={{ left: 20, top: 178, width: 160 }}>
         new Dog(&quot;Rex&quot;)
-      </text>
+      </CodeLine>
 
-      <rect id="instance-box" x="90" y="200" width="180" height="60" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="instance-label" x="100" y="222" className="fill-[var(--color-muted-foreground)] text-[11px]" opacity="0">
-        rex (instance)
-      </text>
-      <text id="instance-prop" x="100" y="244" className="fill-[var(--color-foreground)] text-[11px]" opacity="0">
+      <Panel id="instance-panel" label="rex (instance)" style={{ left: 90, top: 212, width: 220, height: 76 }} />
+      <Frame id="instance-frame" className="whitespace-nowrap" style={{ left: 106, top: 238, width: 188, height: 38 }}>
         name: &quot;Rex&quot;
-      </text>
+      </Frame>
 
-      <line id="link-arrow" x1="245" y1="200" x2="290" y2="152" className="stroke-[var(--color-muted-foreground)]"
-        strokeWidth="2" opacity="0" />
-      <polygon id="link-arrowhead" points="292,150 283,158 296,164" className="fill-[var(--color-muted-foreground)]"
-        opacity="0" />
-      <text id="link-label" x="255" y="185" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
+      <svg
+        className="pointer-events-none absolute left-0 top-0"
+        width={400}
+        height={300}
+        viewBox="0 0 400 300"
+        aria-hidden="true"
+      >
+        <defs>
+          <marker id="class-link-arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,8 L4,0 L8,8 Z" className="fill-[var(--color-muted-foreground)]" />
+          </marker>
+        </defs>
+        <line
+          id="link-base"
+          x1="230"
+          y1="212"
+          x2="290"
+          y2="150"
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+          markerEnd="url(#class-link-arrowhead)"
+        />
+        <line
+          id="link-active"
+          x1="230"
+          y1="212"
+          x2="290"
+          y2="150"
+          className="stroke-[var(--color-primary)]"
+          strokeWidth={2}
+        />
+      </svg>
+      <Eyebrow id="link-label" className="absolute" style={{ left: 238, top: 178 }}>
         __proto__
-      </text>
-      <rect id="highlight-link" x="195" y="95" width="150" height="55" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-    </svg>
+      </Eyebrow>
+    </Stage>
   );
 }
