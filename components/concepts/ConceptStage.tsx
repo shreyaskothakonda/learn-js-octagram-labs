@@ -19,10 +19,10 @@ function usePrefersReducedMotion() {
 export function ConceptStage({ visual }: { visual: string }) {
   const Visual = getVisual(visual) as ComponentType<ConceptVisualProps> | undefined;
   const tlRef = useRef<gsap.core.Timeline | null>(null);
-  const speedRef = useRef(1);
+  const speedRef = useRef(0.5);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(0.5);
   const reduced = usePrefersReducedMotion();
 
   // `register` is only ever invoked once per visual mount (each visual's
