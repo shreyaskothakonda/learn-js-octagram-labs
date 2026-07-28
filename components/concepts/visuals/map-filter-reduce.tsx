@@ -3,137 +3,139 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Frame, Chip, CodeLine, enter, focusOn, focusOff, travel } from "./kit";
 
 const NUMS = [2, 5, 8, 3, 6];
-const MAPPED = [4, 10, 16, 6, 12];
-const ROW_X = [40, 100, 160, 220, 280];
-const SURVIVOR_INDEXES = [1, 2, 4]; // indexes into MAPPED where x > 8
-const ROW3_X = [100, 160, 220];
-const ACC_X = 160;
-const ROW1_Y = 60;
-const ROW2_Y = 150;
-const ROW3_Y = 230;
-const ROW4_Y = 310;
+const MAPPED = NUMS.map((n) => n * 2); // [4, 10, 16, 6, 12]
+const KEEP_ABOVE = 8;
+const SURVIVOR_INDEXES = MAPPED.reduce<number[]>((acc, v, i) => (v > KEEP_ABOVE ? [...acc, i] : acc), []); // [1, 2, 4]
+const DROPPED_INDEXES = MAPPED.map((_, i) => i).filter((i) => !SURVIVOR_INDEXES.includes(i)); // [0, 3]
+const TOTAL = SURVIVOR_INDEXES.reduce((sum, i) => sum + MAPPED[i], 0); // 38
 
+const ROW_X = [16, 84, 152, 220, 288];
+const ROW3_X = [122, 190, 258];
+const ROW1_Y = 40;
+const ROW2_Y = 118;
+const ROW3_Y = 206;
+const ACC_FRAME = { left: 130, top: 284, width: 140, height: 44 };
+const ACC_CENTER_X = ACC_FRAME.left + ACC_FRAME.width / 2;
+const ACC_CENTER_Y = ACC_FRAME.top + ACC_FRAME.height / 2;
+
+// A row of chips is mapped into doubled values in place (each chip morphs,
+// counting up to its new value), filter dims the values at or below the
+// threshold and compacts the survivors, and reduce folds them one at a time
+// into a single accumulator, with the focus lighting the running total.
 export function MapFilterReduceVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
+  const nIds = NUMS.map((_, i) => `#n${i}`);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a row of numbers is mapped into a new row of doubled values,
-      // filter dims the values that are not above 8, and the three survivors
-      // fold one at a time into a single reduce accumulator chip.
-      gsap.set(["#nums-code", "#map-code", "#filter-code", "#reduce-code"], { opacity: 0 });
-      NUMS.forEach((_, i) => gsap.set(`#n${i}`, { x: ROW_X[i], y: ROW1_Y, opacity: 0 }));
-      MAPPED.forEach((_, i) => gsap.set(`#m${i}`, { x: ROW_X[i], y: ROW2_Y, opacity: 0, scale: 1 }));
-      gsap.set("#acc-chip", { x: ACC_X, y: ROW4_Y, opacity: 0 });
+      gsap.set(["#src-code", "#map-code", "#filter-code", "#reduce-code", "#filter-note"], { opacity: 0, y: 12 });
+      gsap.set(nIds, { opacity: 0, scale: 0.8 });
+      gsap.set("#acc-frame", { opacity: 0, y: 12 });
       gsap.set(".acc-value", { textContent: "0" });
-
-      const nIds = NUMS.map((_, i) => `#n${i}`);
-      const mIds = MAPPED.map((_, i) => `#m${i}`);
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to("#nums-code", { opacity: 1, duration: 0.3 })
-          .to(nIds, { opacity: 1, duration: 0.3, stagger: 0.06 }, "+=0.1")
-          .to("#map-code", { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to(mIds, { opacity: 1, duration: 0.3, stagger: 0.06 }, "+=0.1")
-          .to("#filter-code", { opacity: 1, duration: 0.3 }, "+=0.4")
-          .to(["#m0", "#m3"], { opacity: 0.15, scale: 0.85, duration: 0.4 }, "+=0.1");
-        SURVIVOR_INDEXES.forEach((idx, i) => {
-          tl.to(`#m${idx}`, { x: ROW3_X[i], y: ROW3_Y, duration: 0.5, ease: "power2.inOut" }, "<");
-        });
-        tl.to("#reduce-code", { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#acc-chip", { opacity: 1, duration: 0.3 }, "+=0.1");
+        // reveal the source row
+        enter(tl, "#src-code");
+        tl.to(nIds, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)", stagger: 0.07 }, "+=0.1");
 
+        // map: each chip morphs into its doubled value and drops into row 2
+        enter(tl, "#map-code", "+=0.3");
+        focusOn(tl, "#map-code", "<");
+        NUMS.forEach((_, i) => {
+          const at = i === 0 ? "+=0.15" : "<+=0.1";
+          travel(tl, `#n${i}`, { y: ROW2_Y - ROW1_Y }, at);
+          tl.to(`#n${i}`, { textContent: String(MAPPED[i]), duration: 0.4, ease: "power2.inOut", snap: { textContent: 1 } }, "<");
+        });
+        focusOff(tl, "#map-code", "+=0.3");
+
+        // filter: dim the values at or below the threshold, compact the survivors
+        enter(tl, "#filter-code", "+=0.25");
+        focusOn(tl, "#filter-code", "<");
+        enter(tl, "#filter-note", "<");
+        tl.to(
+          DROPPED_INDEXES.map((i) => `#n${i}`),
+          { opacity: 0.15, scale: 0.85, duration: 0.3, ease: "power2.in" },
+          "<+=0.1",
+        );
+        SURVIVOR_INDEXES.forEach((idx, j) => {
+          travel(tl, `#n${idx}`, { x: ROW3_X[j] - ROW_X[idx], y: ROW3_Y - ROW1_Y }, "<");
+        });
+        focusOff(tl, "#filter-code", "+=0.3");
+
+        // reduce: fold each survivor into the accumulator, one at a time
+        enter(tl, "#reduce-code", "+=0.25");
+        enter(tl, "#acc-frame", "<+=0.1");
+        focusOn(tl, "#acc-frame", "+=0.15");
         let running = 0;
         SURVIVOR_INDEXES.forEach((idx) => {
           const next = running + MAPPED[idx];
-          tl.to(`#m${idx}`, { x: ACC_X, y: ROW4_Y, opacity: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.25").to(
-            ".acc-value",
-            { textContent: String(next), duration: 0.2, snap: { textContent: 1 } },
-            "-=0.1",
-          );
+          travel(tl, `#n${idx}`, { x: ACC_CENTER_X - ROW_X[idx], y: ACC_CENTER_Y - ROW1_Y }, "+=0.3");
+          tl.to(`#n${idx}`, { opacity: 0, duration: 0.6, ease: "power2.inOut" }, "<");
+          tl.to(".acc-value", { textContent: String(next), duration: 0.25, snap: { textContent: 1 } }, "-=0.2");
           running = next;
         });
+        focusOff(tl, "#acc-frame", "+=0.4");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#nums-code", "#map-code", "#filter-code", "#reduce-code"], { opacity: 1 })
-          .set(nIds, { opacity: 1 })
-          .set(mIds, { opacity: 1 })
-          .set(["#m0", "#m3"], { opacity: 0.15, scale: 0.85 });
-        SURVIVOR_INDEXES.forEach((idx, i) => {
-          tl.set(`#m${idx}`, { x: ROW3_X[i], y: ROW3_Y, opacity: 1 });
+        // reduced motion: jump to labeled end-state (map/filter resolved, reduce complete)
+        tl.set(["#src-code", "#map-code", "#filter-code", "#reduce-code", "#filter-note"], { opacity: 1, y: 0 })
+          .set(nIds, { opacity: 1, scale: 1 })
+          .set("#acc-frame", { opacity: 1, y: 0 })
+          .set(".acc-value", { textContent: String(TOTAL) });
+        DROPPED_INDEXES.forEach((idx) => {
+          tl.set(`#n${idx}`, { y: ROW2_Y - ROW1_Y, opacity: 0.15, scale: 0.85, textContent: String(MAPPED[idx]) });
         });
-        tl.set("#acc-chip", { opacity: 1 }).set(".acc-value", { textContent: "38" });
+        SURVIVOR_INDEXES.forEach((idx) => {
+          tl.set(`#n${idx}`, { opacity: 0, textContent: String(MAPPED[idx]) });
+        });
       }
       register(tl);
       return tl;
     };
-    mm.add("(prefers-reduced-motion: reduce)", () => {
-      build(false);
-    });
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      build(true);
-    });
+    mm.add("(prefers-reduced-motion: reduce)", () => { build(false); });
+    mm.add("(prefers-reduced-motion: no-preference)", () => { build(true); });
     return () => mm.revert();
   }, { scope });
 
-  const chip = (id: string, value: number) => (
-    <g id={id} key={id}>
-      <rect
-        x="-20"
-        y="-14"
-        width="40"
-        height="28"
-        rx="6"
-        className="fill-[var(--color-primary)] stroke-[var(--color-primary)]"
-        opacity="0.15"
-      />
-      <rect x="-20" y="-14" width="40" height="28" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-      <text x="0" y="5" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">
-        {value}
-      </text>
-    </g>
-  );
-
   return (
-    <svg
-      ref={scope}
-      viewBox="0 0 380 340"
-      className="w-full max-w-md"
-      role="img"
-      aria-label="A row of five numbers is mapped into a new row of doubled values, filter dims the values that are not above 8, and the three survivors fold one at a time into a single reduce accumulator that ends at 38"
+    <Stage
+      refEl={scope}
+      height={340}
+      label="A row of five numbers, 2, 5, 8, 3, and 6, is mapped into doubled values, 4, 10, 16, 6, and 12. Filter keeps only the values above 8, dimming and dropping 4 and 6. Reduce then folds the three survivors, 10, 16, and 12, into a single running total, one at a time, ending at 38"
     >
-      <text id="nums-code" x="20" y="30" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        const nums = [2, 5, 8, 3, 6];
-      </text>
-      {NUMS.map((v, i) => chip(`n${i}`, v))}
+      <CodeLine id="src-code" gutter={1} style={{ left: 8, top: 8, width: 260 }}>
+        const nums = [2, 5, 8, 3, 6]
+      </CodeLine>
+      {NUMS.map((n, i) => (
+        <Chip key={`n${i}`} id={`n${i}`} className="absolute" style={{ left: ROW_X[i], top: ROW1_Y }}>
+          {n}
+        </Chip>
+      ))}
 
-      <text id="map-code" x="20" y="120" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        nums.map(x =&gt; x * 2)
-      </text>
-      {MAPPED.map((v, i) => chip(`m${i}`, v))}
+      <CodeLine id="map-code" gutter={2} style={{ left: 8, top: 80, width: 240 }}>
+        .map(x =&gt; x * 2)
+      </CodeLine>
 
-      <text id="filter-code" x="20" y="205" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
+      <CodeLine id="filter-code" gutter={3} style={{ left: 8, top: 170, width: 240 }}>
         .filter(x =&gt; x &gt; 8)
-      </text>
+      </CodeLine>
+      <div id="filter-note" className="absolute font-sans text-[10px] font-medium uppercase tracking-wide" style={{ left: 8, top: 150 }}>
+        <span className="text-muted-foreground">dims &le; 8</span>
+        <span className="mx-2 text-muted-foreground">&middot;</span>
+        <span className="text-green-600">keeps &gt; 8</span>
+      </div>
 
-      <text id="reduce-code" x="20" y="285" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        .reduce((total, x) =&gt; total + x, 0)
-      </text>
-      <g id="acc-chip" opacity="0">
-        <rect x="-30" y="-18" width="60" height="36" rx="8" className="fill-none stroke-[var(--color-border)]" />
-        <text
-          x="0"
-          y="6"
-          textAnchor="middle"
-          className="acc-value fill-[var(--color-foreground)] text-[13px] font-mono"
-        >
-          0
-        </text>
-      </g>
-    </svg>
+      <CodeLine id="reduce-code" gutter={4} style={{ left: 8, top: 246, width: 300 }}>
+        .reduce((acc, x) =&gt; acc + x, 0)
+      </CodeLine>
+      <Frame id="acc-frame" className="justify-center" style={ACC_FRAME}>
+        acc: <span className="acc-value ml-1">0</span>
+      </Frame>
+    </Stage>
   );
 }
