@@ -15,10 +15,10 @@ export async function Nav() {
       <MobileNav signedIn={!!user} />
       <Link href="/" className="font-semibold shrink-0">Practice</Link>
       <div className="hidden lg:flex items-center gap-4">
-        <NavLink href="/learn/javascript">JavaScript</NavLink>
-        <NavLink href="/learn/data-structures">Data Structures</NavLink>
-        <NavLink href="/learn/react">React</NavLink>
-        <NavLink href="/learn/concepts">Concepts</NavLink>
+        <NavLink href="/javascript">JavaScript</NavLink>
+        <NavLink href="/data-structures">Data Structures</NavLink>
+        <NavLink href="/react">React</NavLink>
+        <NavLink href="/concepts">Concepts</NavLink>
       </div>
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
         <CommandMenu problems={problems} />

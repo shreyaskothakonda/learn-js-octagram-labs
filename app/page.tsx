@@ -13,19 +13,19 @@ import type { Track } from "@/content/types";
 
 const TRACKS: { href: string; track: Track; title: string; desc: string }[] = [
   {
-    href: "/learn/javascript",
+    href: "/javascript",
     track: "javascript",
     title: "JavaScript",
     desc: "Core language: fundamentals, functions, arrays, OOP, async, and the DOM.",
   },
   {
-    href: "/learn/data-structures",
+    href: "/data-structures",
     track: "data-structures",
     title: "Data Structures in JS",
     desc: "Stacks, queues, linked lists, trees, graphs, heaps, and algorithms.",
   },
   {
-    href: "/learn/react",
+    href: "/react",
     track: "react",
     title: "JavaScript for React",
     desc: "Immutable updates, reducers, selectors, hooks logic, and rendering.",

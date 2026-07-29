@@ -93,7 +93,7 @@ export function PromptPanel({ problem, solved }: { problem: Problem; solved: boo
       )}
 
       {concept && (
-        <Link href={`/learn/concepts/${concept.slug}`} className="inline-block text-sm text-blue-500 underline">
+        <Link href={`/concepts/${concept.slug}`} className="inline-block text-sm text-blue-500 underline">
           Visualize this concept: {concept.title} →
         </Link>
       )}

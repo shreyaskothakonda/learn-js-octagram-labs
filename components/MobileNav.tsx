@@ -9,10 +9,10 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const router = useRouter();
   function go(href: string) { setOpen(false); router.push(href); }
   const links = [
-    ["/learn/javascript", "JavaScript"],
-    ["/learn/data-structures", "Data Structures"],
-    ["/learn/react", "React"],
-    ["/learn/concepts", "Concepts"],
+    ["/javascript", "JavaScript"],
+    ["/data-structures", "Data Structures"],
+    ["/react", "React"],
+    ["/concepts", "Concepts"],
     signedIn ? ["/dashboard", "Dashboard"] : ["/login", "Sign in"],
   ] as const;
   return (

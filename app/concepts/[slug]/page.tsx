@@ -21,7 +21,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ slug: 
   return (
     <main className="mx-auto w-full max-w-3xl p-6 space-y-8">
       <div className="text-xs">
-        <Link href="/learn/concepts" className="text-blue-500 hover:underline">← All concepts</Link>
+        <Link href="/concepts" className="text-blue-500 hover:underline">← All concepts</Link>
       </div>
       <header>
         <div className="text-xs text-muted-foreground">{c.topic}</div>

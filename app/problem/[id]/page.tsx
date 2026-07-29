@@ -11,5 +11,5 @@ export default async function ProblemPage({ params }: { params: Promise<{ id: st
   const idx = siblings.findIndex((p) => p.id === id);
   const nextId = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1].id : null;
 
-  return <Playground problem={problem} nextId={nextId} backHref={`/learn/${problem.track}`} />;
+  return <Playground problem={problem} nextId={nextId} backHref={`/${problem.track}`} />;
 }

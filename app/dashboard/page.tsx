@@ -62,7 +62,7 @@ export default async function Dashboard() {
             return (
               <div key={t.track}>
                 <div className="flex justify-between text-sm mb-1">
-                  <Link href={`/learn/${t.track}`} className="hover:text-blue-500">{t.label}</Link>
+                  <Link href={`/${t.track}`} className="hover:text-blue-500">{t.label}</Link>
                   <span className="text-muted-foreground">{s} / {all.length}</span>
                 </div>
                 <ProgressBar value={s} total={all.length} />
