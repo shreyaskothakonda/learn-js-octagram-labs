@@ -25,7 +25,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
           <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
           <div className="fixed left-0 top-0 z-50 h-full w-64 bg-background border-r p-4 flex flex-col">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">Octagram Labs</span>
+              <span className="font-semibold">Practice</span>
               <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close menu"><X className="size-4" /></Button>
             </div>
             <nav className="flex flex-col">

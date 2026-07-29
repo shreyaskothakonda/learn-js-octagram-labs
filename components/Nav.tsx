@@ -13,7 +13,7 @@ export async function Nav() {
   return (
     <nav className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 h-12 border-b text-sm">
       <MobileNav signedIn={!!user} />
-      <Link href="/" className="font-semibold shrink-0">Octagram Labs</Link>
+      <Link href="/" className="font-semibold shrink-0">Practice</Link>
       <div className="hidden lg:flex items-center gap-4">
         <NavLink href="/learn/javascript">JavaScript</NavLink>
         <NavLink href="/learn/data-structures">Data Structures</NavLink>

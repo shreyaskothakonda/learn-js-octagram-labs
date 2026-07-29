@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const c = getConcept(slug);
-  return { title: c ? `${c.title}: Octagram Labs` : "Concept" };
+  return { title: c ? `${c.title}: Practice` : "Concept" };
 }
 
 export default async function ConceptPage({ params }: { params: Promise<{ slug: string }> }) {

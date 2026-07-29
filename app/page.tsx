@@ -48,7 +48,7 @@ export default async function Home() {
   return (
     <main className="mx-auto w-full max-w-5xl p-8">
       <h1 className="text-4xl font-bold mb-2">
-        Octagram Labs: Learn JavaScript
+        Practice: Learn JavaScript
       </h1>
       <p className="text-muted-foreground mb-8">
         Practice in the browser. Run code, pass tests, track progress.
