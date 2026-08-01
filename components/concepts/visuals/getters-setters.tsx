@@ -74,7 +74,7 @@ export function GettersSettersVisual({ register }: ConceptVisualProps) {
   return (
     <Stage
       refEl={scope}
-      height={340}
+      height={368}
       label="Reading obj.balance runs a getter that returns the stored value, 25. Assigning obj.balance = -5 runs a setter that rejects the value, leaving the field unchanged. Assigning obj.balance = 100 runs the same setter, passes validation, and the field updates to 100"
     >
       <Panel id="account-panel" label="account" style={{ left: 100, top: 0, width: 200, height: 70 }} />

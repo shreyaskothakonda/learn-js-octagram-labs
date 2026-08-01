@@ -76,7 +76,7 @@ export function CallApplyBindVisual({ register }: ConceptVisualProps) {
   return (
     <Stage
       refEl={scope}
-      height={270}
+      height={296}
       label="The same greet function is invoked three ways. greet.call and greet.apply both re-point the same this target, first to ada then to grace, and run immediately, each producing a result right away. greet.bind does not run anything, it returns a new pre-bound frame, which travels to a call site and is invoked later, producing Hi Alan"
     >
       <Panel id="invoke-panel" label="call() / apply()" style={{ left: 0, top: 0, width: 400, height: 120 }} />
