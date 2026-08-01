@@ -1,5 +1,6 @@
 import type { Concept, ConceptTrack } from "./types";
 import { javascriptConcepts } from "./javascript";
+import { TOPICS } from "../manifest";
 
 const ALL: Concept[] = [...javascriptConcepts];
 
@@ -17,4 +18,17 @@ export function getConceptsByTopic(track: ConceptTrack, topic: string): Concept[
 }
 export function getConceptForProblem(problemId: string): Concept | undefined {
   return ALL.find((c) => c.relatedProblemIds.includes(problemId));
+}
+export function getOrderedConcepts(): Concept[] {
+  const order = TOPICS.javascript.map((t) => t.topic);
+  return [...ALL].sort((a, b) => order.indexOf(a.topic) - order.indexOf(b.topic));
+}
+export function getConceptNeighbors(slug: string): { prev?: Concept; next?: Concept } {
+  const ordered = getOrderedConcepts();
+  const index = ordered.findIndex((c) => c.slug === slug);
+  if (index === -1) return {};
+  return {
+    prev: index > 0 ? ordered[index - 1] : undefined,
+    next: index < ordered.length - 1 ? ordered[index + 1] : undefined,
+  };
 }

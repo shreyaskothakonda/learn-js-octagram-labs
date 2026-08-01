@@ -1,6 +1,7 @@
 import { getConceptsByTrack } from "@/content/concepts";
 import { TOPICS } from "@/content/manifest";
 import { ConceptCard } from "@/components/concepts/ConceptCard";
+import { ConceptsProgress } from "@/components/concepts/ConceptsProgress";
 
 export const metadata = { title: "Concepts: Practice" };
 
@@ -14,6 +15,7 @@ export default function ConceptsIndex() {
       <header>
         <h1 className="text-2xl font-bold">JavaScript Concepts</h1>
         <p className="text-muted-foreground mt-1">Visual explanations of the ideas behind the problems.</p>
+        <ConceptsProgress total={concepts.length} />
       </header>
       {topics.map((g) => (
         <section key={g.label} className="space-y-3">
