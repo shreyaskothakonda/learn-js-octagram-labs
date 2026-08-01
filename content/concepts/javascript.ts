@@ -1194,6 +1194,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: The event loop", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop" },
     ],
+    pitfalls: [
+      "Assuming setTimeout(fn, 0) runs right away; it still has to wait for the call stack to empty and for the entire microtask queue to drain first.",
+      "Thinking the event loop runs one microtask and then checks the macrotask queue; it actually drains the whole microtask queue, including new microtasks scheduled along the way, before touching a single macrotask.",
+      "Writing a chain of promises that keeps scheduling more microtasks and being surprised that timers or rendering never get a turn.",
+    ],
+    keyTakeaways: [
+      "JavaScript has one call stack, so only one piece of code runs at a time.",
+      "Once the stack is empty, the entire microtask queue drains before the event loop runs even one macrotask.",
+      "New microtasks scheduled while draining still run in that same pass, ahead of any macrotask.",
+      "This is why a resolved promise's .then always logs before a setTimeout(fn, 0).",
+    ],
+    check: {
+      question: "What does this log?\n\nconsole.log(1);\nsetTimeout(() => console.log(4), 0);\nPromise.resolve().then(() => console.log(3));\nconsole.log(2);",
+      options: ["1, 2, 3, 4", "1, 2, 4, 3", "1, 3, 2, 4", "4, 3, 1, 2"],
+      answerIndex: 0,
+      explanation: "1 and 2 run synchronously first. Once the stack is empty, the microtask (3) drains completely before the single queued macrotask (4) gets its turn.",
+    },
+    related: ["microtasks-vs-macrotasks", "execution-context-call-stack"],
   },
   {
     slug: "promises",
@@ -1224,6 +1242,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Promise", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" },
     ],
+    pitfalls: [
+      "Expecting a promise to change state after it settles; once it is fulfilled or rejected, that outcome and value are locked in forever.",
+      "Forgetting that .then, .catch, and .finally always run as microtasks, even if the promise already settled before you attached them, so the handler never runs synchronously.",
+      "Returning a value from a .then callback and expecting the chain to skip ahead; the next .then only runs once that returned value (or promise) actually resolves.",
+    ],
+    keyTakeaways: [
+      "A promise starts pending and settles exactly once, to fulfilled or rejected, never both and never again after that.",
+      ".then handles fulfillment, .catch handles rejection, and .finally runs either way without seeing the value or reason.",
+      "Each .then/.catch/.finally returns a new promise, which is what makes chaining work.",
+      "Promise callbacks are always scheduled as microtasks, never run synchronously.",
+    ],
+    check: {
+      question: "A promise is fulfilled with the value 5. If you call .then(cb) on it a second later, what happens?",
+      options: [
+        "Nothing, since the fulfillment already happened",
+        "cb runs with 5, scheduled as a microtask, just as if it had just fulfilled",
+        "cb runs synchronously right away since the value is already available",
+        "It throws because you can only attach .then once",
+      ],
+      answerIndex: 1,
+      explanation: "A settled promise still remembers its outcome, so a late .then still fires with that value, always scheduled as a microtask rather than running immediately.",
+    },
+    related: ["async-await", "the-event-loop"],
   },
   {
     slug: "async-await",
@@ -1254,6 +1295,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: async function", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function" },
     ],
+    pitfalls: [
+      "Thinking await blocks the whole program; it only pauses the async function's own frame, control returns to the caller while the promise is still pending.",
+      "Awaiting a rejected promise without a try/catch, which lets the rejection propagate up as an unhandled error instead of being caught where you meant to handle it.",
+      "Awaiting several independent promises one after another instead of starting them together with Promise.all, which makes them wait on each other for no reason.",
+    ],
+    keyTakeaways: [
+      "async makes a function always return a promise, resolved with its return value or rejected with a thrown error.",
+      "await pauses only the async function's own execution until the promise settles, it does not block the rest of the program.",
+      "If the awaited promise rejects, await throws that reason, so a surrounding try/catch can handle it like a normal error.",
+      "Resuming after an await is scheduled as a microtask, the same timing promises use.",
+    ],
+    check: {
+      question: "What happens when you await a promise that rejects, inside an async function with no try/catch around it?",
+      options: [
+        "await returns undefined and execution continues normally",
+        "The rejection is thrown inside the async function, which rejects the promise it returns",
+        "The whole program crashes immediately and synchronously",
+        "await silently retries the promise",
+      ],
+      answerIndex: 1,
+      explanation: "await turns a rejection into a thrown error inside the async function; with no try/catch to catch it, that error becomes the rejection reason of the promise the async function returns.",
+    },
+    related: ["promises", "the-event-loop"],
   },
   {
     slug: "microtasks-vs-macrotasks",
@@ -1284,6 +1348,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: In depth: Microtasks and the JavaScript runtime environment", url: "https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide" },
     ],
+    pitfalls: [
+      "Assuming setTimeout(fn, 0) fires before a promise scheduled at the same moment; the timer callback is a macrotask and always waits behind every pending microtask.",
+      "Forgetting that a microtask can schedule another microtask, and the event loop keeps draining until the queue is truly empty before it looks at a macrotask.",
+      "Mixing up which APIs land in which queue, like thinking queueMicrotask behaves like setTimeout(fn, 0) when it is actually a microtask.",
+    ],
+    keyTakeaways: [
+      "Microtasks include promise callbacks (.then, .catch, .finally) and queueMicrotask.",
+      "Macrotasks include setTimeout, setInterval, and most I/O and UI event callbacks.",
+      "The entire microtask queue drains, including newly added microtasks, before a single macrotask runs.",
+      "That is why a promise callback always runs before a setTimeout(fn, 0) scheduled around the same time.",
+    ],
+    check: {
+      question: "setTimeout(() => console.log(\"timeout\"), 0);\nPromise.resolve().then(() => console.log(\"promise\"));\n\nWhat is the logged order?",
+      options: ["timeout, promise", "promise, timeout", "It is random, depends on the engine", "Both log at the same time"],
+      answerIndex: 1,
+      explanation: "The promise callback is a microtask and the timer callback is a macrotask, so the microtask queue always drains first, logging promise before timeout.",
+    },
+    related: ["the-event-loop", "promises"],
   },
   {
     slug: "es-modules",
@@ -1371,6 +1453,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Regular expressions", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions" },
     ],
+    pitfalls: [
+      "Forgetting the g flag and being surprised that match or replace only touches the first occurrence instead of every one in the string.",
+      "Assuming match always returns capture groups; without the g flag it does, but with g it returns every matched substring and drops the group detail, so matchAll is needed for that.",
+      "Writing a pattern without anchors (^ and $) and expecting it to require the whole string to match, when it actually matches if the pattern appears anywhere.",
+    ],
+    keyTakeaways: [
+      "Parentheses create a capture group, letting you pull out a specific piece of what matched.",
+      "The g flag finds every match in a string instead of stopping at the first.",
+      "The i flag makes the match ignore letter case.",
+      "test checks for a match, match and matchAll extract matches, and replace rewrites text using the pattern.",
+    ],
+    check: {
+      question: "\"cat, Cat, CAT\".match(/cat/gi) returns what?",
+      options: ["null, because case differs", "[\"cat\"]", "[\"cat\", \"Cat\", \"CAT\"]", "3, the count of matches"],
+      answerIndex: 2,
+      explanation: "The i flag makes the match case-insensitive and the g flag finds every occurrence, so all three variants are returned as an array of matched substrings.",
+    },
+    related: ["data-types-and-coercion"],
   },
   {
     slug: "iterators-generators",
@@ -1401,5 +1501,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Iterators and generators", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators" },
     ],
+    pitfalls: [
+      "Assuming calling a generator function runs its body right away; it only returns a generator object, the body runs step by step as next() is called.",
+      "Forgetting to keep calling next() until done is true, and missing the final value that comes back with a return statement.",
+      "Treating a generator as reusable after it is drained; once done is true, that generator object is finished and a fresh call to the generator function is needed for a new run.",
+    ],
+    keyTakeaways: [
+      "An iterator is any object with a next() method returning { value, done }.",
+      "Symbol.iterator is what makes an object work with for...of, spread, and destructuring.",
+      "function* creates a generator, which pauses at each yield and resumes exactly where it left off, keeping its local state intact.",
+      "Because generators only compute a value when asked, they can represent lazy or infinite sequences without running out of memory.",
+    ],
+    check: {
+      question: "function* upTo(n) {\n  for (let i = 1; i <= n; i++) yield i;\n}\nconst it = upTo(2);\nit.next();\nit.next();\nconst last = it.next();\n\nWhat is last?",
+      options: ["{ value: 2, done: false }", "{ value: undefined, done: true }", "{ value: 3, done: false }", "It throws because the generator ran out of values"],
+      answerIndex: 1,
+      explanation: "The first two next() calls yield 1 and 2. The loop then ends and the generator returns with no explicit value, so the third call gives { value: undefined, done: true }.",
+    },
+    related: ["higher-order-functions"],
   },
 ];
