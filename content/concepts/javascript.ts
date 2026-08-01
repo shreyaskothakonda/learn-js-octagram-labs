@@ -25,6 +25,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Closures", url: "https://developer.mozilla.org/docs/Web/JavaScript/Closures" },
     ],
+    pitfalls: [
+      "Assuming each loop iteration with `var` captures its own value; every closure shares the same variable, so they all see the final value once the loop ends.",
+      "Forgetting that a closure keeps the whole variable alive, not just a snapshot of its value, so changes made elsewhere are visible too.",
+      "Letting closures hold onto large data or DOM nodes longer than needed, which can keep memory from being freed.",
+    ],
+    keyTakeaways: [
+      "A closure remembers the variables from the scope where it was created, not just their values at that moment.",
+      "`var` in a loop shares one variable across every callback, so they all end up seeing the final value.",
+      "`let` creates a fresh binding each iteration, so each callback captures its own value.",
+      "Closures are what make private state, counters, and factories like debounce and memoize possible.",
+    ],
+    check: {
+      question: "What does this log?\n\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      options: ["0 1 2", "3 3 3", "0 0 0", "undefined undefined undefined"],
+      answerIndex: 1,
+      explanation: "var is function-scoped, so all three callbacks close over the same i, which has already reached 3 by the time any of them runs.",
+    },
+    related: ["scope-chain", "higher-order-functions"],
   },
   {
     slug: "hoisting",
@@ -748,6 +766,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Higher-order function", url: "https://developer.mozilla.org/en-US/docs/Glossary/Higher-order_function" },
     ],
+    pitfalls: [
+      "Assuming a function needs to do both things to count as higher-order; accepting a function or returning one is already enough on its own.",
+      "Forgetting to actually call the callback that was passed in, so the wiring looks right but nothing happens.",
+      "Passing a function's result instead of the function itself, like map(fn()) instead of map(fn), which hands over a value instead of something callable.",
+    ],
+    keyTakeaways: [
+      "A higher-order function takes a function as an argument, returns a function, or both.",
+      "map, filter, reduce, and addEventListener are everyday higher-order functions.",
+      "Wrapping a function to add logging, timing, or memoizing without touching its original code relies on this pattern.",
+    ],
+    check: {
+      question: "Why is Array.prototype.map considered a higher-order function?",
+      options: [
+        "Because it changes the length of the array",
+        "Because it takes a function as an argument and calls it back for each element",
+        "Because it always returns a number",
+        "Because it can only be used with arrow functions",
+      ],
+      answerIndex: 1,
+      explanation: "map accepts a callback function as an argument and calls it for every element, which is exactly what makes a function higher-order.",
+    },
+    related: ["closures", "currying", "map-filter-reduce"],
   },
   {
     slug: "currying",
@@ -782,6 +822,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Currying", url: "https://developer.mozilla.org/en-US/docs/Glossary/Currying" },
     ],
+    pitfalls: [
+      "Confusing currying with plain partial application; currying specifically breaks a function into a chain of one-argument calls.",
+      "Assuming a curried function only ever accepts one argument per call; a generic curry helper can still accept several arguments at once if enough have arrived.",
+      "Forgetting that each intermediate call returns a new function instead of a result, so calling add(1) alone does not compute anything yet.",
+    ],
+    keyTakeaways: [
+      "Currying turns f(a, b, c) into f(a)(b)(c), returning a new function after each argument until enough have arrived.",
+      "Every intermediate function is a closure that remembers the arguments captured so far.",
+      "Currying enables partial application: stopping partway keeps a reusable function with some arguments already filled in.",
+    ],
+    check: {
+      question: "In a curried add, what does add(1)(2) return before add(1)(2)(3) is called?",
+      options: [
+        "The number 3",
+        "undefined",
+        "A function waiting for the last argument",
+        "An error, because add needs all three arguments at once",
+      ],
+      answerIndex: 2,
+      explanation: "Each call in a curried chain returns a new function until enough arguments have arrived to compute the final result.",
+    },
+    related: ["closures", "higher-order-functions"],
   },
   {
     slug: "call-apply-bind",
@@ -816,6 +878,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Function.prototype.bind()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind" },
     ],
+    pitfalls: [
+      "Mixing up call and apply's argument shape; call takes arguments one by one, apply takes them as a single array.",
+      "Expecting bind to run the function right away; bind only returns a new function, it does not call it.",
+      "Using call, apply, or bind on an arrow function to change this; arrow functions ignore all three and keep this from where they were defined.",
+    ],
+    keyTakeaways: [
+      "call and apply both invoke a function immediately with a chosen this; bind returns a new function for later.",
+      "call takes arguments individually, apply takes them as an array.",
+      "Arrow functions cannot have their this changed by call, apply, or bind.",
+    ],
+    check: {
+      question: "What does greet.bind({ name: 'Alan' }) do?",
+      options: [
+        "Runs greet immediately with this set to the given object",
+        "Returns a new function with this permanently set to the given object, to be called later",
+        "Changes this on the original greet function forever",
+        "Throws an error because greet has no arguments",
+      ],
+      answerIndex: 1,
+      explanation: "bind does not call the function; it returns a new function with this locked in, ready to run whenever it's eventually called.",
+    },
+    related: ["the-this-keyword", "closures"],
   },
   {
     slug: "map-filter-reduce",
@@ -850,6 +934,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Array.prototype.reduce()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce" },
     ],
+    pitfalls: [
+      "Expecting filter to transform elements like map does; filter only keeps or drops elements, it never changes their values.",
+      "Leaving out reduce's initial value; without one, reduce starts from the first element instead, which breaks on an empty array.",
+      "Assuming map or filter change the original array; both return a brand new array and leave the original untouched.",
+    ],
+    keyTakeaways: [
+      "map returns a new array of the same length; filter returns a new array that can be shorter; reduce returns a single value.",
+      "reduce needs an initial value to safely fold an array, including an empty one.",
+      "Chaining map, filter, and reduce builds a transform-narrow-total pipeline in one readable line.",
+    ],
+    check: {
+      question: "Which statement is true about map and filter?",
+      options: [
+        "map can change the length of the array, filter cannot",
+        "filter can change the length of the array, map always returns the same length",
+        "Both always return an array of the same length as the input",
+        "map returns a single value, filter returns a new array",
+      ],
+      answerIndex: 1,
+      explanation: "map always returns a new array with one output per input element, while filter can drop elements and return a shorter array.",
+    },
+    related: ["higher-order-functions", "sorting-arrays"],
   },
   {
     slug: "sorting-arrays",
@@ -884,6 +990,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Array.prototype.sort()", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" },
     ],
+    pitfalls: [
+      "Calling sort() with no comparator on numbers and expecting numeric order; it sorts them as strings by default.",
+      "Forgetting that sort mutates the original array in place, which can silently break code that expected the original order to stay unchanged.",
+      "Writing a comparator that returns a boolean instead of a number; sort needs a negative, zero, or positive number to decide order.",
+    ],
+    keyTakeaways: [
+      "sort mutates the array in place and, with no comparator, sorts elements as strings.",
+      "(a, b) => a - b sorts numbers ascending; (a, b) => b - a sorts descending.",
+      "Copy the array first with [...arr] or arr.slice() before sorting if the original order needs to be preserved.",
+    ],
+    check: {
+      question: "What does [10, 1, 2].sort() return, with no comparator?",
+      options: ["[1, 2, 10]", "[1, 10, 2]", "[10, 1, 2]", "[2, 1, 10]"],
+      answerIndex: 1,
+      explanation: "With no comparator, sort converts each number to a string and compares them lexicographically, so \"10\" sorts before \"2\".",
+    },
+    related: ["map-filter-reduce"],
   },
   {
     slug: "prototypes-inheritance",
