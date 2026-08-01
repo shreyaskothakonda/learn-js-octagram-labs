@@ -18,6 +18,16 @@ self.onmessage = (e) => {
     log: (...args) => consoleLogs.push(args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ")),
   };
 
+  if (kind === "script") {
+    try {
+      new Function("console", code)(fakeConsole);
+      self.postMessage({ consoleLogs, runtimeMs: Date.now() - start });
+    } catch (err) {
+      self.postMessage({ consoleLogs, error: String((err && err.message) || err), runtimeMs: Date.now() - start });
+    }
+    return;
+  }
+
   if (kind === "harness") {
     const caseResults = testCases.map((tc, index) => {
       try {
