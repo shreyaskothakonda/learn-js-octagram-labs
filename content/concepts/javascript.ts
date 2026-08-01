@@ -55,6 +55,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Hoisting", url: "https://developer.mozilla.org/en-US/docs/Glossary/Hoisting" },
     ],
+    pitfalls: [
+      "Assuming a `let` is usable before its line runs; it is in the temporal dead zone and throws a `ReferenceError`.",
+      "Reading a `var` before its assignment and expecting the assigned value instead of `undefined`.",
+      "Thinking a function expression assigned to `const` is hoisted the same way as a function declaration; it is not callable before its line runs.",
+    ],
+    keyTakeaways: [
+      "Function declarations are hoisted whole, so they can be called earlier in the scope than they appear.",
+      "`var` is hoisted as `undefined` until its assignment line actually executes.",
+      "`let` and `const` are hoisted but stay in the temporal dead zone, throwing until their declaration line runs.",
+    ],
+    check: {
+      question: "What happens when you read a `let` variable before its declaration line runs, in the same scope?",
+      options: [
+        "It returns undefined, just like var",
+        "It throws a ReferenceError because the variable is in the temporal dead zone",
+        "It returns the value it will eventually be assigned",
+        "It silently returns null",
+      ],
+      answerIndex: 1,
+      explanation: "let is hoisted but not initialized, so accessing it before its line runs throws a ReferenceError instead of returning undefined.",
+    },
+    related: ["let-const-var-tdz", "scope-chain"],
   },
   {
     slug: "scope-chain",
@@ -85,6 +107,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Scope", url: "https://developer.mozilla.org/en-US/docs/Glossary/Scope" },
     ],
+    pitfalls: [
+      "Assuming scope depends on where a function is called instead of where it is defined; JavaScript scoping is lexical, not dynamic.",
+      "Forgetting that shadowing stops the lookup early, so an inner variable with the same name hides the outer one entirely.",
+      "Expecting a variable declared inside a block or function to be visible outside it, when it was never in an enclosing scope to begin with.",
+    ],
+    keyTakeaways: [
+      "A variable lookup walks outward through enclosing scopes until it finds a match or reaches global.",
+      "The chain is fixed at the point a function is defined, not at the point it is called.",
+      "A name found in an inner scope shadows the same name further out, and the lookup stops there.",
+      "Reaching global with no match throws a ReferenceError.",
+    ],
+    check: {
+      question: "When is a function's scope chain determined?",
+      options: [
+        "At the moment the function is called, based on the caller's scope",
+        "At the moment the function is defined, based on where it sits in the source",
+        "Only when the function reads a variable, resolved dynamically each time",
+        "At parse time, but it can change if the function is reassigned",
+      ],
+      answerIndex: 1,
+      explanation: "JavaScript uses lexical scoping, so the scope chain is fixed by where a function is written, not by who calls it.",
+    },
+    related: ["closures", "hoisting"],
   },
   {
     slug: "the-this-keyword",
@@ -115,6 +160,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: this", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" },
     ],
+    pitfalls: [
+      "Pulling a method off an object and calling it standalone, then being surprised `this` is no longer that object.",
+      "Using a regular function for a callback where you wanted `this` to stay pointed at the enclosing object, instead of an arrow function.",
+      "Assuming `.bind()` only affects the next call; it permanently locks `this` for every future call of that bound function.",
+    ],
+    keyTakeaways: [
+      "`this` is decided by the call site, not by where the function was defined.",
+      "Method calls set `this` to the object before the dot; standalone calls do not.",
+      "`.call()`, `.apply()`, and `.bind()` let you set `this` explicitly.",
+      "Arrow functions have no `this` of their own; they capture it lexically from the enclosing scope.",
+    ],
+    check: {
+      question: "A method is detached from its object and called as a plain function: `const fn = obj.greet; fn();`. What is `this` inside fn (in strict mode)?",
+      options: [
+        "Still obj, because that's where the method was defined",
+        "undefined, because the call site no longer has an object before the dot",
+        "The global object, always",
+        "Whatever this was in the scope where fn was declared",
+      ],
+      answerIndex: 1,
+      explanation: "this is set by the call site, and calling fn() standalone in strict mode leaves this as undefined since there is no object before the dot.",
+    },
+    related: ["call-apply-bind", "closures"],
   },
   {
     slug: "execution-context-call-stack",
@@ -145,6 +213,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Call stack", url: "https://developer.mozilla.org/en-US/docs/Glossary/Call_stack" },
     ],
+    pitfalls: [
+      "Assuming a paused caller keeps running while the function it called executes; the caller's frame just waits until the callee returns.",
+      "Writing recursion without a base case, or with one that never gets reached, which keeps pushing frames until you hit 'Maximum call stack size exceeded'.",
+      "Reading a stack trace bottom-up instead of top-down and misidentifying which call actually threw the error.",
+    ],
+    keyTakeaways: [
+      "Every call pushes a new frame on top of the call stack, and only the top frame runs.",
+      "A frame pops off when its function returns, resuming the caller exactly where it paused.",
+      "The stack is last-in-first-out, which is what a stack trace shows you in reverse.",
+      "Unbounded recursion overflows the stack and throws a range error.",
+    ],
+    check: {
+      question: "Function `a()` calls `b()`, which calls `c()`. While `c()` is running, what does the call stack look like from top to bottom?",
+      options: [
+        "a, b, c",
+        "c, b, a",
+        "c, a, b",
+        "Only c, since a and b already finished",
+      ],
+      answerIndex: 1,
+      explanation: "Each call pushes its frame on top of the previous one, so the most recently called function, c, sits at the top with b and a still waiting beneath it.",
+    },
+    related: ["the-event-loop", "scope-chain"],
   },
   {
     slug: "primitives-vs-references",
@@ -175,6 +266,29 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: JavaScript data types and data structures", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures" },
     ],
+    pitfalls: [
+      "Assigning an object to a new variable and expecting a separate copy, when both variables actually point at the same shared object.",
+      "Using `{ ...obj }` to copy nested objects and assuming it is a deep copy; a spread only copies the top level, so nested objects are still shared.",
+      "Comparing two objects with `===` and expecting it to check their contents, when it actually checks whether they are the same reference.",
+    ],
+    keyTakeaways: [
+      "Primitives are copied by value, so two variables holding a primitive are fully independent.",
+      "Objects and arrays are copied by reference, so assigning or passing one just copies a pointer to the same data.",
+      "Mutating an object through one reference is visible through every other reference to it.",
+      "A shallow copy like spread separates the top-level object but still shares any nested objects inside it.",
+    ],
+    check: {
+      question: "`const obj1 = { count: 1 }; const obj2 = obj1; obj2.count = 99;` What is `obj1.count` afterward?",
+      options: [
+        "1, because obj2 is a separate copy",
+        "99, because obj1 and obj2 reference the same object",
+        "undefined, because obj1 was overwritten",
+        "It depends on whether count is a let or const",
+      ],
+      answerIndex: 1,
+      explanation: "Objects are copied by reference, so obj2 = obj1 makes both variables point at the same object, and mutating through obj2 is visible on obj1.",
+    },
+    related: ["data-types-and-coercion", "maps-and-sets"],
   },
   {
     slug: "data-types-and-coercion",
