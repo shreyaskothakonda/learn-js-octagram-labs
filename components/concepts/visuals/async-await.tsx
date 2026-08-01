@@ -3,49 +3,72 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, enter, exit, focusOn, focusOff } from "./kit";
 
-const CALLER_Y = 190;
-const STACK_Y = 140;
-const SUSPEND_DX = 170;
-const SUSPEND_DY = -50;
-
+// Scene: main() calls doStuff(), an async frame that pushes onto the call
+// stack. It hits await fetchData() and pauses (it dims and shows a "paused"
+// chip); the execution focus returns to main so the caller keeps running
+// while the promise is pending. Once the promise resolves, the async frame
+// undims, the focus returns to it, and it finishes and pops off, handing
+// control back to main for good.
 export function AsyncAwaitVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: main() calls doStuff(), an async frame that pushes onto the
-      // stack. It hits `await fetchData()`, parks itself in the dashed
-      // "paused at await" slot, and the marker returns to main() so the caller
-      // keeps running. A pending promise chip flips to resolved; only then
-      // does doStuff()'s frame move back onto the stack (resumed) and finish.
-      gsap.set("#async-frame", { opacity: 0, x: 0, y: 0 });
-      gsap.set("#promise-pending", { opacity: 0 });
-      gsap.set("#promise-resolved", { opacity: 0 });
-      gsap.set("#marker", { opacity: 0, attr: { y: CALLER_Y - 4 } });
+      gsap.set("#async-frame", { opacity: 0, y: 12 });
+      gsap.set("#paused-chip", { opacity: 0 });
+      gsap.set("#state-pending", { opacity: 0 });
+      gsap.set("#state-resolved", { opacity: 0 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to("#marker", { opacity: 1, duration: 0.3 })
-          .to("#async-frame", { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#marker", { attr: { y: STACK_Y - 4 }, duration: 0.4, ease: "power2.inOut" }, "<")
-          .to("#async-frame", { x: SUSPEND_DX, y: SUSPEND_DY, duration: 0.5, ease: "power2.inOut" }, "+=0.3")
-          .to("#marker", { attr: { y: CALLER_Y - 4 }, duration: 0.4, ease: "power2.inOut" }, "<")
-          .to("#promise-pending", { opacity: 1, duration: 0.3 }, "<")
-          .to("#promise-pending", { opacity: 0, duration: 0.3 }, "+=0.6")
-          .to("#promise-resolved", { opacity: 1, duration: 0.3 }, "<")
-          .to("#async-frame", { x: 0, y: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.3")
-          .to("#marker", { attr: { y: STACK_Y - 4 }, duration: 0.4, ease: "power2.inOut" }, "<")
-          .to("#async-frame", { opacity: 0, duration: 0.3 }, "+=0.4")
-          .to("#marker", { attr: { y: CALLER_Y - 4 }, duration: 0.4, ease: "power2.inOut" }, "<");
+        // main() runs
+        enter(tl, "#caller-frame");
+        focusOn(tl, "#caller-frame", "-=0.15");
+
+        // main() calls doStuff(); its async frame pushes onto the stack
+        enter(tl, "#async-frame", "+=0.3");
+        focusOff(tl, "#caller-frame", "<");
+        focusOn(tl, "#async-frame", "+=0.1");
+
+        // fetchData() is called: the promise starts pending
+        tl.to("#state-pending", { opacity: 1, duration: 0.3 }, "+=0.2");
+
+        // doStuff() hits await: it pauses (dims, shows "paused"), and the
+        // execution focus returns to the caller so main keeps running
+        tl.to("#async-frame", { opacity: 0.5, duration: 0.35, ease: "power2.out" }, "+=0.15");
+        tl.to("#paused-chip", { opacity: 1, duration: 0.3 }, "<");
+        focusOff(tl, "#async-frame", "<");
+        focusOn(tl, "#caller-frame", "+=0.05");
+
+        // the awaited promise settles
+        tl.to("#state-pending", { opacity: 0, duration: 0.3 }, "+=0.5");
+        tl.to("#state-resolved", { opacity: 1, duration: 0.3 }, "<");
+
+        // doStuff() resumes: it undims, the "paused" chip clears, and focus
+        // moves back to it
+        tl.to("#async-frame", { opacity: 1, duration: 0.35, ease: "power2.out" }, "+=0.2");
+        tl.to("#paused-chip", { opacity: 0, duration: 0.25 }, "<");
+        focusOff(tl, "#caller-frame", "<");
+        focusOn(tl, "#async-frame", "+=0.05");
+
+        // doStuff() finishes and pops off the stack; control returns to main
+        focusOff(tl, "#async-frame", "+=0.4");
+        exit(tl, "#async-frame", "-=0.15");
+        focusOn(tl, "#caller-frame", "+=0.15");
       } else {
         // reduced motion: jump to labeled end-state, doStuff() has resumed,
-        // finished, and returned control to the caller
-        tl.set("#async-frame", { opacity: 0, x: 0, y: 0 })
-          .set("#promise-pending", { opacity: 0 })
-          .set("#promise-resolved", { opacity: 1 })
-          .set("#marker", { opacity: 1, attr: { y: CALLER_Y - 4 } });
+        // finished, and returned control to main
+        tl.set("#async-frame", { opacity: 0 })
+          .set("#paused-chip", { opacity: 0 })
+          .set("#state-pending", { opacity: 0 })
+          .set("#state-resolved", { opacity: 1 })
+          .set("#caller-frame", { opacity: 1, y: 0 })
+          .set("#caller-frame .glow", { opacity: 1 })
+          .set("#caller-frame", { scale: 1.03 });
       }
       register(tl);
       return tl;
@@ -56,31 +79,31 @@ export function AsyncAwaitVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 260" className="w-full max-w-md" role="img"
-      aria-label="main calls doStuff, an async function whose frame pushes onto the call stack. When doStuff hits await fetchData, its frame parks in a paused-at-await slot and the highlighted, currently-running frame returns to main, so the caller keeps going while the promise is still pending. Once the promise resolves, doStuff's frame resumes, is highlighted again, and finishes, returning control to main">
-      <rect x="20" y={CALLER_Y} width="140" height="38" rx="6"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-      <text x="34" y={CALLER_Y + 24} className="fill-[var(--color-foreground)] text-[11px]">main()</text>
+    <Stage
+      refEl={scope}
+      width={440}
+      height={230}
+      label="main calls doStuff, an async function whose frame pushes onto the call stack. When doStuff hits await fetchData, it pauses, dimming and showing a paused chip, and the execution focus returns to main so the caller keeps running while the promise is pending. Once the promise resolves, doStuff undims, the focus returns to it, and it finishes and pops off the stack, handing control back to main for good"
+    >
+      <Panel label="Call stack" style={{ left: 0, top: 0, width: 250, height: 210 }} />
+      <Panel label="fetchData()" style={{ left: 266, top: 0, width: 164, height: 96 }} />
 
-      <rect x="190" y="90" width="150" height="38" rx="6" strokeDasharray="4 3"
-        className="fill-none stroke-[var(--color-border)]" />
-      <text x="190" y="82" className="fill-[var(--color-muted-foreground)] text-[10px]">paused at await</text>
+      <Frame id="async-frame" className="whitespace-nowrap gap-2" style={{ left: 16, top: 96, width: 228, height: 40 }}>
+        <span>doStuff() [async]</span>
+        <Chip id="paused-chip" className="!bg-[var(--color-muted)] !text-muted-foreground">
+          paused
+        </Chip>
+      </Frame>
+      <Frame id="caller-frame" className="justify-center" style={{ left: 16, top: 150, width: 178, height: 40 }}>
+        main()
+      </Frame>
 
-      <rect x="190" y="150" width="150" height="50" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="200" y="143" className="fill-[var(--color-muted-foreground)] text-[10px]">fetchData()</text>
-      <text id="promise-pending" x="200" y="180" className="fill-[var(--color-muted-foreground)] text-[11px]">pending</text>
-      <text id="promise-resolved" x="200" y="180" className="fill-[var(--color-primary)] text-[11px]" opacity="0">resolved</text>
-
-      <g id="async-frame">
-        <rect x="20" y={STACK_Y} width="140" height="38" rx="6"
-          className="fill-[var(--color-primary)]" opacity="0.15" />
-        <rect x="20" y={STACK_Y} width="140" height="38" rx="6"
-          className="fill-none stroke-[var(--color-primary)]" />
-        <text x="30" y={STACK_Y + 24} className="fill-[var(--color-foreground)] text-[10px]">doStuff() [async]</text>
-      </g>
-
-      <rect id="marker" x="16" y={CALLER_Y - 4} width="148" height="46" rx="8"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-    </svg>
+      <span id="state-pending" className="absolute font-mono text-[12px] font-semibold text-muted-foreground" style={{ left: 292, top: 50 }}>
+        pending
+      </span>
+      <span id="state-resolved" className="absolute font-mono text-[12px] font-semibold text-green-600" style={{ left: 292, top: 50 }}>
+        resolved
+      </span>
+    </Stage>
   );
 }

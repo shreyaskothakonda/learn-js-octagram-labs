@@ -3,46 +3,47 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, CodeLine, Eyebrow, enter, travel, focusOn, focusOff } from "./kit";
 
+// Scene: a scope panel holding source lines in original order. The var and
+// function lines travel up to a "hoisted" shelf before the code runs, while
+// the let line stays put behind a temporal-dead-zone band. An execution focus
+// then steps down through the lines that still run in place (the let
+// declaration, the assignment, and the call), clearing the TDZ band the
+// moment it reaches the let line.
 export function HoistingVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a scope box with source lines in original order. var/function lines
-      // float up to a "hoisted" shelf before an execution playhead steps downward.
-      // The let line stays put behind a temporal-dead-zone band that clears once
-      // the playhead reaches its line.
-      gsap.set("#scope-box", { opacity: 0 });
-      gsap.set(["#let-group", "#func-group", "#var-group", "#assign-text", "#call-text"], { opacity: 0 });
-      gsap.set(["#func-group", "#var-group"], { x: 0, y: 0 });
-      gsap.set("#shelf-label", { opacity: 0 });
-      gsap.set("#tdz-band", { opacity: 1 });
-      gsap.set("#playhead", { opacity: 0, attr: { y1: 55, y2: 55 } });
+      gsap.set(["#line-let", "#line-func", "#line-var", "#line-assign", "#line-call"], { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
+      gsap.set(["#line-func", "#line-var"], { x: 0, y: 0 });
+      gsap.set(".shelf-label", { opacity: 0 });
+      gsap.set(".tdz-band", { opacity: 1 });
 
       if (animate) {
-        tl.to("#scope-box", { opacity: 1, duration: 0.4 })
-          .to(["#let-group", "#func-group", "#var-group", "#assign-text", "#call-text"], {
-            opacity: 1,
-            duration: 0.3,
-          }, "+=0.1")
-          .to("#shelf-label", { opacity: 1, duration: 0.2 }, "+=0.3")
-          .to("#func-group", { x: 160, y: -57, duration: 0.6, ease: "power2.inOut" }, "<")
-          .to("#var-group", { x: 160, y: -67, duration: 0.6, ease: "power2.inOut" }, "<")
-          .to("#playhead", { opacity: 1, duration: 0.2 }, "+=0.3")
-          .to("#playhead", { attr: { y1: 200, y2: 200 }, duration: 1.2, ease: "none" }, "+=0.1")
-          .to("#tdz-band", { opacity: 0, duration: 0.3 }, "-=1.05");
+        enter(tl, ["#line-let", "#line-func", "#line-var", "#line-assign", "#line-call"]);
+        tl.to(".shelf-label", { opacity: 1, duration: 0.25 }, "+=0.2");
+        travel(tl, "#line-func", { x: 216, y: -68 }, "<");
+        travel(tl, "#line-var", { x: 216, y: -76 }, "<");
+        focusOn(tl, "#line-let", "+=0.25");
+        tl.to(".tdz-band", { opacity: 0, duration: 0.3 }, "<");
+        focusOff(tl, "#line-let", "+=0.35");
+        focusOn(tl, "#line-assign", "+=0.15");
+        focusOff(tl, "#line-assign", "+=0.35");
+        focusOn(tl, "#line-call", "+=0.15");
       } else {
         // reduced motion: jump to labeled end-state
-        tl.set("#scope-box", { opacity: 1 })
-          .set(["#let-group", "#func-group", "#var-group", "#assign-text", "#call-text"], { opacity: 1 })
-          .set("#func-group", { x: 160, y: -57 })
-          .set("#var-group", { x: 160, y: -67 })
-          .set("#shelf-label", { opacity: 1 })
-          .set("#tdz-band", { opacity: 0 })
-          .set("#playhead", { opacity: 1, attr: { y1: 200, y2: 200 } });
+        tl.set(["#line-let", "#line-func", "#line-var", "#line-assign", "#line-call"], { opacity: 1, y: 0 })
+          .set("#line-func", { x: 216, y: -68 })
+          .set("#line-var", { x: 216, y: -76 })
+          .set(".shelf-label", { opacity: 1 })
+          .set(".tdz-band", { opacity: 0 })
+          .set("#line-call .glow", { opacity: 1 })
+          .set("#line-call", { scale: 1.03 });
       }
       register(tl);
       return tl;
@@ -53,38 +54,32 @@ export function HoistingVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 240" className="w-full max-w-md" role="img"
-      aria-label="Var and function declarations move to a hoisted shelf at the top of the scope before the code runs, while the let declaration stays in place until the execution line reaches it and its temporal dead zone clears">
-      <rect id="scope-box" x="20" y="30" width="320" height="195" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="shelf-label" x="190" y="42" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        hoisted:
-      </text>
+    <Stage
+      refEl={scope}
+      height={280}
+      label="Var and function declarations travel to a hoisted shelf at the top of the scope before the code runs, while the let declaration stays in place until the execution focus reaches it and its temporal dead zone clears. The focus then steps down through the assignment and the function call."
+    >
+      <Panel label="Scope" style={{ left: 0, top: 0, width: 400, height: 280 }} />
+      <Eyebrow className="absolute shelf-label" style={{ left: 240, top: 16 }}>Hoisted</Eyebrow>
 
-      <g id="let-group">
-        <rect id="tdz-band" x="25" y="63" width="130" height="24" rx="4"
-          className="fill-[var(--color-destructive)] stroke-[var(--color-destructive)]" opacity="0.15" />
-        <rect x="25" y="63" width="130" height="24" rx="4" className="fill-none stroke-[var(--color-destructive)]" />
-        <text x="32" y="79" className="fill-[var(--color-foreground)] text-[11px]">let count;</text>
-      </g>
+      <Panel
+        label="TDZ"
+        className="tdz-band"
+        style={{
+          left: 20,
+          top: 62,
+          width: 168,
+          height: 32,
+          borderColor: "var(--color-destructive)",
+          backgroundColor: "color-mix(in srgb, var(--color-destructive) 14%, transparent)",
+        }}
+      />
 
-      <g id="func-group">
-        <text x="30" y="109" className="fill-[var(--color-foreground)] text-[11px]">function greet() {"{}"}</text>
-      </g>
-
-      <g id="var-group">
-        <text x="30" y="139" className="fill-[var(--color-foreground)] text-[11px]">var msg;</text>
-      </g>
-
-      <text id="assign-text" x="30" y="169" className="fill-[var(--color-muted-foreground)] text-[11px]">
-        msg = &apos;hi&apos;;
-      </text>
-      <text id="call-text" x="30" y="199" className="fill-[var(--color-muted-foreground)] text-[11px]">
-        greet();
-      </text>
-
-      <line id="playhead" x1="25" x2="335" y1="55" y2="55"
-        className="stroke-[var(--color-primary)]" strokeWidth="2" />
-    </svg>
+      <CodeLine id="line-let" gutter={1} style={{ left: 24, top: 66 }}>let count;</CodeLine>
+      <CodeLine id="line-func" gutter={2} style={{ left: 24, top: 106 }}>function greet() {"{}"}</CodeLine>
+      <CodeLine id="line-var" gutter={3} style={{ left: 24, top: 146 }}>var msg;</CodeLine>
+      <CodeLine id="line-assign" gutter={4} style={{ left: 24, top: 186 }}>msg = &apos;hi&apos;;</CodeLine>
+      <CodeLine id="line-call" gutter={5} style={{ left: 24, top: 226 }}>greet();</CodeLine>
+    </Stage>
   );
 }

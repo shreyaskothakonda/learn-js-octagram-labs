@@ -3,65 +3,74 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Chip, Eyebrow, CodeLine, enter, pop, focusOn, focusOff, travel, DUR, EASE } from "./kit";
 
+// Top half: a Set already holding 1, 2, 3 rejects a second add of 2 (the
+// duplicate bounces off, destructive-tinted, size stays 3), then accepts a
+// new add of 4 (size becomes 4). Bottom half: a Map from names to scores; an
+// O(1) lookup focus lands directly on the grace entry and pops its value out.
 export function MapsAndSetsVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene, top half: a Set already holding 1, 2, 3. Adding 2 again bounces
-      // off (rejected, size stays 3); adding 4 lands inside (size becomes 4).
-      // Scene, bottom half: a Map of name to score. A lookup for "grace"
-      // highlights that one entry directly, an O(1) jump, not a scan through
-      // every row, and pops the matching value out beside the map.
-      gsap.set(["#set-label", "#set-box", "#chip-s1", "#chip-s2", "#chip-s3"], { opacity: 0 });
-      gsap.set(["#size-label", "#size-num"], { opacity: 0 });
+      gsap.set(["#set-label", "#set-panel"], { opacity: 0, y: 12 });
+      gsap.set(["#chip-s1", "#chip-s2", "#chip-s3"], { opacity: 0, scale: 0.8 });
+      gsap.set(["#size-label", "#size-num"], { opacity: 0, y: 12 });
       gsap.set("#size-num", { textContent: "3" });
-      gsap.set("#chip-dup", { x: 310, y: 62, opacity: 0 });
+      gsap.set("#chip-dup", { opacity: 0 });
       gsap.set("#reject-mark", { opacity: 0 });
-      gsap.set("#reject-label", { opacity: 0 });
-      gsap.set("#chip-new", { x: 310, y: 62, opacity: 0 });
-      gsap.set("#accept-label", { opacity: 0 });
+      gsap.set("#reject-label", { opacity: 0, y: 12 });
+      gsap.set("#chip-new", { opacity: 0, scale: 0.8 });
+      gsap.set("#accept-label", { opacity: 0, y: 12 });
 
-      gsap.set(["#map-label", "#map-box", "#row1", "#row2", "#row3"], { opacity: 0 });
-      gsap.set("#highlight-row2", { opacity: 0 });
-      gsap.set("#result-chip", { opacity: 0, x: 250, y: 237 });
-      gsap.set("#lookup-code", { opacity: 0 });
+      gsap.set(["#map-label", "#map-panel", "#row-ada", "#row-grace", "#row-linus"], { opacity: 0, y: 12 });
+      gsap.set("#result-chip", { opacity: 0, scale: 0.8 });
+      gsap.set("#lookup-code", { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to(["#set-label", "#set-box"], { opacity: 1, duration: 0.3 })
-          .to(["#chip-s1", "#chip-s2", "#chip-s3"], { opacity: 1, duration: 0.3, stagger: 0.08 }, "+=0.1")
-          .to(["#size-label", "#size-num"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#chip-dup", { opacity: 1, duration: 0.25 }, "+=0.3")
-          .to("#chip-dup", { x: 225, duration: 0.5, ease: "power2.out" }, "+=0.1")
-          .to("#reject-mark", { opacity: 1, duration: 0.2 }, "+=0.05")
-          .to("#chip-dup", { x: 310, opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.1")
-          .to("#reject-label", { opacity: 1, duration: 0.3 }, "<")
-          .to("#chip-new", { opacity: 1, duration: 0.25 }, "+=0.35")
-          .to("#chip-new", { x: 145, duration: 0.5, ease: "power2.inOut" }, "+=0.1")
-          .to("#size-num", { textContent: 4, duration: 0.3, snap: { textContent: 1 } }, "+=0.1")
-          .to("#accept-label", { opacity: 1, duration: 0.3 }, "<")
-          .to(["#map-label", "#map-box"], { opacity: 1, duration: 0.3 }, "+=0.4")
-          .to(["#row1", "#row2", "#row3"], { opacity: 1, duration: 0.3, stagger: 0.1 }, "+=0.1")
-          .to("#highlight-row2", { opacity: 1, duration: 0.25 }, "+=0.3")
-          .to("#result-chip", { opacity: 1, x: 285, duration: 0.4, ease: "power2.out" }, "+=0.1")
-          .to("#lookup-code", { opacity: 1, duration: 0.3 }, "+=0.2");
+        enter(tl, ["#set-label", "#set-panel"], undefined, 0.1);
+        pop(tl, ["#chip-s1", "#chip-s2", "#chip-s3"], "+=0.15");
+        enter(tl, ["#size-label", "#size-num"], "+=0.15");
+
+        // attempt to add a duplicate: it bounces off and fades, size unchanged
+        tl.to("#chip-dup", { opacity: 1, duration: DUR.pop, ease: EASE.pop }, "+=0.3");
+        travel(tl, "#chip-dup", { x: -85, y: 0 }, "+=0.1");
+        tl.to("#reject-mark", { opacity: 1, duration: DUR.focus, ease: EASE.focus }, "+=0.05");
+        travel(tl, "#chip-dup", { x: 0, y: 0 }, "+=0.1");
+        tl.to("#chip-dup", { opacity: 0, duration: DUR.exit, ease: EASE.exit }, "<");
+        enter(tl, "#reject-label", "+=0.05");
+        tl.to("#reject-mark", { opacity: 0, duration: DUR.exit, ease: EASE.exit }, "+=0.2");
+
+        // add a genuinely new value: it lands in the set, size increments
+        tl.to("#chip-new", { opacity: 1, scale: 1, duration: DUR.pop, ease: EASE.pop }, "+=0.3");
+        travel(tl, "#chip-new", { x: -174, y: 0 }, "+=0.1");
+        tl.to("#size-num", { textContent: 4, duration: 0.3, snap: { textContent: 1 } }, "+=0.1");
+        enter(tl, "#accept-label", "<");
+
+        enter(tl, ["#map-label", "#map-panel"], "+=0.4", 0.1);
+        enter(tl, ["#row-ada", "#row-grace", "#row-linus"], "+=0.15", 0.1);
+        focusOn(tl, "#row-grace", "+=0.25");
+        pop(tl, "#result-chip", "+=0.15");
+        focusOff(tl, "#row-grace", "+=0.5");
+        enter(tl, "#lookup-code", "+=0.2");
       } else {
         // reduced motion: jump to labeled end-state
-        tl.set(["#set-label", "#set-box", "#chip-s1", "#chip-s2", "#chip-s3"], { opacity: 1 })
-          .set(["#size-label", "#size-num"], { opacity: 1 })
+        tl.set(["#set-label", "#set-panel"], { opacity: 1, y: 0 })
+          .set(["#chip-s1", "#chip-s2", "#chip-s3"], { opacity: 1, scale: 1 })
+          .set(["#size-label", "#size-num"], { opacity: 1, y: 0 })
           .set("#size-num", { textContent: "4" })
           .set("#chip-dup", { opacity: 0 })
           .set("#reject-mark", { opacity: 0 })
-          .set("#reject-label", { opacity: 1 })
-          .set("#chip-new", { x: 145, opacity: 1 })
-          .set("#accept-label", { opacity: 1 })
-          .set(["#map-label", "#map-box", "#row1", "#row2", "#row3"], { opacity: 1 })
-          .set("#highlight-row2", { opacity: 1 })
-          .set("#result-chip", { x: 285, opacity: 1 })
-          .set("#lookup-code", { opacity: 1 });
+          .set("#reject-label", { opacity: 1, y: 0 })
+          .set("#chip-new", { opacity: 1, scale: 1, x: -174, y: 0 })
+          .set("#accept-label", { opacity: 1, y: 0 })
+          .set(["#map-label", "#map-panel", "#row-ada", "#row-grace", "#row-linus"], { opacity: 1, y: 0 })
+          .set("#result-chip", { opacity: 1, scale: 1 })
+          .set("#lookup-code", { opacity: 1, y: 0 });
       }
       register(tl);
       return tl;
@@ -72,91 +81,58 @@ export function MapsAndSetsVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 380 320" className="w-full max-w-md" role="img"
-      aria-label="A Set already holding 1, 2, 3 rejects a second add of 2, size stays 3, then accepts a new add of 4, size becomes 4. A Map of names to scores highlights the grace entry directly on lookup and pops out its value 95, an O(1) jump rather than a scan through every entry">
-      <text id="set-label" x="15" y="20" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        Set: rejects duplicates
-      </text>
-      <g id="set-box">
-        <rect x="20" y="40" width="230" height="44" rx="10" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-      </g>
+    <Stage
+      refEl={scope}
+      height={340}
+      label="A Set already holding 1, 2, 3 rejects a second add of 2: the duplicate bounces off and size stays 3. Adding 4 is accepted and size becomes 4. Below, a Map from names to scores: a lookup for grace lands directly on that entry, an O(1) jump rather than a scan through every row, and pops out its value 95"
+    >
+      <Eyebrow id="set-label" className="absolute" style={{ left: 8, top: 4 }}>
+        Set rejects duplicates
+      </Eyebrow>
+      <Panel id="set-panel" label="Set" style={{ left: 0, top: 20, width: 260, height: 60 }} />
+      <Chip id="chip-s1" className="absolute" style={{ left: 16, top: 40 }}>1</Chip>
+      <Chip id="chip-s2" className="absolute" style={{ left: 56, top: 40 }}>2</Chip>
+      <Chip id="chip-s3" className="absolute" style={{ left: 96, top: 40 }}>3</Chip>
 
-      <g id="chip-s1">
-        <rect x="30" y="50" width="32" height="24" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="30" y="50" width="32" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="46" y="67" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">1</text>
-      </g>
-      <g id="chip-s2">
-        <rect x="70" y="50" width="32" height="24" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="70" y="50" width="32" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="86" y="67" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">2</text>
-      </g>
-      <g id="chip-s3">
-        <rect x="110" y="50" width="32" height="24" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="110" y="50" width="32" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="126" y="67" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">3</text>
-      </g>
+      <Eyebrow id="size-label" className="absolute" style={{ left: 270, top: 44 }}>size =</Eyebrow>
+      <span id="size-num" className="absolute font-mono text-[12px] font-semibold text-foreground" style={{ left: 320, top: 44 }}>
+        3
+      </span>
 
-      <text id="size-label" x="255" y="67" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        size =
-      </text>
-      <text id="size-num" x="298" y="67" opacity="0" className="fill-[var(--color-foreground)] text-[11px] font-mono">3</text>
+      <span
+        id="chip-dup"
+        className="absolute rounded-md bg-[var(--color-destructive)]/10 px-2 py-1 font-mono text-[12px] font-semibold text-[var(--color-destructive)]"
+        style={{ left: 310, top: 40 }}
+      >
+        2
+      </span>
+      <span id="reject-mark" className="absolute font-mono text-[13px] text-[var(--color-destructive)]" style={{ left: 214, top: 20 }}>
+        &#10005;
+      </span>
+      <Eyebrow id="reject-label" className="absolute" style={{ left: 16, top: 92, width: 380 }}>
+        .add(2) is already in the set, size stays 3
+      </Eyebrow>
 
-      <g id="chip-dup">
-        <rect x="-18" y="-12" width="36" height="24" rx="6" className="fill-[var(--color-destructive)] stroke-[var(--color-destructive)]" opacity="0.15" />
-        <rect x="-18" y="-12" width="36" height="24" rx="6" className="fill-none stroke-[var(--color-destructive)]" />
-        <text x="0" y="5" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">2</text>
-      </g>
-      <text id="reject-mark" x="215" y="35" opacity="0" className="fill-[var(--color-destructive)] text-[13px]">&#10005;</text>
-      <text id="reject-label" x="20" y="100" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        .add(2) &#8594; already in the set, size stays 3
-      </text>
+      <Chip id="chip-new" className="absolute" style={{ left: 310, top: 40 }}>4</Chip>
+      <Eyebrow id="accept-label" className="absolute" style={{ left: 16, top: 114, width: 380 }}>
+        .add(4) is new, size becomes 4
+      </Eyebrow>
 
-      <g id="chip-new">
-        <rect x="-18" y="-12" width="36" height="24" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="-18" y="-12" width="36" height="24" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="5" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">4</text>
-      </g>
-      <text id="accept-label" x="20" y="125" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        .add(4) &#8594; new value, size becomes 4
-      </text>
+      <div className="absolute border-t border-border" style={{ left: 0, top: 140, width: 400 }} />
 
-      <line x1="10" y1="150" x2="370" y2="150" className="stroke-[var(--color-border)]" />
-
-      <text id="map-label" x="15" y="178" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
+      <Eyebrow id="map-label" className="absolute" style={{ left: 8, top: 152 }}>
         Map: O(1) key lookup
-      </text>
-      <g id="map-box">
-        <rect x="20" y="190" width="230" height="95" rx="10" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-      </g>
+      </Eyebrow>
+      <Panel id="map-panel" label="Map" style={{ left: 0, top: 170, width: 260, height: 96 }} />
+      <CodeLine id="row-ada" className="whitespace-nowrap" style={{ left: 16, top: 192, width: 220 }}>ada &#8594; 90</CodeLine>
+      <CodeLine id="row-grace" className="whitespace-nowrap" style={{ left: 16, top: 218, width: 220 }}>grace &#8594; 95</CodeLine>
+      <CodeLine id="row-linus" className="whitespace-nowrap" style={{ left: 16, top: 244, width: 220 }}>linus &#8594; 88</CodeLine>
 
-      <g id="row1">
-        <text x="32" y="212" className="fill-[var(--color-foreground)] text-[11px] font-mono">ada</text>
-        <text x="80" y="212" className="fill-[var(--color-muted-foreground)] text-[11px]">&#8594;</text>
-        <text x="100" y="212" className="fill-[var(--color-foreground)] text-[11px] font-mono">90</text>
-      </g>
-      <g id="row2">
-        <text x="32" y="237" className="fill-[var(--color-foreground)] text-[11px] font-mono">grace</text>
-        <text x="80" y="237" className="fill-[var(--color-muted-foreground)] text-[11px]">&#8594;</text>
-        <text x="100" y="237" className="fill-[var(--color-foreground)] text-[11px] font-mono">95</text>
-      </g>
-      <g id="row3">
-        <text x="32" y="262" className="fill-[var(--color-foreground)] text-[11px] font-mono">linus</text>
-        <text x="80" y="262" className="fill-[var(--color-muted-foreground)] text-[11px]">&#8594;</text>
-        <text x="100" y="262" className="fill-[var(--color-foreground)] text-[11px] font-mono">88</text>
-      </g>
-      <rect id="highlight-row2" x="25" y="225" width="220" height="24" rx="6"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="2" opacity="0" />
+      <Chip id="result-chip" className="absolute" style={{ left: 280, top: 218 }}>95</Chip>
 
-      <g id="result-chip">
-        <rect x="-24" y="-13" width="48" height="26" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="-24" y="-13" width="48" height="26" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="5" textAnchor="middle" className="fill-[var(--color-primary)] text-[12px] font-mono">95</text>
-      </g>
-
-      <text id="lookup-code" x="20" y="305" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
-        map.get(&quot;grace&quot;) &#8594; 95
-      </text>
-    </svg>
+      <CodeLine id="lookup-code" className="whitespace-nowrap" style={{ left: 16, top: 300, width: 360 }}>
+        map.get(&quot;grace&quot;) &#8594; 95, an O(1) jump, not a scan
+      </CodeLine>
+    </Stage>
   );
 }

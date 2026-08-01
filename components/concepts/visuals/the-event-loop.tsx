@@ -3,47 +3,51 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, Eyebrow, enter, exit, pop, focusOn, focusOff, travel } from "./kit";
 
+// Reference exemplar for the "Runtime Instruments" kit. A single accent focus
+// (ring + soft glow) marks the frame the runtime is executing right now, and it
+// glides from the call stack through the queues, encoding that JavaScript runs
+// one thing at a time.
 export function TheEventLoopVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: main() runs on the call stack, logging 1, registering a setTimeout
-      // (sent to the Web API panel) and a resolved Promise.then (sent straight to
-      // the microtask queue), then logging 2. Once main() pops and the stack is
-      // empty, the microtask token moves up to run first (logging 3), fully
-      // draining the microtask queue. Only then does the timer token move from
-      // the Web API into the macrotask queue and finally up to run (logging 4),
-      // showing the full order 1, 2, 3, 4 build up at the bottom.
-      gsap.set("#main-frame", { opacity: 0 });
-      gsap.set("#webapi-token", { opacity: 0, x: 0, y: 0 });
-      gsap.set("#micro-token", { opacity: 0, x: 0, y: 0 });
-      gsap.set(["#out-1", "#out-2", "#out-3", "#out-4"], { opacity: 0 });
+      gsap.set(["#main-frame", "#tok-timer", "#tok-then"], { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
+      gsap.set(["#out-1", "#out-2", "#out-3", "#out-4"], { opacity: 0, scale: 0.8 });
 
       if (animate) {
-        tl.to("#main-frame", { opacity: 1, duration: 0.3 })
-          .to("#out-1", { opacity: 1, duration: 0.2 }, "+=0.2")
-          .to("#webapi-token", { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#micro-token", { opacity: 1, duration: 0.3 }, "+=0.25")
-          .to("#out-2", { opacity: 1, duration: 0.2 }, "+=0.25")
-          .to("#main-frame", { opacity: 0, duration: 0.3 }, "+=0.3")
-          .to("#micro-token", { x: 0, y: -90, duration: 0.5, ease: "power2.inOut" }, "+=0.35")
-          .to("#out-3", { opacity: 1, duration: 0.2 }, "+=0.1")
-          .to("#micro-token", { opacity: 0, duration: 0.25 }, "+=0.15")
-          .to("#webapi-token", { x: -190, y: 166, duration: 0.5, ease: "power2.inOut" }, "+=0.2")
-          .to("#webapi-token", { x: -190, y: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.3")
-          .to("#out-4", { opacity: 1, duration: 0.2 }, "+=0.1")
-          .to("#webapi-token", { opacity: 0, duration: 0.25 }, "+=0.15");
+        // main() runs and logs 1
+        enter(tl, "#main-frame");
+        focusOn(tl, "#main-frame", "-=0.15");
+        pop(tl, "#out-1", "+=0.15");
+        // it schedules a timer (Web API) and a microtask (.then), then logs 2
+        enter(tl, "#tok-timer", "+=0.25");
+        enter(tl, "#tok-then", "+=0.2");
+        pop(tl, "#out-2", "+=0.15");
+        // main() returns, the stack empties
+        focusOff(tl, "#main-frame", "+=0.2");
+        exit(tl, "#main-frame", "-=0.15");
+        // the microtask queue drains first: .then moves up and logs 3
+        travel(tl, "#tok-then", { x: 4, y: -104 }, "+=0.25");
+        focusOn(tl, "#tok-then");
+        pop(tl, "#out-3", "+=0.15");
+        focusOff(tl, "#tok-then", "+=0.2");
+        exit(tl, "#tok-then", "-=0.15");
+        // only now the one macrotask runs: the timer moves to the queue, then up
+        travel(tl, "#tok-timer", { x: -216, y: 178 }, "+=0.25");
+        travel(tl, "#tok-timer", { x: -212, y: 0 }, "+=0.3");
+        focusOn(tl, "#tok-timer");
+        pop(tl, "#out-4", "+=0.15");
+        focusOff(tl, "#tok-timer", "+=0.2");
+        exit(tl, "#tok-timer", "-=0.15");
       } else {
-        // reduced motion: jump to labeled end-state, everything has run and
-        // the output order 1, 2, 3, 4 is fully visible
-        tl.set("#main-frame", { opacity: 0 })
-          .set("#micro-token", { opacity: 0, x: 0, y: -90 })
-          .set("#webapi-token", { opacity: 0, x: -190, y: 0 })
-          .set(["#out-1", "#out-2", "#out-3", "#out-4"], { opacity: 1 });
+        tl.set(["#main-frame", "#tok-timer", "#tok-then"], { opacity: 0 })
+          .set(["#out-1", "#out-2", "#out-3", "#out-4"], { opacity: 1, scale: 1 });
       }
       register(tl);
       return tl;
@@ -54,43 +58,25 @@ export function TheEventLoopVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 390 320" className="w-full max-w-md" role="img"
-      aria-label="main runs console.log(1), registers a setTimeout callback with the Web API and a resolved Promise.then callback directly in the microtask queue, then runs console.log(2). Once main returns and the call stack is empty, the microtask queue drains first, running the then callback and logging 3, and only after the microtask queue is empty does the event loop take the one setTimeout callback from the macrotask queue and run it, logging 4. Final order: 1, 2, 3, 4">
-      <rect x="14" y="14" width="170" height="90" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="24" y="30" className="fill-[var(--color-muted-foreground)] text-[10px]">Call Stack</text>
+    <Stage
+      refEl={scope}
+      label="main runs and logs 1, schedules a setTimeout callback in the Web API and a resolved Promise then callback in the microtask queue, then logs 2. When main returns and the call stack empties, the microtask queue drains first and logs 3, and only then does the single macrotask (the timer callback) run and log 4. Final order: 1, 2, 3, 4."
+    >
+      <Panel label="Call stack" style={{ left: 0, top: 0, width: 188, height: 96 }} />
+      <Panel label="Web API" style={{ left: 212, top: 0, width: 188, height: 96 }} />
+      <Panel label="Microtask queue" style={{ left: 0, top: 112, width: 400, height: 66 }} />
+      <Panel label="Macrotask queue" style={{ left: 0, top: 190, width: 400, height: 66 }} />
 
-      <rect x="204" y="14" width="172" height="90" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="214" y="30" className="fill-[var(--color-muted-foreground)] text-[10px]">Web API: Timer</text>
+      <Frame id="main-frame" style={{ left: 16, top: 40, width: 150, height: 44 }}>main()</Frame>
+      <Frame id="tok-timer" style={{ left: 226, top: 40, width: 160, height: 44 }}>setTimeout(fn, 0)</Frame>
+      <Frame id="tok-then" style={{ left: 12, top: 138, width: 180, height: 34 }}>.then(fn)</Frame>
 
-      <rect x="14" y="120" width="362" height="60" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="24" y="136" className="fill-[var(--color-muted-foreground)] text-[10px]">Microtask Queue (Promise callbacks)</text>
-
-      <rect x="14" y="196" width="362" height="60" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="24" y="212" className="fill-[var(--color-muted-foreground)] text-[10px]">Macrotask Queue (timers, I/O)</text>
-
-      <g id="main-frame">
-        <rect x="34" y="50" width="130" height="36" rx="6" className="fill-[var(--color-primary)]" opacity="0.15" />
-        <rect x="34" y="50" width="130" height="36" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="46" y="73" className="fill-[var(--color-foreground)] text-[11px]">main()</text>
-      </g>
-
-      <g id="webapi-token">
-        <rect x="224" y="50" width="140" height="36" rx="6" className="fill-[var(--color-secondary)]" opacity="0.4" />
-        <rect x="224" y="50" width="140" height="36" rx="6" className="fill-none stroke-[var(--color-secondary)]" />
-        <text x="234" y="73" className="fill-[var(--color-foreground)] text-[10px]">setTimeout(fn, 0)</text>
-      </g>
-
-      <g id="micro-token">
-        <rect x="34" y="140" width="150" height="30" rx="6" className="fill-[var(--color-primary)]" opacity="0.15" />
-        <rect x="34" y="140" width="150" height="30" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="44" y="160" className="fill-[var(--color-foreground)] text-[10px]">.then(fn)</text>
-      </g>
-
-      <text x="14" y="300" className="fill-[var(--color-muted-foreground)] text-[10px]">console.log order:</text>
-      <text id="out-1" x="150" y="300" className="fill-[var(--color-foreground)] text-[12px] font-semibold">1</text>
-      <text id="out-2" x="175" y="300" className="fill-[var(--color-foreground)] text-[12px] font-semibold">2</text>
-      <text id="out-3" x="200" y="300" className="fill-[var(--color-foreground)] text-[12px] font-semibold">3</text>
-      <text id="out-4" x="225" y="300" className="fill-[var(--color-foreground)] text-[12px] font-semibold">4</text>
-    </svg>
+      <div className="absolute flex items-center gap-2" style={{ left: 4, top: 284 }}>
+        <Eyebrow>Output</Eyebrow>
+        {["1", "2", "3", "4"].map((n, i) => (
+          <Chip key={n} id={`out-${i + 1}`} className="h-6 w-6 px-0">{n}</Chip>
+        ))}
+      </div>
+    </Stage>
   );
 }

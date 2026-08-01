@@ -3,45 +3,53 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, CodeLine, Chip, enter, pop, exit, focusOn, focusOff } from "./kit";
 
+// var is hoisted and reads as undefined from the top. A destructive temporal
+// dead zone band covers the region before `let count = 5;`; the execution
+// focus steps down through the lines, throwing on an early read and clearing
+// the band the moment the declaration itself runs.
 export function LetConstVarTdzVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: var is hoisted and reads as undefined from the top. A red
-      // temporal-dead-zone band covers the region before `let count = 5;`.
-      // A playhead steps downward: reading count inside the band throws,
-      // the band clears once the let line runs, and reading count after
-      // that succeeds and returns 5.
-      gsap.set("#scope-box", { opacity: 0 });
-      gsap.set(["#var-line", "#var-chip", "#early-line", "#let-line", "#late-line"], { opacity: 0 });
-      gsap.set("#tdz-band", { opacity: 0 });
-      gsap.set("#playhead", { opacity: 0, attr: { y1: 48, y2: 48 } });
-      gsap.set(["#error-mark", "#error-text", "#let-chip", "#success-mark", "#success-text"], { opacity: 0 });
+      gsap.set(["#line-var", "#line-early", "#line-let", "#line-late"], { opacity: 0, y: 12 });
+      gsap.set("#chip-var-value", { opacity: 0, scale: 0.8 });
+      gsap.set("#tdz-band", { opacity: 0, y: 12 });
+      gsap.set(["#chip-error", "#chip-let-value", "#chip-success"], { opacity: 0, scale: 0.8 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to("#scope-box", { opacity: 1, duration: 0.4 })
-          .to(["#var-line", "#var-chip"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to(["#early-line", "#let-line", "#late-line"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#tdz-band", { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#playhead", { opacity: 1, duration: 0.2 }, "+=0.2")
-          .to("#playhead", { attr: { y1: 92, y2: 92 }, duration: 0.6, ease: "power1.inOut" }, "+=0.1")
-          .to(["#error-mark", "#error-text"], { opacity: 1, duration: 0.2 }, "+=0.1")
-          .to("#playhead", { attr: { y1: 133, y2: 133 }, duration: 0.6, ease: "power1.inOut" }, "+=0.4")
-          .to("#tdz-band", { opacity: 0, duration: 0.3 }, "<")
-          .to("#let-chip", { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#playhead", { attr: { y1: 172, y2: 172 }, duration: 0.6, ease: "power1.inOut" }, "+=0.4")
-          .to(["#success-mark", "#success-text"], { opacity: 1, duration: 0.2 }, "+=0.1");
+        enter(tl, "#line-var");
+        focusOn(tl, "#line-var", "-=0.15");
+        pop(tl, "#chip-var-value", "+=0.15");
+        focusOff(tl, "#line-var", "+=0.2");
+
+        enter(tl, "#tdz-band", "+=0.15");
+        enter(tl, "#line-early", "+=0.15");
+        focusOn(tl, "#line-early", "-=0.15");
+        pop(tl, "#chip-error", "+=0.15");
+        focusOff(tl, "#line-early", "+=0.3");
+
+        enter(tl, "#line-let", "+=0.2");
+        focusOn(tl, "#line-let", "-=0.15");
+        pop(tl, "#chip-let-value", "+=0.15");
+        exit(tl, "#tdz-band", "<");
+        focusOff(tl, "#line-let", "+=0.3");
+
+        enter(tl, "#line-late", "+=0.2");
+        focusOn(tl, "#line-late", "-=0.15");
+        pop(tl, "#chip-success", "+=0.15");
+        focusOff(tl, "#line-late", "+=0.3");
       } else {
         // reduced motion: jump to labeled end-state
-        tl.set("#scope-box", { opacity: 1 })
-          .set(["#var-line", "#var-chip", "#early-line", "#let-line", "#late-line"], { opacity: 1 })
+        tl.set(["#line-var", "#line-early", "#line-let", "#line-late"], { opacity: 1, y: 0 })
+          .set("#chip-var-value", { opacity: 1, scale: 1 })
           .set("#tdz-band", { opacity: 0 })
-          .set("#playhead", { opacity: 1, attr: { y1: 172, y2: 172 } })
-          .set(["#error-mark", "#error-text", "#let-chip", "#success-mark", "#success-text"], { opacity: 1 });
+          .set(["#chip-error", "#chip-let-value", "#chip-success"], { opacity: 1, scale: 1 });
       }
       register(tl);
       return tl;
@@ -52,55 +60,41 @@ export function LetConstVarTdzVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 260" className="w-full max-w-md" role="img"
-      aria-label="A scope timeline shows var msg initialized to undefined from the top. A red temporal dead zone band covers the region before let count equals 5. Reading count inside the band throws a ReferenceError, the band clears once the let line runs, and reading count after that succeeds and returns 5">
-      <rect id="scope-box" x="15" y="20" width="330" height="220" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
+    <Stage
+      refEl={scope}
+      height={300}
+      label="A module scope shows var msg hoisted and read as undefined from the top. A destructive temporal dead zone band covers the region before let count = 5. Reading count inside the band throws a ReferenceError; once the let declaration runs the band clears, and reading count after that returns 5"
+    >
+      <Panel label="Module scope" style={{ left: 0, top: 0, width: 400, height: 280 }} />
 
-      <g id="var-line">
-        <text x="25" y="48" className="fill-[var(--color-foreground)] text-[11px]">var msg;</text>
-      </g>
-      <g id="var-chip">
-        <rect x="230" y="35" width="90" height="22" rx="5" className="fill-none stroke-[var(--color-muted-foreground)]" />
-        <text x="238" y="51" className="fill-[var(--color-muted-foreground)] text-[10px]">undefined</text>
-      </g>
+      <CodeLine id="line-var" gutter={1} style={{ left: 16, top: 40, width: 200, height: 28 }}>
+        var msg;
+      </CodeLine>
+      <Chip id="chip-var-value" className="absolute" style={{ left: 230, top: 44 }}>undefined</Chip>
 
-      <g id="tdz-band" opacity="0">
-        <rect x="20" y="72" width="320" height="70" rx="6"
-          className="fill-[var(--color-destructive)] stroke-[var(--color-destructive)]" opacity="0.15" />
-        <rect x="20" y="72" width="320" height="70" rx="6" className="fill-none stroke-[var(--color-destructive)]" />
-      </g>
+      <Panel
+        id="tdz-band"
+        label="TDZ"
+        className="!border-[var(--color-destructive)] !bg-[var(--color-destructive)]/10"
+        style={{ left: 16, top: 78, width: 330, height: 56 }}
+      />
 
-      <g id="early-line">
-        <text x="25" y="90" className="fill-[var(--color-foreground)] text-[11px]">console.log(count);</text>
-      </g>
-      <g id="error-mark">
-        <text x="230" y="90" className="fill-[var(--color-destructive)] text-[13px]">&#10005;</text>
-      </g>
-      <text id="error-text" x="245" y="90" className="fill-[var(--color-destructive)] text-[10px]">
+      <CodeLine id="line-early" gutter={2} style={{ left: 16, top: 90, width: 230, height: 28 }}>
+        console.log(count);
+      </CodeLine>
+      <Chip id="chip-error" className="absolute !bg-[var(--color-destructive)]/10 !text-[var(--color-destructive)]" style={{ left: 260, top: 94 }}>
         ReferenceError
-      </text>
+      </Chip>
 
-      <g id="let-line">
-        <text x="25" y="133" className="fill-[var(--color-foreground)] text-[11px]">let count = 5;</text>
-      </g>
-      <g id="let-chip">
-        <rect x="230" y="120" width="60" height="22" rx="5" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="248" y="136" className="fill-[var(--color-primary)] text-[10px]">5</text>
-      </g>
+      <CodeLine id="line-let" gutter={3} style={{ left: 16, top: 148, width: 200, height: 28 }}>
+        let count = 5;
+      </CodeLine>
+      <Chip id="chip-let-value" className="absolute" style={{ left: 230, top: 152 }}>5</Chip>
 
-      <g id="late-line">
-        <text x="25" y="172" className="fill-[var(--color-foreground)] text-[11px]">console.log(count);</text>
-      </g>
-      <g id="success-mark">
-        <text x="230" y="172" className="fill-[var(--color-primary)] text-[13px]">&#10003;</text>
-      </g>
-      <text id="success-text" x="245" y="172" className="fill-[var(--color-primary)] text-[10px]">
-        5
-      </text>
-
-      <line id="playhead" x1="20" x2="340" y1="48" y2="48"
-        className="stroke-[var(--color-secondary)]" strokeWidth="2" />
-    </svg>
+      <CodeLine id="line-late" gutter={4} style={{ left: 16, top: 200, width: 230, height: 28 }}>
+        console.log(count);
+      </CodeLine>
+      <Chip id="chip-success" className="absolute" style={{ left: 260, top: 204 }}>5</Chip>
+    </Stage>
   );
 }

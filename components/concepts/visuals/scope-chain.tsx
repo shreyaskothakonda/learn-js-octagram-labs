@@ -3,50 +3,44 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, travel, focusOn, focusOff } from "./kit";
 
+// Scene: three nested scope panels (global > outer > inner). A lookup frame
+// for `z` starts in the inner scope and travels outward, its execution focus
+// lighting each scope in turn as it is checked. Nothing matches, so the
+// lookup fades out at global and a destructive-tinted ReferenceError chip
+// appears in its place.
 export function ScopeChainVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: three nested scope boxes (global > outer > inner). A lookup token
-      // for `z` starts in inner and hops outward, each box briefly highlighted as
-      // it is checked. Nothing matches, so the token fades at global and a
-      // ReferenceError appears.
-      gsap.set(["#global-box", "#global-label", "#outer-box", "#outer-label", "#inner-box", "#inner-label"], {
-        opacity: 0,
-      });
-      gsap.set(["#highlight-inner", "#highlight-outer", "#highlight-global", "#highlight-global-error"], {
-        opacity: 0,
-      });
-      gsap.set("#token", { x: 170, y: 155, opacity: 0 });
-      gsap.set("#error-text", { opacity: 0 });
+      gsap.set("#lookup", { opacity: 0, y: 12, x: 0 });
+      gsap.set(".glow", { opacity: 0 });
+      gsap.set("#not-found", { opacity: 0, scale: 0.8 });
 
       if (animate) {
-        tl.to(["#global-box", "#global-label"], { opacity: 1, duration: 0.3 })
-          .to(["#outer-box", "#outer-label"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to(["#inner-box", "#inner-label"], { opacity: 1, duration: 0.3 }, "+=0.1")
-          .to("#token", { opacity: 1, duration: 0.3 }, "+=0.2")
-          .to("#highlight-inner", { opacity: 1, duration: 0.2 })
-          .to("#highlight-inner", { opacity: 0, duration: 0.2 }, "+=0.25")
-          .to("#token", { x: 280, y: 120, duration: 0.6, ease: "power2.inOut" }, "+=0.1")
-          .to("#highlight-outer", { opacity: 1, duration: 0.2 })
-          .to("#highlight-outer", { opacity: 0, duration: 0.2 }, "+=0.25")
-          .to("#token", { x: 330, y: 190, duration: 0.6, ease: "power2.inOut" }, "+=0.1")
-          .to("#highlight-global", { opacity: 1, duration: 0.2 })
-          .to("#token", { opacity: 0, duration: 0.3 }, "+=0.3")
-          .to("#highlight-global-error", { opacity: 1, duration: 0.3 }, "<")
-          .to("#error-text", { opacity: 1, duration: 0.3 }, "+=0.1");
+        // enters checking the inner scope first
+        tl.to("#lookup", { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" });
+        focusOn(tl, "#lookup", "+=0.1");
+        focusOff(tl, "#lookup", "+=0.35");
+        // travels out to check the outer scope
+        travel(tl, "#lookup", { x: 96, y: -84 }, "+=0.05");
+        focusOn(tl, "#lookup");
+        focusOff(tl, "#lookup", "+=0.35");
+        // travels out to check the global scope
+        travel(tl, "#lookup", { x: 150, y: -34 }, "+=0.05");
+        focusOn(tl, "#lookup");
+        focusOff(tl, "#lookup", "+=0.35");
+        // no match anywhere: the lookup fades and a ReferenceError chip appears
+        tl.to("#lookup", { opacity: 0, duration: 0.3 }, "+=0.15");
+        tl.to("#not-found", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, "-=0.1");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#global-box", "#global-label", "#outer-box", "#outer-label", "#inner-box", "#inner-label"], {
-          opacity: 1,
-        })
-          .set("#token", { opacity: 0 })
-          .set("#highlight-global-error", { opacity: 1 })
-          .set("#error-text", { opacity: 1 });
+        // reduced motion: jump to labeled end-state (lookup resolved to failure)
+        tl.set("#lookup", { opacity: 0 })
+          .set("#not-found", { opacity: 1, scale: 1 });
       }
       register(tl);
       return tl;
@@ -57,44 +51,29 @@ export function ScopeChainVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 260" className="w-full max-w-md" role="img"
-      aria-label="A lookup for the variable z hops from the inner scope outward through outer and global, finds no match anywhere, and ends in a ReferenceError">
-      <rect id="global-box" x="15" y="15" width="330" height="210" rx="10"
-        className="fill-none stroke-[var(--color-border)]" opacity="0" />
-      <text id="global-label" x="25" y="32" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        global
-      </text>
-      <rect id="highlight-global" x="15" y="15" width="330" height="210" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-      <rect id="highlight-global-error" x="15" y="15" width="330" height="210" rx="10"
-        className="fill-none stroke-[var(--color-destructive)]" strokeWidth="3" opacity="0" />
+    <Stage
+      refEl={scope}
+      height={300}
+      label="A lookup for the variable z starts in the inner scope and travels outward through outer and global, its execution focus checking each scope in turn. No match is found anywhere, so the lookup fades and a ReferenceError chip appears at global scope"
+    >
+      <Panel label="Global scope" style={{ left: 0, top: 0, width: 400, height: 300 }} />
+      <Panel label="outer() scope" style={{ left: 40, top: 56, width: 320, height: 220 }} />
+      <Panel label="inner() scope" style={{ left: 90, top: 112, width: 210, height: 130 }} />
 
-      <rect id="outer-box" x="45" y="55" width="270" height="150" rx="10"
-        className="fill-none stroke-[var(--color-border)]" opacity="0" />
-      <text id="outer-label" x="55" y="72" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        outer()
-      </text>
-      <rect id="highlight-outer" x="45" y="55" width="270" height="150" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
+      <Frame id="lookup" style={{ left: 130, top: 160, width: 70, height: 40 }}>z</Frame>
 
-      <rect id="inner-box" x="75" y="95" width="190" height="90" rx="10"
-        className="fill-none stroke-[var(--color-border)]" opacity="0" />
-      <text id="inner-label" x="85" y="112" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
-        inner()
-      </text>
-      <rect id="highlight-inner" x="75" y="95" width="190" height="90" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-
-      <g id="token">
-        <circle cx="0" cy="0" r="14" className="fill-[var(--color-primary)]" opacity="0.15" />
-        <circle cx="0" cy="0" r="14" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="4" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px]">z</text>
-      </g>
-
-      <text id="error-text" x="200" y="205" textAnchor="middle" opacity="0"
-        className="fill-[var(--color-destructive)] text-[10px]">
-        ReferenceError: z is not defined
-      </text>
-    </svg>
+      <Chip
+        id="not-found"
+        className="absolute"
+        style={{
+          left: 200,
+          top: 20,
+          color: "var(--color-destructive)",
+          backgroundColor: "color-mix(in srgb, var(--color-destructive) 12%, transparent)",
+        }}
+      >
+        ReferenceError
+      </Chip>
+    </Stage>
   );
 }

@@ -3,50 +3,62 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, Eyebrow, CodeLine, enter, pop, focusOn, focusOff, DUR, EASE } from "./kit";
 
+const CHIP_IDS = ["#chip0", "#chip1", "#chip2"];
+
+// A generator function's frame sits inside its panel, execution focus settled
+// on it for the whole run. Each next() resumes the frame, its local i
+// advances, a yielded value pops out as a chip, and the frame pauses at the
+// next yield again, with i preserved between calls, until the focus releases
+// and a final readout shows the shape next() returns.
 export function IteratorsGeneratorsVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a generator function's frame sits paused at its yield. Three
-      // calls to next() each resume the frame, advance its local variable i,
-      // and hand out one value at a time to a trail, then pause again.
-      gsap.set(["#codeA", "#codeB", "#codeC", "#constLine", "#gen-frame", "#trail-label"], { opacity: 0 });
+      gsap.set(["#code-a", "#code-b", "#code-c", "#const-line"], { opacity: 0, y: 12 });
+      gsap.set(["#gen-panel", "#gen-frame", "#status-label"], { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
       gsap.set("#pause-icon", { opacity: 0 });
-      gsap.set(".i-value", { textContent: "" });
-      gsap.set(["#chip0", "#chip1", "#chip2"], { opacity: 0, x: 95, y: 150 });
-      gsap.set("#call-label", { opacity: 0 });
-      gsap.set("#result-text", { opacity: 0 });
+      gsap.set("#label-idle", { opacity: 1 });
+      gsap.set("#label-calling", { opacity: 0 });
+      gsap.set("#i-value", { textContent: "" });
+      gsap.set(CHIP_IDS, { opacity: 0, scale: 0.8 });
+      gsap.set("#result-text", { opacity: 0, y: 12 });
 
       if (animate) {
-        tl.to(["#codeA", "#codeB", "#codeC", "#constLine"], { opacity: 1, duration: 0.3, stagger: 0.08 })
-          .to(["#gen-frame", "#trail-label"], { opacity: 1, duration: 0.4 }, "+=0.2");
+        enter(tl, ["#code-a", "#code-b", "#code-c", "#const-line"], undefined, 0.08);
+        enter(tl, "#gen-panel", "+=0.15");
+        enter(tl, "#gen-frame", "<");
+        enter(tl, "#status-label", "<");
+        // the focus settles on the generator and stays there for every call
+        focusOn(tl, "#gen-frame", "+=0.15");
 
-        const chips = ["#chip0", "#chip1", "#chip2"];
-        const chipX = [210, 270, 330];
-        chips.forEach((chipSelector, i) => {
-          tl.to("#call-label", { opacity: 1, duration: 0.2 }, "+=0.3")
-            .to("#pause-icon", { opacity: 0, duration: 0.15 }, "+=0.1")
-            .to(".i-value", { textContent: String(i), duration: 0.15, snap: { textContent: 1 } }, "<")
-            .to(chipSelector, { opacity: 1, x: chipX[i], y: 190, duration: 0.5, ease: "power2.inOut" }, "+=0.1")
-            .to("#pause-icon", { opacity: 1, duration: 0.15 }, "+=0.1")
-            .to("#call-label", { opacity: 0, duration: 0.2 }, "+=0.2");
+        CHIP_IDS.forEach((chipSel, i) => {
+          tl.to("#label-idle", { opacity: 0, duration: 0.2 }, "+=0.3");
+          tl.to("#label-calling", { opacity: 1, duration: 0.2 }, "<");
+          tl.to("#pause-icon", { opacity: 0, duration: 0.15 }, "+=0.1");
+          tl.to("#i-value", { textContent: String(i), duration: DUR.pop, ease: EASE.pop, snap: { textContent: 1 } }, "<");
+          pop(tl, chipSel, "+=0.1");
+          tl.to("#pause-icon", { opacity: 1, duration: 0.15 }, "+=0.1");
+          tl.to("#label-calling", { opacity: 0, duration: 0.2 }, "+=0.2");
+          tl.to("#label-idle", { opacity: 1, duration: 0.2 }, "<");
         });
 
-        tl.to("#result-text", { opacity: 1, duration: 0.3 }, "+=0.3");
+        focusOff(tl, "#gen-frame", "+=0.3");
+        enter(tl, "#result-text", "+=0.2");
       } else {
         // reduced motion: jump to labeled end-state, all three values yielded
-        tl.set(["#codeA", "#codeB", "#codeC", "#constLine", "#gen-frame", "#trail-label"], { opacity: 1 })
+        tl.set(["#code-a", "#code-b", "#code-c", "#const-line"], { opacity: 1, y: 0 })
+          .set(["#gen-panel", "#gen-frame", "#status-label"], { opacity: 1, y: 0 })
           .set("#pause-icon", { opacity: 1 })
-          .set(".i-value", { textContent: "2" })
-          .set("#chip0", { opacity: 1, x: 210, y: 190 })
-          .set("#chip1", { opacity: 1, x: 270, y: 190 })
-          .set("#chip2", { opacity: 1, x: 330, y: 190 })
-          .set("#call-label", { opacity: 0 })
-          .set("#result-text", { opacity: 1 });
+          .set("#label-calling", { opacity: 0 })
+          .set("#i-value", { textContent: "2" })
+          .set(CHIP_IDS, { opacity: 1, scale: 1 })
+          .set("#result-text", { opacity: 1, y: 0 });
       }
       register(tl);
       return tl;
@@ -56,66 +68,46 @@ export function IteratorsGeneratorsVisual({ register }: ConceptVisualProps) {
     return () => mm.revert();
   }, { scope });
 
-  const chip = (id: string, value: string) => (
-    <g id={id} key={id} opacity="0">
-      <rect x="-18" y="-14" width="36" height="28" rx="6" className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" fillOpacity="0.15" />
-      <rect x="-18" y="-14" width="36" height="28" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-      <text x="0" y="5" textAnchor="middle" className="fill-[var(--color-foreground)] text-[11px] font-mono">
-        {value}
-      </text>
-    </g>
-  );
-
   return (
-    <svg
-      ref={scope}
-      viewBox="0 0 380 260"
-      className="w-full max-w-md"
-      role="img"
-      aria-label="A generator function's frame pauses at each yield. Three calls to next() each resume it in turn, producing the values 0, 1 and 2 while the paused frame's local variable i is preserved and incremented between calls"
+    <Stage
+      refEl={scope}
+      height={280}
+      label="A generator function's frame pauses at each yield. Three calls to next() each resume it in turn, producing the values 0, 1 and 2 while the paused frame's local variable i is preserved and incremented between calls, with the execution focus staying on the generator the whole time"
     >
-      <text id="codeA" x="20" y="22" opacity="0" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">
+      <CodeLine id="code-a" className="whitespace-nowrap" style={{ left: 8, top: 0, width: 220 }}>
         function* count() {"{"}
-      </text>
-      <text id="codeB" x="20" y="40" opacity="0" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">
+      </CodeLine>
+      <CodeLine id="code-b" className="whitespace-nowrap" style={{ left: 8, top: 28, width: 220 }}>
         {"  while (true) yield i++;"}
-      </text>
-      <text id="codeC" x="20" y="58" opacity="0" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">
+      </CodeLine>
+      <CodeLine id="code-c" className="whitespace-nowrap" style={{ left: 8, top: 56, width: 60 }}>
         {"}"}
-      </text>
-      <text id="constLine" x="20" y="80" opacity="0" className="fill-[var(--color-muted-foreground)] text-[11px] font-mono">
+      </CodeLine>
+      <CodeLine id="const-line" className="whitespace-nowrap" style={{ left: 8, top: 84, width: 220 }}>
         const it = count();
-      </text>
+      </CodeLine>
 
-      <g id="gen-frame" opacity="0">
-        <rect x="20" y="100" width="150" height="80" rx="10" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="32" y="118" className="fill-[var(--color-muted-foreground)] text-[10px]">
-          count() frame
-        </text>
-        <text x="32" y="150" className="fill-[var(--color-foreground)] text-[12px] font-mono">
-          i:
-        </text>
-        <text x="55" y="150" className="i-value fill-[var(--color-foreground)] text-[12px] font-mono" />
-        <g id="pause-icon" opacity="0">
-          <rect x="138" y="108" width="4" height="14" className="fill-[var(--color-muted-foreground)]" />
-          <rect x="148" y="108" width="4" height="14" className="fill-[var(--color-muted-foreground)]" />
-        </g>
-      </g>
+      <Panel id="gen-panel" label="count() frame" style={{ left: 8, top: 124, width: 180, height: 100 }} />
+      <Frame id="gen-frame" style={{ left: 20, top: 156, width: 156, height: 48 }}>
+        <span>i:&nbsp;</span>
+        <span id="i-value" />
+        <span id="pause-icon" className="absolute flex gap-1" style={{ right: 10, top: 10 }}>
+          <span className="block h-3.5 w-1 rounded-sm bg-muted-foreground" />
+          <span className="block h-3.5 w-1 rounded-sm bg-muted-foreground" />
+        </span>
+      </Frame>
 
-      <text id="trail-label" x="185" y="145" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        yielded values
-      </text>
-      <text id="call-label" x="185" y="95" opacity="0" className="fill-[var(--color-foreground)] text-[11px] font-mono">
-        it.next()
-      </text>
+      <Eyebrow id="status-label" className="absolute" style={{ left: 204, top: 126, width: 180 }}>
+        <span id="label-idle" className="text-muted-foreground">yielded values</span>
+        <span id="label-calling" className="absolute left-0 top-0 text-foreground">it.next()</span>
+      </Eyebrow>
+      <Chip id="chip0" style={{ position: "absolute", left: 204, top: 156 }}>0</Chip>
+      <Chip id="chip1" style={{ position: "absolute", left: 262, top: 156 }}>1</Chip>
+      <Chip id="chip2" style={{ position: "absolute", left: 320, top: 156 }}>2</Chip>
 
-      {chip("chip0", "0")}
-      {chip("chip1", "1")}
-      {chip("chip2", "2")}
-
-      <text id="result-text" x="20" y="230" opacity="0" className="fill-[var(--color-muted-foreground)] text-[10px] font-mono">
+      <CodeLine id="result-text" className="whitespace-nowrap text-muted-foreground" style={{ left: 8, top: 240, width: 370 }}>
         it.next() =&gt; {"{"} value: 2, done: false {"}"}
-      </text>
-    </svg>
+      </CodeLine>
+    </Stage>
   );
 }

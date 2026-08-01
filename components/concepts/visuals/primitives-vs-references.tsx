@@ -3,45 +3,51 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Frame, Chip, Eyebrow, pop, focusOn, focusOff } from "./kit";
 
+// Scene: copying a primitive duplicates its value into an independent chip
+// that later diverges from the original. Copying an object copies a
+// reference instead: two variables end up pointing, via connector lines, at
+// one shared box, so mutating through either one updates it for both.
 export function PrimitivesVsReferencesVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: top half copies a primitive into an independent chip that later
-      // diverges. Bottom half copies an object reference; two variables end up
-      // pointing at one shared box, and mutating through either updates it.
-      gsap.set("#chipA", { opacity: 0 });
-      gsap.set("#chipB", { opacity: 0 });
-      gsap.set("#copy-arrow", { opacity: 0 });
-      gsap.set("#mutate-label", { opacity: 0 });
+      gsap.set(["#chipA", "#chipB"], { opacity: 0, scale: 0.8 });
+      gsap.set("#copy-line", { opacity: 0 });
+      gsap.set(".mutate-label", { opacity: 0 });
       gsap.set("#chipB-value", { textContent: "5" });
 
-      gsap.set(["#tagObj1", "#arrow1", "#sharedBox"], { opacity: 0 });
-      gsap.set(["#tagObj2", "#arrow2"], { opacity: 0 });
-      gsap.set("#sharedBox-count", { textContent: "1" });
-      gsap.set("#shared-flash", { opacity: 0 });
+      gsap.set(["#obj1", "#obj2", "#shared-box"], { opacity: 0, y: 12 });
+      gsap.set(["#ref-line-1", "#ref-line-2"], { opacity: 0 });
+      gsap.set(".glow", { opacity: 0 });
+      gsap.set("#shared-count", { textContent: "1" });
 
       if (animate) {
-        tl.to("#chipA", { opacity: 1, duration: 0.3 })
-          .to("#copy-arrow", { opacity: 1, duration: 0.2 }, "+=0.2")
-          .to("#chipB", { opacity: 1, duration: 0.3 }, "<")
-          .to("#mutate-label", { opacity: 1, duration: 0.2 }, "+=0.3")
-          .to("#chipB-value", { textContent: 10, duration: 0.4, snap: { textContent: 1 } }, "<")
-          .to(["#tagObj1", "#arrow1", "#sharedBox"], { opacity: 1, duration: 0.3 }, "+=0.4")
-          .to(["#tagObj2", "#arrow2"], { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#sharedBox-count", { textContent: 99, duration: 0.4, snap: { textContent: 1 } }, "+=0.3")
-          .to("#shared-flash", { opacity: 1, duration: 0.2 }, "<")
-          .to("#shared-flash", { opacity: 0, duration: 0.3 }, "+=0.2");
+        pop(tl, "#chipA");
+        tl.to("#copy-line", { opacity: 1, duration: 0.25 }, "+=0.1");
+        pop(tl, "#chipB", "<");
+        tl.to(".mutate-label", { opacity: 1, duration: 0.25 }, "+=0.35");
+        tl.to("#chipB-value", { textContent: 10, duration: 0.4, snap: { textContent: 1 } }, "<");
+
+        tl.to(["#obj1", "#obj2"], { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.08 }, "+=0.5");
+        tl.to(["#ref-line-1", "#ref-line-2"], { opacity: 1, duration: 0.3 }, "+=0.1");
+        tl.to("#shared-box", { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, "<");
+        focusOn(tl, "#shared-box", "+=0.3");
+        tl.to("#shared-count", { textContent: 99, duration: 0.4, snap: { textContent: 1 } }, "<");
+        focusOff(tl, "#shared-box", "+=0.4");
       } else {
         // reduced motion: jump to labeled end-state
-        tl.set(["#chipA", "#chipB", "#copy-arrow", "#mutate-label"], { opacity: 1 })
+        tl.set(["#chipA", "#chipB"], { opacity: 1, scale: 1 })
+          .set("#copy-line", { opacity: 1 })
+          .set(".mutate-label", { opacity: 1 })
           .set("#chipB-value", { textContent: "10" })
-          .set(["#tagObj1", "#arrow1", "#sharedBox", "#tagObj2", "#arrow2"], { opacity: 1 })
-          .set("#sharedBox-count", { textContent: "99" });
+          .set(["#obj1", "#obj2", "#shared-box"], { opacity: 1, y: 0 })
+          .set(["#ref-line-1", "#ref-line-2"], { opacity: 1 })
+          .set("#shared-count", { textContent: "99" });
       }
       register(tl);
       return tl;
@@ -52,62 +58,50 @@ export function PrimitivesVsReferencesVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 380 300" className="w-full max-w-md" role="img"
-      aria-label="Copying a primitive duplicates its value into an independent chip, a and b end at 5 and 10. Copying an object copies a reference, obj1 and obj2 both point at one shared box whose count updates to 99">
-      <text x="10" y="25" className="fill-[var(--color-muted-foreground)] text-[10px]">Primitives</text>
+    <Stage
+      refEl={scope}
+      height={320}
+      label="Copying a primitive duplicates its value into an independent chip: a stays 5 while b changes to 10. Copying an object copies a reference: obj1 and obj2 both connect to one shared box, and mutating through either one updates its count to 99 for both"
+    >
+      <Eyebrow className="absolute" style={{ left: 8, top: 12 }}>Primitives</Eyebrow>
 
-      <g id="chipA">
-        <rect x="30" y="35" width="70" height="36" rx="6"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="30" y="35" width="70" height="36" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="38" y="49" className="fill-[var(--color-muted-foreground)] text-[9px]">a</text>
-        <text x="55" y="65" className="fill-[var(--color-foreground)] text-[12px]">5</text>
-      </g>
+      <Chip id="chipA" className="absolute" style={{ left: 40, top: 36, width: 72, height: 40 }}>
+        <span className="mr-1.5 text-[9px] font-normal opacity-60">a</span>5
+      </Chip>
+      <Chip id="chipB" className="absolute" style={{ left: 220, top: 36, width: 72, height: 40 }}>
+        <span className="mr-1.5 text-[9px] font-normal opacity-60">b</span>
+        <span id="chipB-value">5</span>
+      </Chip>
+      <Eyebrow className="absolute mutate-label" style={{ left: 220, top: 20 }}>b = 10, a stays 5</Eyebrow>
 
-      <line id="copy-arrow" x1="100" y1="53" x2="168" y2="53"
-        className="stroke-[var(--color-muted-foreground)]" strokeWidth="2" />
+      <Eyebrow className="absolute" style={{ left: 8, top: 156 }}>Objects</Eyebrow>
 
-      <g id="chipB">
-        <rect x="170" y="35" width="70" height="36" rx="6"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="170" y="35" width="70" height="36" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="178" y="49" className="fill-[var(--color-muted-foreground)] text-[9px]">b</text>
-        <text id="chipB-value" x="195" y="65" className="fill-[var(--color-foreground)] text-[12px]">5</text>
-      </g>
+      <Frame id="obj1" style={{ left: 40, top: 190, width: 72, height: 36 }}>obj1</Frame>
+      <Frame id="obj2" style={{ left: 220, top: 190, width: 72, height: 36 }}>obj2</Frame>
+      <Frame id="shared-box" style={{ left: 130, top: 254, width: 150, height: 50 }}>
+        {"{ count: "}<span id="shared-count">1</span>{" }"}
+      </Frame>
 
-      <text id="mutate-label" x="170" y="24" className="fill-[var(--color-muted-foreground)] text-[9px]">
-        b = 10 (a stays 5)
-      </text>
-
-      <line x1="10" y1="95" x2="370" y2="95" className="stroke-[var(--color-border)]" />
-      <text x="10" y="120" className="fill-[var(--color-muted-foreground)] text-[10px]">Objects</text>
-
-      <g id="tagObj1">
-        <rect x="30" y="135" width="60" height="28" rx="6"
-          className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="42" y="153" className="fill-[var(--color-foreground)] text-[10px]">obj1</text>
-      </g>
-      <g id="tagObj2">
-        <rect x="170" y="135" width="60" height="28" rx="6"
-          className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="182" y="153" className="fill-[var(--color-foreground)] text-[10px]">obj2</text>
-      </g>
-
-      <line id="arrow1" x1="60" y1="163" x2="150" y2="200"
-        className="stroke-[var(--color-muted-foreground)]" strokeWidth="2" />
-      <line id="arrow2" x1="200" y1="163" x2="190" y2="200"
-        className="stroke-[var(--color-muted-foreground)]" strokeWidth="2" />
-
-      <g id="sharedBox">
-        <rect x="110" y="205" width="140" height="50" rx="8"
-          className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-        <rect x="110" y="205" width="140" height="50" rx="8" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="122" y="235" className="fill-[var(--color-foreground)] text-[10px]">{"{ count:"}</text>
-        <text id="sharedBox-count" x="187" y="235" className="fill-[var(--color-foreground)] text-[10px]">1</text>
-        <text x="203" y="235" className="fill-[var(--color-foreground)] text-[10px]">{"}"}</text>
-      </g>
-      <rect id="shared-flash" x="105" y="200" width="150" height="60" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
-    </svg>
+      <svg className="pointer-events-none absolute inset-0" width={400} height={320} viewBox="0 0 400 320">
+        <line
+          id="copy-line"
+          x1={112} y1={56} x2={220} y2={56}
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+        />
+        <line
+          id="ref-line-1"
+          x1={76} y1={226} x2={190} y2={256}
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+        />
+        <line
+          id="ref-line-2"
+          x1={256} y1={226} x2={230} y2={256}
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+        />
+      </svg>
+    </Stage>
   );
 }

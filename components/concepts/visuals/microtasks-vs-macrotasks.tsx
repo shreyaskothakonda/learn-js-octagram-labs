@@ -3,38 +3,54 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, enter, exit, pop, focusOn, focusOff, GLOW, EASE, DUR } from "./kit";
 
+// Scene: a running script schedules a Promise.then callback into the
+// microtask queue and a setTimeout callback into the macrotask queue at
+// nearly the same moment. Once the script finishes and the stack empties,
+// the microtask queue drains first (marked 1st), and only once it is fully
+// empty does the macrotask queue's callback run (marked 2nd). Chips have no
+// built-in glow layer, so their focus moment is a direct box-shadow + scale
+// tween using the kit's GLOW token, matching the same visual weight as
+// focusOn/focusOff on a Frame.
 export function MicrotasksVsMacrotasksVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: a script frame runs, scheduling a Promise.then into the left
-      // microtask queue and a setTimeout(fn, 0) into the right macrotask queue
-      // at essentially the same moment. Once the script finishes, the
-      // microtask queue token is marked 1st and drains completely; only then
-      // does the macrotask queue token get marked 2nd and run.
-      gsap.set("#script-frame", { opacity: 0 });
-      gsap.set(["#micro-token", "#macro-token"], { opacity: 0 });
-      gsap.set(["#micro-order", "#macro-order"], { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" });
+      gsap.set("#script-frame", { opacity: 0, y: 12 });
+      gsap.set(["#then-chip", "#timeout-chip"], { opacity: 0, scale: 0.8, boxShadow: "none" });
+      gsap.set(["#order-1", "#order-2"], { opacity: 0, scale: 0.6 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to("#script-frame", { opacity: 1, duration: 0.3 })
-          .to(["#micro-token", "#macro-token"], { opacity: 1, duration: 0.3, stagger: 0.1 }, "+=0.3")
-          .to("#script-frame", { opacity: 0, duration: 0.3 }, "+=0.4")
-          .to("#micro-token", { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, "+=0.3")
-          .to("#micro-order", { opacity: 1, scale: 1, duration: 0.3 }, "<")
-          .to("#micro-token", { opacity: 0.4, duration: 0.3 }, "+=0.2")
-          .to("#macro-token", { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, "+=0.3")
-          .to("#macro-order", { opacity: 1, scale: 1, duration: 0.3 }, "<")
-          .to("#macro-token", { opacity: 0.4, duration: 0.3 }, "+=0.2");
+        enter(tl, "#script-frame");
+        focusOn(tl, "#script-frame", "-=0.15");
+
+        // the script schedules both callbacks at essentially the same moment
+        pop(tl, "#then-chip", "+=0.25");
+        pop(tl, "#timeout-chip", "<");
+
+        // the script finishes, the call stack empties
+        focusOff(tl, "#script-frame", "+=0.2");
+        exit(tl, "#script-frame", "-=0.15");
+
+        // the microtask queue drains first
+        tl.to("#then-chip", { boxShadow: GLOW, scale: 1.05, duration: DUR.focus, ease: EASE.focus }, "+=0.25");
+        pop(tl, "#order-1", "+=0.1");
+        tl.to("#then-chip", { boxShadow: "none", scale: 1, opacity: 0.5, duration: DUR.focus, ease: EASE.focus }, "+=0.25");
+
+        // only now does the single macrotask get a turn
+        tl.to("#timeout-chip", { boxShadow: GLOW, scale: 1.05, duration: DUR.focus, ease: EASE.focus }, "+=0.3");
+        pop(tl, "#order-2", "+=0.1");
+        tl.to("#timeout-chip", { boxShadow: "none", scale: 1, opacity: 0.5, duration: DUR.focus, ease: EASE.focus }, "+=0.25");
       } else {
         // reduced motion: jump to labeled end-state, both drained in order
         tl.set("#script-frame", { opacity: 0 })
-          .set(["#micro-token", "#macro-token"], { opacity: 0.4 })
-          .set(["#micro-order", "#macro-order"], { opacity: 1, scale: 1 });
+          .set(["#then-chip", "#timeout-chip"], { opacity: 0.5, scale: 1, boxShadow: "none" })
+          .set(["#order-1", "#order-2"], { opacity: 1, scale: 1 });
       }
       register(tl);
       return tl;
@@ -45,38 +61,32 @@ export function MicrotasksVsMacrotasksVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 240" className="w-full max-w-md" role="img"
-      aria-label="A running script schedules a Promise.then callback into the microtask queue and a setTimeout callback into the macrotask queue at nearly the same moment. Once the script finishes, the microtask queue drains first and is marked 1st, and only after it is fully empty does the macrotask queue's callback run, marked 2nd">
-      <g id="script-frame">
-        <rect x="110" y="16" width="140" height="34" rx="6" className="fill-[var(--color-muted)] stroke-[var(--color-border)]" />
-        <text x="122" y="38" className="fill-[var(--color-foreground)] text-[10px]">script (sync)</text>
-      </g>
+    <Stage
+      refEl={scope}
+      height={300}
+      label="A running script schedules a Promise.then callback into the microtask queue and a setTimeout callback into the macrotask queue at nearly the same moment. Once the script finishes and the call stack empties, the microtask queue drains first and is marked 1st, and only once it is completely empty does the macrotask queue's callback run, marked 2nd"
+    >
+      <Panel label="Call stack" style={{ left: 0, top: 0, width: 400, height: 70 }} />
+      <Panel label="Microtask queue" style={{ left: 0, top: 86, width: 400, height: 96 }} />
+      <Panel label="Macrotask queue" style={{ left: 0, top: 196, width: 400, height: 96 }} />
 
-      <rect x="16" y="66" width="150" height="150" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="26" y="82" className="fill-[var(--color-primary)] text-[10px]">Microtask Queue</text>
+      <Frame id="script-frame" className="justify-center" style={{ left: 130, top: 16, width: 140, height: 38 }}>
+        script()
+      </Frame>
 
-      <rect x="194" y="66" width="150" height="150" rx="8" className="fill-none stroke-[var(--color-border)]" />
-      <text x="204" y="82" className="fill-[var(--color-secondary-foreground)] text-[10px]">Macrotask Queue</text>
+      <Chip id="then-chip" style={{ position: "absolute", left: 130, top: 122 }}>
+        Promise.then(fn)
+      </Chip>
+      <Chip id="timeout-chip" className="!bg-[var(--color-secondary)] !text-foreground" style={{ position: "absolute", left: 128, top: 232 }}>
+        setTimeout(fn, 0)
+      </Chip>
 
-      <g id="micro-token">
-        <rect x="31" y="110" width="120" height="40" rx="6" className="fill-[var(--color-primary)]" opacity="0.15" />
-        <rect x="31" y="110" width="120" height="40" rx="6" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="41" y="134" className="fill-[var(--color-foreground)] text-[10px]">Promise.then(fn)</text>
-      </g>
-      <g id="macro-token">
-        <rect x="209" y="110" width="120" height="40" rx="6" className="fill-[var(--color-secondary)]" opacity="0.4" />
-        <rect x="209" y="110" width="120" height="40" rx="6" className="fill-none stroke-[var(--color-secondary)]" />
-        <text x="219" y="134" className="fill-[var(--color-foreground)] text-[10px]">setTimeout(fn, 0)</text>
-      </g>
-
-      <g id="micro-order">
-        <circle cx="151" cy="110" r="14" className="fill-[var(--color-primary)]" />
-        <text x="145" y="115" className="fill-[var(--color-background)] text-[11px] font-semibold">1</text>
-      </g>
-      <g id="macro-order">
-        <circle cx="329" cy="110" r="14" className="fill-[var(--color-secondary)]" />
-        <text x="323" y="115" className="fill-[var(--color-foreground)] text-[11px] font-semibold">2</text>
-      </g>
-    </svg>
+      <Chip id="order-1" className="!rounded-full !px-0 justify-center h-6 w-6" style={{ position: "absolute", left: 280, top: 118 }}>
+        1st
+      </Chip>
+      <Chip id="order-2" className="!rounded-full !px-0 justify-center h-6 w-6" style={{ position: "absolute", left: 280, top: 228 }}>
+        2nd
+      </Chip>
+    </Stage>
   );
 }

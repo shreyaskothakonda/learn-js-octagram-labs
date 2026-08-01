@@ -3,41 +3,57 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Panel, Frame, Chip, Eyebrow, CodeLine, enter, pop, focusOn, focusOff } from "./kit";
 
+// rex.speak() checks the rex instance first and finds no own speak property
+// (a miss badge flashes), then the execution focus walks down the __proto__
+// connector to Dog.prototype, where speak lives, and the call resolves there.
 export function PrototypesInheritanceVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: an instance box (rex) sits above a prototype box (Dog.prototype),
-      // linked by a __proto__ arrow. A lookup token for .speak checks the
-      // instance first (miss), then walks the arrow down to the prototype,
-      // finds speak() there (hit), and the call result appears.
-      gsap.set(["#instance-box", "#instance-label", "#instance-prop", "#proto-arrow", "#proto-arrowhead",
-        "#proto-arrow-label", "#proto-box", "#proto-label", "#proto-method"], { opacity: 0 });
-      gsap.set(["#highlight-instance", "#highlight-proto"], { opacity: 0 });
-      gsap.set("#token", { x: 250, y: 50, opacity: 0 });
-      gsap.set("#result-text", { opacity: 0 });
+      gsap.set(["#call-code", "#instance-panel", "#instance-frame", "#proto-panel", "#proto-frame"], {
+        opacity: 0,
+        y: 12,
+      });
+      gsap.set("#miss-chip", { opacity: 0, scale: 0.8 });
+      gsap.set(["#link-base", "#link-label"], { opacity: 0 });
+      gsap.set("#link-active", { opacity: 0 });
+      gsap.set("#result-chip", { opacity: 0, scale: 0.8 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to(["#instance-box", "#instance-label", "#instance-prop"], { opacity: 1, duration: 0.4 })
-          .to(["#proto-arrow", "#proto-arrowhead", "#proto-arrow-label"], { opacity: 1, duration: 0.3 }, "+=0.15")
-          .to(["#proto-box", "#proto-label", "#proto-method"], { opacity: 1, duration: 0.3 }, "+=0.05")
-          .to("#token", { opacity: 1, duration: 0.3 }, "+=0.25")
-          .to("#highlight-instance", { opacity: 1, duration: 0.2 })
-          .to("#highlight-instance", { opacity: 0, duration: 0.2 }, "+=0.3")
-          .to("#token", { x: 250, y: 175, duration: 0.6, ease: "power2.inOut" }, "+=0.1")
-          .to("#highlight-proto", { opacity: 1, duration: 0.2 })
-          .to("#result-text", { opacity: 1, duration: 0.3 }, "+=0.2");
+        enter(tl, "#call-code");
+        enter(tl, "#instance-panel", "+=0.1");
+        enter(tl, "#instance-frame", "<");
+        // check the instance itself first: focus lands, comes up empty
+        focusOn(tl, "#instance-frame", "+=0.2");
+        pop(tl, "#miss-chip", "+=0.15");
+        focusOff(tl, "#instance-frame", "+=0.35");
+        tl.to("#miss-chip", { opacity: 0, duration: 0.2 }, "<");
+        // the __proto__ link lights up as the lookup walks down it
+        tl.to("#link-base", { opacity: 1, duration: 0.3 }, "+=0.05");
+        tl.to("#link-label", { opacity: 1, duration: 0.3 }, "<");
+        tl.to("#link-active", { opacity: 1, duration: 0.35, ease: "power2.inOut" }, "<");
+        enter(tl, "#proto-panel", "+=0.05");
+        enter(tl, "#proto-frame", "<");
+        tl.to("#link-active", { opacity: 0, duration: 0.3 }, "+=0.1");
+        // found: speak lives on the prototype
+        focusOn(tl, "#proto-frame", "<");
+        pop(tl, "#result-chip", "+=0.15");
+        focusOff(tl, "#proto-frame", "+=0.5");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#instance-box", "#instance-label", "#instance-prop", "#proto-arrow", "#proto-arrowhead",
-          "#proto-arrow-label", "#proto-box", "#proto-label", "#proto-method"], { opacity: 1 })
-          .set("#token", { opacity: 0 })
-          .set("#highlight-proto", { opacity: 1 })
-          .set("#result-text", { opacity: 1 });
+        // reduced motion: jump to labeled end-state (found on the prototype)
+        tl.set(
+          ["#call-code", "#instance-panel", "#instance-frame", "#proto-panel", "#proto-frame", "#link-base", "#link-label"],
+          { opacity: 1, y: 0 },
+        )
+          .set("#result-chip", { opacity: 1, scale: 1 })
+          .set("#proto-frame .glow", { opacity: 1 })
+          .set("#proto-frame", { scale: 1.03 });
       }
       register(tl);
       return tl;
@@ -48,48 +64,72 @@ export function PrototypesInheritanceVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 260" className="w-full max-w-md" role="img"
-      aria-label="rex.speak() finds no own speak property on the rex instance, walks the __proto__ link down to Dog.prototype, finds speak there, and returns Rex barks">
-      <rect id="instance-box" x="90" y="15" width="180" height="70" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="instance-label" x="100" y="34" className="fill-[var(--color-muted-foreground)] text-[11px]" opacity="0">
-        rex (instance)
-      </text>
-      <text id="instance-prop" x="100" y="58" className="fill-[var(--color-foreground)] text-[11px]" opacity="0">
+    <Stage
+      refEl={scope}
+      height={300}
+      label="rex.speak() finds no own speak property on the rex instance, so the execution focus walks down the __proto__ link to Dog.prototype, finds speak there, and the call resolves to Rex barks"
+    >
+      <CodeLine id="call-code" className="whitespace-nowrap" style={{ left: 12, top: 0, width: 160 }}>
+        rex.speak()
+      </CodeLine>
+
+      <Panel id="instance-panel" label="rex (instance)" style={{ left: 40, top: 34, width: 210, height: 76 }} />
+      <Frame id="instance-frame" style={{ left: 56, top: 60, width: 178, height: 38 }}>
         name: &quot;Rex&quot;
-      </text>
-      <rect id="highlight-instance" x="90" y="15" width="180" height="70" rx="10"
-        className="fill-none stroke-[var(--color-destructive)]" strokeWidth="3" opacity="0" />
+      </Frame>
+      <Chip
+        id="miss-chip"
+        className="absolute z-10 whitespace-nowrap !bg-[var(--color-destructive)]/10 !text-[var(--color-destructive)]"
+        style={{ left: 262, top: 66 }}
+      >
+        not found
+      </Chip>
 
-      <line id="proto-arrow" x1="180" y1="85" x2="180" y2="138" className="stroke-[var(--color-muted-foreground)]"
-        strokeWidth="2" opacity="0" />
-      <polygon id="proto-arrowhead" points="180,140 174,128 186,128" className="fill-[var(--color-muted-foreground)]"
-        opacity="0" />
-      <text id="proto-arrow-label" x="188" y="115" className="fill-[var(--color-muted-foreground)] text-[10px]" opacity="0">
+      <svg
+        className="pointer-events-none absolute left-0 top-0"
+        width={320}
+        height={300}
+        viewBox="0 0 320 300"
+        aria-hidden="true"
+      >
+        <defs>
+          <marker id="proto-arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" className="fill-[var(--color-muted-foreground)]" />
+          </marker>
+        </defs>
+        <line
+          id="link-base"
+          x1="145"
+          y1="110"
+          x2="145"
+          y2="164"
+          className="stroke-[var(--color-border)]"
+          strokeWidth={2}
+          markerEnd="url(#proto-arrowhead)"
+        />
+        <line
+          id="link-active"
+          x1="145"
+          y1="110"
+          x2="145"
+          y2="164"
+          className="stroke-[var(--color-primary)]"
+          strokeWidth={2}
+        />
+      </svg>
+      <Eyebrow id="link-label" className="absolute" style={{ left: 157, top: 128 }}>
         __proto__
-      </text>
+      </Eyebrow>
 
-      <rect id="proto-box" x="90" y="140" width="180" height="70" rx="10"
-        className="fill-[var(--color-muted)] stroke-[var(--color-border)]" opacity="0" />
-      <text id="proto-label" x="100" y="159" className="fill-[var(--color-muted-foreground)] text-[11px]" opacity="0">
-        Dog.prototype
-      </text>
-      <text id="proto-method" x="100" y="183" className="fill-[var(--color-foreground)] text-[11px]" opacity="0">
+      <Panel id="proto-panel" label="Dog.prototype" style={{ left: 40, top: 168, width: 210, height: 76 }} />
+      <Frame id="proto-frame" style={{ left: 56, top: 194, width: 178, height: 38 }}>
         speak() {"{"} ... {"}"}
-      </text>
-      <rect id="highlight-proto" x="90" y="140" width="180" height="70" rx="10"
-        className="fill-none stroke-[var(--color-primary)]" strokeWidth="3" opacity="0" />
+      </Frame>
 
-      <g id="token">
-        <circle cx="0" cy="0" r="14" className="fill-[var(--color-primary)]" opacity="0.15" />
-        <circle cx="0" cy="0" r="14" className="fill-none stroke-[var(--color-primary)]" />
-        <text x="0" y="4" textAnchor="middle" className="fill-[var(--color-foreground)] text-[9px]">.speak</text>
-      </g>
-
-      <text id="result-text" x="180" y="240" textAnchor="middle" opacity="0"
-        className="fill-[var(--color-primary)] text-[11px]">
-        rex.speak() returns &quot;Rex barks&quot;
-      </text>
-    </svg>
+      <div className="absolute flex items-center gap-2" style={{ left: 12, top: 262 }}>
+        <Eyebrow>Result</Eyebrow>
+        <Chip id="result-chip">&quot;Rex barks&quot;</Chip>
+      </div>
+    </Stage>
   );
 }

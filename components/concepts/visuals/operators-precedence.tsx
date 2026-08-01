@@ -3,35 +3,44 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { ConceptVisualProps } from "./index";
+import { Stage, Frame, Chip, Eyebrow, enter, exit, pop, focusOn, focusOff, EASE, DUR } from "./kit";
 
+// 2 + 3 * 4 collapses in precedence order. The execution focus lands on the
+// sub-expression that evaluates next: first the multiplication (it binds
+// tighter), then the remaining addition, before the final result settles.
 export function OperatorsPrecedenceVisual({ register }: ConceptVisualProps) {
-  const scope = useRef<SVGSVGElement>(null);
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
     const build = (animate: boolean) => {
       const tl = gsap.timeline({ paused: true });
-      // Scene: 2 + 3 * 4 collapses in precedence order. A highlight first
-      // marks 3 * 4 (multiplication binds tighter), the expression is
-      // replaced by 2 + 12, a highlight marks the remaining addition, and
-      // that collapses to the final result 14.
-      gsap.set(["#expr0", "#highlight0", "#label0"], { opacity: 0 });
-      gsap.set(["#expr1", "#highlight1", "#label1"], { opacity: 0 });
-      gsap.set(["#expr2", "#label2"], { opacity: 0 });
+      gsap.set(["#tok-2", "#sub-mul", "#sub-add", "#result-final"], { opacity: 0, y: 12 });
+      gsap.set("#plus", { opacity: 0 });
+      gsap.set(["#note-a", "#note-b", "#note-c"], { opacity: 0, y: 12 });
+      gsap.set(".glow", { opacity: 0 });
 
       if (animate) {
-        tl.to("#expr0", { opacity: 1, duration: 0.4 })
-          .to(["#highlight0", "#label0"], { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#expr0", { opacity: 0, duration: 0.3 }, "+=0.6")
-          .to(["#highlight0", "#label0"], { opacity: 0, duration: 0.3 }, "<")
-          .to("#expr1", { opacity: 1, duration: 0.4 }, "+=0.1")
-          .to(["#highlight1", "#label1"], { opacity: 1, duration: 0.3 }, "+=0.3")
-          .to("#expr1", { opacity: 0, duration: 0.3 }, "+=0.6")
-          .to(["#highlight1", "#label1"], { opacity: 0, duration: 0.3 }, "<")
-          .to(["#expr2", "#label2"], { opacity: 1, duration: 0.4 }, "+=0.1");
+        pop(tl, "#tok-2");
+        tl.to("#plus", { opacity: 1, duration: DUR.enter, ease: EASE.enter }, "<");
+        enter(tl, "#sub-mul", "<");
+        enter(tl, "#note-a", "+=0.1");
+        focusOn(tl, "#sub-mul", "+=0.25");
+        focusOff(tl, "#sub-mul", "+=0.6");
+        exit(tl, "#sub-mul", "-=0.1");
+        exit(tl, "#note-a", "<");
+
+        enter(tl, "#sub-add", "+=0.1");
+        enter(tl, "#note-b", "<");
+        focusOn(tl, "#sub-add", "+=0.25");
+        focusOff(tl, "#sub-add", "+=0.6");
+        exit(tl, ["#tok-2", "#plus", "#sub-add", "#note-b"], "-=0.1");
+
+        pop(tl, "#result-final", "+=0.15");
+        enter(tl, "#note-c", "+=0.1");
       } else {
-        // reduced motion: jump to labeled end-state
-        tl.set(["#expr2", "#label2"], { opacity: 1 });
+        // reduced motion: jump to labeled end-state (final collapsed result)
+        tl.set(["#result-final", "#note-c"], { opacity: 1, y: 0 });
       }
       register(tl);
       return tl;
@@ -42,34 +51,33 @@ export function OperatorsPrecedenceVisual({ register }: ConceptVisualProps) {
   }, { scope });
 
   return (
-    <svg ref={scope} viewBox="0 0 360 180" className="w-full max-w-md" role="img"
-      aria-label="The expression 2 plus 3 times 4 collapses in precedence order. 3 times 4 is highlighted and evaluated first to 12, giving 2 plus 12, then that addition is highlighted and evaluated to the final result 14">
-      <rect id="highlight0" x="84" y="48" width="80" height="26" rx="5"
-        className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-      <text id="expr0" x="20" y="65" textLength="144" lengthAdjust="spacingAndGlyphs"
-        className="fill-[var(--color-foreground)] text-[16px] font-mono">
-        2 + 3 * 4
-      </text>
-      <text id="label0" x="84" y="95" className="fill-[var(--color-muted-foreground)] text-[10px]">
-        * binds tighter than + : evaluate first
-      </text>
+    <Stage
+      refEl={scope}
+      height={180}
+      label="The expression 2 plus 3 times 4 collapses in precedence order. The multiplication 3 times 4 takes the execution focus first, since it binds tighter, and evaluates to 12, leaving 2 plus 12; that addition then takes the focus and evaluates to the final result 14"
+    >
+      <Chip id="tok-2" className="absolute" style={{ left: 16, top: 58 }}>2</Chip>
+      <span id="plus" className="absolute font-mono text-[16px] text-foreground" style={{ left: 52, top: 58 }}>+</span>
+      <Frame id="sub-mul" style={{ left: 76, top: 50, width: 84, height: 32 }} className="justify-center text-[13px]">
+        3 * 4
+      </Frame>
+      <Eyebrow id="note-a" className="absolute" style={{ left: 16, top: 100 }}>
+        * binds tighter than +: evaluate first
+      </Eyebrow>
 
-      <rect id="highlight1" x="20" y="48" width="96" height="26" rx="5"
-        className="fill-[var(--color-primary)] stroke-[var(--color-primary)]" opacity="0.15" />
-      <text id="expr1" x="20" y="65" textLength="96" lengthAdjust="spacingAndGlyphs"
-        className="fill-[var(--color-foreground)] text-[16px] font-mono">
-        2 + 12
-      </text>
-      <text id="label1" x="20" y="95" className="fill-[var(--color-muted-foreground)] text-[10px]">
+      <Frame id="sub-add" style={{ left: 76, top: 50, width: 84, height: 32 }} className="justify-center text-[13px]">
+        12
+      </Frame>
+      <Eyebrow id="note-b" className="absolute" style={{ left: 16, top: 100 }}>
         one operator left: evaluate the addition
-      </text>
+      </Eyebrow>
 
-      <text id="expr2" x="20" y="65" className="fill-[var(--color-primary)] text-[20px] font-mono">
+      <Frame id="result-final" style={{ left: 16, top: 46, width: 84, height: 40 }} className="justify-center text-[20px] font-semibold text-[var(--color-primary)]">
         14
-      </text>
-      <text id="label2" x="20" y="95" className="fill-[var(--color-muted-foreground)] text-[10px]">
+      </Frame>
+      <Eyebrow id="note-c" className="absolute" style={{ left: 16, top: 100 }}>
         = 14 (final result)
-      </text>
-    </svg>
+      </Eyebrow>
+    </Stage>
   );
 }
