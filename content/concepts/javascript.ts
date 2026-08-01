@@ -1042,6 +1042,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Object prototypes", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Object_prototypes" },
     ],
+    pitfalls: [
+      "Assuming a missing property throws an error; the lookup just keeps walking the chain and returns undefined once it reaches null.",
+      "Confusing an instance's own properties with inherited ones, for (const key in obj) walks the whole chain unless you check hasOwnProperty.",
+      "Mutating a shared prototype method by accident, since every instance points at the same prototype object, a change there affects all of them at once.",
+    ],
+    keyTakeaways: [
+      "Property lookup walks the prototype chain: the object itself, then its [[Prototype]], and so on up to Object.prototype, then null.",
+      "A property that is not found anywhere in the chain returns undefined instead of throwing.",
+      "Shared methods live once on a prototype, not copied onto every instance, which is why arrays all share methods like map.",
+      "An object's own property always shadows a same-named property found further up the chain.",
+    ],
+    check: {
+      question: "const a = { x: 1 };\nconst b = Object.create(a);\nb.y = 2;\nconsole.log(b.x, b.y, a.y);\n\nWhat does this log?",
+      options: ["1 2 undefined", "undefined 2 undefined", "1 2 2", "undefined undefined undefined"],
+      answerIndex: 0,
+      explanation: "b.x is not an own property of b, so the lookup walks up to a and finds it there; b.y is b's own property; a never got a y property, so a.y is undefined.",
+    },
+    related: ["es6-classes", "getters-setters"],
   },
   {
     slug: "es6-classes",
@@ -1076,6 +1094,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Classes", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes" },
     ],
+    pitfalls: [
+      "Forgetting to call super() in a subclass constructor before using this; a derived class constructor must call super() first.",
+      "Calling a class without new, which throws, unlike an old-style constructor function that would just run with the wrong this.",
+      "Assuming methods are copied onto each instance; they live once on the prototype, so overriding one instance's method does not touch the class.",
+    ],
+    keyTakeaways: [
+      "class is sugar over a constructor function plus methods placed on its prototype.",
+      "new creates the object, links it to Class.prototype, and runs the constructor with this bound to the new object.",
+      "extends chains one prototype to another, and super calls the parent constructor or method.",
+      "Static members live on the class itself, not on the prototype or on instances.",
+    ],
+    check: {
+      question: "class Animal {\n  speak() { return \"...\"; }\n}\nconst a = new Animal();\n\nWhere does the speak method actually live?",
+      options: ["On the object a itself", "On Animal.prototype, shared by every instance", "On the global Animal function object", "It is recreated fresh on every call"],
+      answerIndex: 1,
+      explanation: "Methods written in a class body, other than the constructor, are placed on the class's prototype, so all instances share the same function instead of each getting their own copy.",
+    },
+    related: ["prototypes-inheritance", "getters-setters"],
   },
   {
     slug: "getters-setters",
@@ -1110,6 +1146,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: get", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get" },
     ],
+    pitfalls: [
+      "Naming a setter the same as the field it writes to, like set age(v) { this.age = v; }, which calls the setter again and overflows the call stack.",
+      "Forgetting a setter has no return value that matters, whatever it returns is ignored, only the assignment expression's value is used.",
+      "Adding a heavy computation to a getter and calling it in a loop, since it reruns on every read instead of being cached like a plain field.",
+    ],
+    keyTakeaways: [
+      "get runs when the property is read, set runs when the property is assigned, both without needing parentheses to call them.",
+      "Getters are useful for values computed from other fields, so there is nothing to keep in sync by hand.",
+      "Setters are useful for validating or transforming a value before it is stored.",
+      "The real data usually lives in a differently named or private field so the setter does not call itself.",
+    ],
+    check: {
+      question: "class Box {\n  set value(v) {\n    this.value = v;\n  }\n}\nconst b = new Box();\nb.value = 5;\n\nWhat happens?",
+      options: ["b.value becomes 5", "Nothing happens, the assignment is silently ignored", "It throws a RangeError from infinite recursion", "It logs undefined"],
+      answerIndex: 2,
+      explanation: "The setter assigns to this.value, which triggers the same setter again, and again, with no base case, so the call stack overflows.",
+    },
+    related: ["es6-classes"],
   },
   {
     slug: "the-event-loop",
@@ -1264,6 +1318,25 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: JavaScript modules", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" },
     ],
+    pitfalls: [
+      "Assuming an imported value is a snapshot copied at import time; it is a live binding, so it reflects later changes the exporting module makes.",
+      "Mixing up default and named exports, importing a default with curly braces or a named export without them fails.",
+      "Forgetting that module code always runs in strict mode, so patterns that rely on sloppy mode, like an undeclared global, throw instead of silently working.",
+      "Expecting a module's top-level code to rerun on every import; it only runs once, and every importer shares that same single instance.",
+    ],
+    keyTakeaways: [
+      "export exposes bindings from a file, import reads them, no curly braces for a default export, curly braces for named ones.",
+      "An import is a live, read only binding to the exporter's variable, not a copy taken at import time.",
+      "A module's code runs once no matter how many files import it, and everyone shares that same instance.",
+      "Module code runs in strict mode automatically, even without a \"use strict\" directive.",
+    ],
+    check: {
+      question: "// counter.js\nexport let count = 0;\nexport function inc() { count++; }\n\n// app.js\nimport { count, inc } from \"./counter.js\";\ninc();\nconsole.log(count);\n\nWhat does this log?",
+      options: ["0, because count was copied at import time", "1, because the import is a live binding to counter.js's count", "undefined, because count is not initialized yet", "It throws a ReferenceError"],
+      answerIndex: 1,
+      explanation: "Imports are live read only bindings, not copies, so after inc() changes counter.js's count, app.js sees the updated value on its next read.",
+    },
+    related: ["closures"],
   },
   {
     slug: "regular-expressions",
