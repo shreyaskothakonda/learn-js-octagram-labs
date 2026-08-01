@@ -7,6 +7,13 @@ export type ConceptExample = {
   explanation: string;
 };
 
+export type ConceptCheck = {
+  question: string;
+  options: string[];
+  answerIndex: number;
+  explanation?: string;
+};
+
 export type Concept = {
   slug: string;
   track: ConceptTrack;
@@ -20,4 +27,8 @@ export type Concept = {
   visual: string;
   furtherReading?: Resource[];
   course?: CourseRef;
+  pitfalls?: string[];
+  keyTakeaways?: string[];
+  check?: ConceptCheck;
+  related?: string[];
 };

@@ -17,30 +17,44 @@ const base: Concept = {
 const problemIds = new Set(["js-closures-001"]);
 const visualKeys = new Set(["closures"]);
 const topics = new Set(["A Closer Look at Functions"]);
+const slugs = new Set(["closures"]);
 
 describe("validateConcept", () => {
   it("accepts a valid concept", () => {
-    expect(validateConcept(base, problemIds, visualKeys, topics)).toEqual([]);
+    expect(validateConcept(base, problemIds, visualKeys, topics, slugs)).toEqual([]);
   });
   it("rejects a non-kebab slug", () => {
-    expect(validateConcept({ ...base, slug: "Closures" }, problemIds, visualKeys, topics))
+    expect(validateConcept({ ...base, slug: "Closures" }, problemIds, visualKeys, topics, slugs))
       .toContain("slug must be kebab-case: Closures");
   });
   it("rejects an empty definition", () => {
-    expect(validateConcept({ ...base, definition: "" }, problemIds, visualKeys, topics))
+    expect(validateConcept({ ...base, definition: "" }, problemIds, visualKeys, topics, slugs))
       .toContain("concept closures missing definition");
   });
   it("rejects an unknown related problem id", () => {
-    expect(validateConcept({ ...base, relatedProblemIds: ["nope"] }, problemIds, visualKeys, topics))
+    expect(validateConcept({ ...base, relatedProblemIds: ["nope"] }, problemIds, visualKeys, topics, slugs))
       .toContain("concept closures references unknown problem: nope");
   });
   it("rejects an unregistered visual", () => {
-    expect(validateConcept({ ...base, visual: "ghost" }, problemIds, visualKeys, topics))
+    expect(validateConcept({ ...base, visual: "ghost" }, problemIds, visualKeys, topics, slugs))
       .toContain("concept closures references unknown visual: ghost");
   });
   it("rejects an unknown topic", () => {
-    expect(validateConcept({ ...base, topic: "Nope" }, problemIds, visualKeys, new Set(["A Closer Look at Functions"])))
+    expect(validateConcept({ ...base, topic: "Nope" }, problemIds, visualKeys, new Set(["A Closer Look at Functions"]), slugs))
       .toContain("concept closures references unknown topic: Nope");
+  });
+  it("rejects a check with an out-of-range answerIndex", () => {
+    const check = { question: "What is a closure?", options: ["A", "B"], answerIndex: 2 };
+    expect(validateConcept({ ...base, check }, problemIds, visualKeys, topics, slugs))
+      .toContain("concept closures check answerIndex out of range");
+  });
+  it("rejects a related slug that is not known", () => {
+    expect(validateConcept({ ...base, related: ["nope"] }, problemIds, visualKeys, topics, slugs))
+      .toContain("concept closures references unknown related concept: nope");
+  });
+  it("rejects a concept listing itself as related", () => {
+    expect(validateConcept({ ...base, related: ["closures"] }, problemIds, visualKeys, topics, slugs))
+      .toContain("concept closures lists itself as related");
   });
 });
 
@@ -52,10 +66,11 @@ import { TOPICS } from "./manifest";
 describe("concept registry integrity", () => {
   const problemIds = new Set(getAllProblems().map((p) => p.id));
   const keys = new Set(registryVisualKeys);
+  const knownSlugs = new Set(getAllConcepts().map((c) => c.slug));
   it("every concept passes validation", () => {
     for (const c of getAllConcepts()) {
       const knownTopics = new Set(TOPICS[c.track].map((t) => t.topic));
-      expect(validateConcept(c, problemIds, keys, knownTopics), c.slug).toEqual([]);
+      expect(validateConcept(c, problemIds, keys, knownTopics, knownSlugs), c.slug).toEqual([]);
     }
   });
   it("slugs are unique", () => {
