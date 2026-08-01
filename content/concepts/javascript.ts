@@ -323,6 +323,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Type coercion", url: "https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion" },
     ],
+    pitfalls: [
+      "Using `+` and expecting addition, but getting string concatenation because one operand was already a string.",
+      "Trusting `typeof null` to mean null is an object; it's a long-standing quirk, not a real object type.",
+      "Relying on implicit coercion in a `==` comparison instead of converting explicitly, which can produce surprising matches.",
+    ],
+    keyTakeaways: [
+      "`+` prefers strings and concatenates if either side is a string; `-`, `*`, and `/` prefer numbers and coerce both sides.",
+      "`typeof null` returns `\"object\"`, a historic bug kept for compatibility, not proof that null is an object.",
+      "Explicit conversion with `Number()`, `String()`, or `Boolean()` is safer than relying on an operator to coerce implicitly.",
+    ],
+    check: {
+      question: "What does `\"5\" + 1` evaluate to?",
+      options: [
+        "6, because + always adds numbers",
+        "\"51\", because + concatenates when either side is a string",
+        "\"6\", because + first converts both sides to numbers then to a string",
+        "NaN, because \"5\" cannot be coerced",
+      ],
+      answerIndex: 1,
+      explanation: "+ prefers strings, so when either operand is a string it converts the other to a string and concatenates, giving \"51\".",
+    },
+    related: ["primitives-vs-references", "truthy-falsy"],
   },
   {
     slug: "let-const-var-tdz",
@@ -357,6 +379,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Temporal dead zone (TDZ)", url: "https://developer.mozilla.org/en-US/docs/Glossary/Temporal_dead_zone_TDZ" },
     ],
+    pitfalls: [
+      "Assuming a `var` declared inside an `if` or `for` block stays scoped to that block; it actually leaks into the whole function.",
+      "Reading a `let`/`const` before its declaration line and expecting `undefined`, when it actually throws a ReferenceError.",
+      "Thinking `const` makes an object fully immutable; it only locks the binding, so the object's own properties can still be changed.",
+    ],
+    keyTakeaways: [
+      "`var` is function-scoped and hoisted as `undefined`; `let`/`const` are block-scoped and sit in the TDZ until their line runs.",
+      "Reading a `let`/`const` before its declaration throws a ReferenceError, not `undefined`.",
+      "`const` locks the variable binding, not the value it points to.",
+    ],
+    check: {
+      question: "`var i` is declared inside a `for` loop. What happens to `i` after the loop finishes?",
+      options: [
+        "i is only accessible inside the loop body",
+        "i still exists in the enclosing function scope, holding its final value",
+        "i throws a ReferenceError outside the loop",
+        "i resets to undefined outside the loop",
+      ],
+      answerIndex: 1,
+      explanation: "var ignores block boundaries like the loop body, so i leaks into the enclosing function scope and keeps its last value after the loop ends.",
+    },
+    related: ["hoisting", "scope-chain"],
   },
   {
     slug: "truthy-falsy",
@@ -391,6 +435,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Truthy", url: "https://developer.mozilla.org/en-US/docs/Glossary/Truthy" },
     ],
+    pitfalls: [
+      "Treating `\"0\"` or an empty array `[]` as falsy because they look empty; only the eight exact falsy values coerce to false.",
+      "Using `value || fallback` for a default and accidentally discarding a real `0` or empty string.",
+      "Forgetting that `NaN` is falsy, so a failed numeric check can be mistaken for a valid falsy business value.",
+    ],
+    keyTakeaways: [
+      "Only `false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined`, and `NaN` are falsy; everything else is truthy.",
+      "Arrays and objects are always truthy, even when empty.",
+      "Use `??` instead of `||` when `0` or `\"\"` should count as a valid value.",
+    ],
+    check: {
+      question: "Which of these values is truthy?",
+      options: ["0", "\"\"", "[]", "null"],
+      answerIndex: 2,
+      explanation: "An empty array is still an object, and objects are always truthy regardless of their contents; the other three are among the eight falsy values.",
+    },
+    related: ["data-types-and-coercion", "optional-chaining-nullish"],
   },
   {
     slug: "operators-precedence",
@@ -425,6 +486,24 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Operator precedence", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence" },
     ],
+    pitfalls: [
+      "Assuming operators always run strictly left to right, and missing that `*` and `/` bind tighter than `+` and `-`.",
+      "Expecting `**` to be left-associative like most operators; it is actually right-associative, so `2 ** 3 ** 2` groups from the right.",
+      "Mixing `&&` and `||` without parentheses and misreading which one groups first, since `&&` binds tighter than `||`.",
+    ],
+    keyTakeaways: [
+      "Precedence decides which operator runs first when types differ; associativity breaks ties between operators of equal precedence.",
+      "`*` and `/` bind tighter than `+` and `-`; `&&` binds tighter than `||`.",
+      "`**` and assignment are right-associative; most other binary operators are left-associative.",
+      "Parentheses always override precedence and associativity, and are the clearest way to force a specific order.",
+    ],
+    check: {
+      question: "What does `2 + 3 * 4` evaluate to?",
+      options: ["20", "14", "24", "9"],
+      answerIndex: 1,
+      explanation: "* has higher precedence than +, so 3 * 4 is evaluated first to give 12, then 2 + 12 gives 14.",
+    },
+    related: ["data-types-and-coercion"],
   },
   {
     slug: "destructuring",
@@ -459,6 +538,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Destructuring assignment", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment" },
     ],
+    pitfalls: [
+      "Mixing up array destructuring (matches by position) and object destructuring (matches by name), and pulling out the wrong value.",
+      "Destructuring a property from a value that might be `undefined`, without a default, causing a TypeError instead of a fallback.",
+      "Forgetting that a default value only applies when the property is missing or `undefined`, not when it is explicitly `null`.",
+    ],
+    keyTakeaways: [
+      "Array destructuring unpacks by position; object destructuring unpacks by property name.",
+      "A default value only kicks in when the corresponding value is `undefined`.",
+      "Destructuring can rename bindings and reach into nested structures in one pattern.",
+    ],
+    check: {
+      question: "`const { name: userName = \"Guest\" } = {};` What is `userName`?",
+      options: ["undefined", "\"Guest\"", "\"name\"", "It throws a ReferenceError"],
+      answerIndex: 1,
+      explanation: "The object has no name property, so it is undefined, and the default \"Guest\" fills in for the missing value.",
+    },
+    related: ["spread-and-rest"],
   },
   {
     slug: "spread-and-rest",
@@ -493,6 +589,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Spread syntax", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" },
     ],
+    pitfalls: [
+      "Assuming spread makes a deep copy; it only copies the top level, so nested objects and arrays are still shared by reference.",
+      "Placing a rest parameter anywhere but last, or trying to use more than one in a single pattern; rest must be the final item.",
+      "Spreading an object and then setting the same key again, and being surprised the later key wins instead of the spread value.",
+    ],
+    keyTakeaways: [
+      "Spread expands an array or object's own values into a new one; rest gathers leftover values into an array.",
+      "Spread makes a shallow copy; nested objects and arrays remain shared with the original.",
+      "A rest element must come last in a destructuring pattern or parameter list.",
+    ],
+    check: {
+      question: "`const base = { role: \"user\" }; const admin = { ...base, role: \"admin\" };` What is `admin.role`?",
+      options: ["\"user\"", "\"admin\"", "undefined", "It throws an error because role is duplicated"],
+      answerIndex: 1,
+      explanation: "Spread copies base's properties first, so the explicit role: \"admin\" that comes after it overrides the spread value.",
+    },
+    related: ["destructuring"],
   },
   {
     slug: "optional-chaining-nullish",
@@ -527,6 +640,23 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Optional chaining", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining" },
     ],
+    pitfalls: [
+      "Using `||` to apply a default and accidentally overriding a legitimate `0` or empty string, when `??` was the safer choice.",
+      "Assuming `?.` prevents every error in a chain, when a typo further down the chain, like calling a method that does not exist, can still throw.",
+      "Forgetting that `?.` short-circuits the whole expression to `undefined`, so code expecting a specific error to be thrown will not see one.",
+    ],
+    keyTakeaways: [
+      "`?.` stops safely at the first null or undefined and returns `undefined` instead of throwing.",
+      "`??` only falls back for null or undefined, unlike `||` which falls back for any falsy value.",
+      "`0 ?? 5` is `0`, but `0 || 5` is `5`, because `0` is falsy but not nullish.",
+    ],
+    check: {
+      question: "`const volume = 0; const result = volume ?? 100;` What is `result`?",
+      options: ["100, because 0 is falsy", "0, because ?? only falls back on null or undefined", "undefined", "NaN"],
+      answerIndex: 1,
+      explanation: "?? treats 0 as a present value since it is neither null nor undefined, so the real value wins over the default.",
+    },
+    related: ["truthy-falsy"],
   },
   {
     slug: "maps-and-sets",
@@ -561,6 +691,28 @@ export const javascriptConcepts: Concept[] = [
     furtherReading: [
       { label: "MDN: Map", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" },
     ],
+    pitfalls: [
+      "Using a plain object as a Map replacement and expecting non-string keys to stay distinct; object keys get coerced to strings.",
+      "Assuming a Set collapses duplicate-looking objects; each distinct object reference is still added as a separate entry.",
+      "Iterating a Map like an array and forgetting entries come back as `[key, value]` pairs, not plain values.",
+    ],
+    keyTakeaways: [
+      "A Set stores unique values; adding a duplicate value does nothing.",
+      "A Map accepts any value as a key and preserves insertion order.",
+      "Both Map and Set give average O(1) lookup, unlike scanning an array with includes or find.",
+    ],
+    check: {
+      question: "`const set = new Set(); set.add({}); set.add({});` What is `set.size`?",
+      options: [
+        "1, because both are empty objects",
+        "2, because each object is a distinct reference",
+        "0, because objects cannot be added to a Set",
+        "It throws an error",
+      ],
+      answerIndex: 1,
+      explanation: "Set compares values like ===, and two separately created objects are different references even if they look identical, so both are added.",
+    },
+    related: ["primitives-vs-references"],
   },
   {
     slug: "higher-order-functions",
