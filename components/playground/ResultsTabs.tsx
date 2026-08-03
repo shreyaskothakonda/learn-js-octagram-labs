@@ -16,7 +16,7 @@ export function ResultsTabs({ problem, result, srcdoc }: { problem: Problem; res
         {showHtml && <TabsTrigger value="html">HTML View</TabsTrigger>}
       </TabsList>
       <div className="flex-1 overflow-auto border-t min-h-0" aria-live="polite">
-        <TabsContent value="tests"><TestResults result={result} /></TabsContent>
+        <TabsContent value="tests"><TestResults result={result} problem={problem} /></TabsContent>
         <TabsContent value="console"><ConsoleOutput result={result} /></TabsContent>
         {showHtml && <TabsContent value="html" className="h-full"><HtmlView srcdoc={srcdoc} /></TabsContent>}
       </div>

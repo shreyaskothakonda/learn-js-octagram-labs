@@ -12,7 +12,7 @@ function deepEqual(a, b) {
 
 self.onmessage = (e) => {
   const { kind, code, functionName, testCases } = e.data;
-  const start = Date.now();
+  const start = performance.now();
   const consoleLogs = [];
   const fakeConsole = {
     log: (...args) => consoleLogs.push(args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ")),
@@ -21,23 +21,25 @@ self.onmessage = (e) => {
   if (kind === "script") {
     try {
       new Function("console", code)(fakeConsole);
-      self.postMessage({ consoleLogs, runtimeMs: Date.now() - start });
+      self.postMessage({ consoleLogs, runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
     } catch (err) {
-      self.postMessage({ consoleLogs, error: String((err && err.message) || err), runtimeMs: Date.now() - start });
+      self.postMessage({ consoleLogs, error: String((err && err.message) || err), runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
     }
     return;
   }
 
   if (kind === "harness") {
     const caseResults = testCases.map((tc, index) => {
+      const caseStart = performance.now();
+      const base = { index, run: tc.run, hidden: !!tc.hidden, description: tc.description, expected: tc.expected };
       try {
         const actual = new Function("console", `${code}\n${tc.run}`)(fakeConsole);
-        return { index, passed: deepEqual(actual, tc.expected), expected: tc.expected, actual, description: tc.description };
+        return { ...base, passed: deepEqual(actual, tc.expected), actual, durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
       } catch (err) {
-        return { index, passed: false, expected: tc.expected, error: String((err && err.message) || err), description: tc.description };
+        return { ...base, passed: false, error: String((err && err.message) || err), durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
       }
     });
-    self.postMessage({ caseResults, consoleLogs, runtimeMs: Date.now() - start });
+    self.postMessage({ caseResults, consoleLogs, runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
     return;
   }
 
@@ -45,20 +47,22 @@ self.onmessage = (e) => {
   try {
     fn = new Function("console", `${code}; return ${functionName};`)(fakeConsole);
     if (typeof fn !== "function") {
-      self.postMessage({ caseResults: [], consoleLogs, error: `${functionName} is not defined`, runtimeMs: Date.now() - start });
+      self.postMessage({ caseResults: [], consoleLogs, error: `${functionName} is not defined`, runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
       return;
     }
   } catch (err) {
-    self.postMessage({ caseResults: [], consoleLogs, error: String(err && err.message || err), runtimeMs: Date.now() - start });
+    self.postMessage({ caseResults: [], consoleLogs, error: String(err && err.message || err), runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
     return;
   }
   const caseResults = testCases.map((tc, index) => {
+    const caseStart = performance.now();
+    const base = { index, input: tc.input || [], hidden: !!tc.hidden, expected: tc.expected };
     try {
       const actual = fn(...(tc.input || []));
-      return { index, passed: deepEqual(actual, tc.expected), expected: tc.expected, actual };
+      return { ...base, passed: deepEqual(actual, tc.expected), actual, durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
     } catch (err) {
-      return { index, passed: false, expected: tc.expected, error: String(err && err.message || err) };
+      return { ...base, passed: false, error: String(err && err.message || err), durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
     }
   });
-  self.postMessage({ caseResults, consoleLogs, runtimeMs: Date.now() - start });
+  self.postMessage({ caseResults, consoleLogs, runtimeMs: Math.round((performance.now() - start) * 100) / 100 });
 };

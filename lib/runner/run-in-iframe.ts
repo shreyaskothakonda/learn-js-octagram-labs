@@ -3,7 +3,11 @@ import type { TestCase } from "@/content/types";
 
 /** Builds the srcdoc used for execution: runs all asserts and postMessages results. */
 export function buildRunnerSrcdoc(html: string, code: string, testCases: TestCase[]): string {
-  const asserts = testCases.map((tc) => ({ description: tc.description ?? "", assert: tc.assert ?? "false" }));
+  const asserts = testCases.map((tc) => ({
+    description: tc.description ?? "",
+    assert: tc.assert ?? "false",
+    hidden: !!tc.hidden,
+  }));
   return `<!doctype html><html><head><meta charset="utf-8"></head><body>
 ${html}
 <script>
@@ -20,11 +24,15 @@ ${html}
   try { ${code} } catch (e) { fatal = String(e && e.message || e); }
   var cases = ${JSON.stringify(asserts)};
   var caseResults = cases.map(function (c, i) {
+    var caseStart = performance.now();
     try {
+      // eval is intentional here: assertions are authored in this repo's problem
+      // content and run inside a sandboxed, non-same-origin iframe, so they need
+      // to be evaluated against the live document the learner's code just built.
       var passed = !!eval(c.assert);
-      return { index: i, passed: passed, description: c.description };
+      return { index: i, passed: passed, description: c.description, assert: c.assert, hidden: c.hidden, durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
     } catch (e) {
-      return { index: i, passed: false, description: c.description, error: String(e && e.message || e) };
+      return { index: i, passed: false, description: c.description, assert: c.assert, hidden: c.hidden, error: String(e && e.message || e), durationMs: Math.round((performance.now() - caseStart) * 100) / 100 };
     }
   });
   parent.postMessage({ __runner: true, caseResults: caseResults, consoleLogs: logs, error: fatal }, "*");
