@@ -137,11 +137,14 @@ export function Chip({
   className?: string;
   children: ReactNode;
 }) {
-  const placed = isPlaced(style) && !className.includes("absolute") ? "absolute " : "";
+  // A placed chip is absolute, which already anchors the glow layer. An inline
+  // chip needs relative for the same reason. They are mutually exclusive: using
+  // both lets one position utility override the other in the Tailwind cascade.
+  const position = isPlaced(style) || className.includes("absolute") ? "absolute" : "relative";
   return (
     <span
       id={id}
-      className={`${placed}relative inline-flex items-center justify-center rounded-md bg-[var(--color-primary)]/10 px-2 py-1 font-mono text-[12px] font-semibold text-[var(--color-primary)] ${className}`}
+      className={`${position} inline-flex items-center justify-center rounded-md bg-[var(--color-primary)]/10 px-2 py-1 font-mono text-[12px] font-semibold text-[var(--color-primary)] ${className}`}
       style={style}
     >
       {/* Same focus layer Frame carries, so focusOn/focusOff work on a chip too. */}
