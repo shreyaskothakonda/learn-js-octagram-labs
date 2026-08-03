@@ -123,6 +123,21 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "object-keys-values-entries": lazy(() =>
     import("./object-keys-values-entries").then((m) => ({ default: m.ObjectKeysValuesEntriesVisual })),
   ),
+  "json-serialization": lazy(() =>
+    import("./json-serialization").then((m) => ({ default: m.JsonSerializationVisual })),
+  ),
+  "timers-and-scheduling": lazy(() =>
+    import("./timers-and-scheduling").then((m) => ({ default: m.TimersAndSchedulingVisual })),
+  ),
+  "debounce-and-throttle": lazy(() =>
+    import("./debounce-and-throttle").then((m) => ({ default: m.DebounceAndThrottleVisual })),
+  ),
+  "dom-events-and-delegation": lazy(() =>
+    import("./dom-events-and-delegation").then((m) => ({ default: m.DomEventsAndDelegationVisual })),
+  ),
+  "immutable-update-patterns": lazy(() =>
+    import("./immutable-update-patterns").then((m) => ({ default: m.ImmutableUpdatePatternsVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

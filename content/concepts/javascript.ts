@@ -1778,4 +1778,273 @@ export const javascriptConcepts: Concept[] = [
     },
     related: ["destructuring", "maps-and-sets"],
   },
+  {
+    slug: "json-serialization",
+    track: "javascript",
+    topic: "Beyond the Course",
+    title: "JSON Serialization",
+    oneLiner: "JSON.stringify and JSON.parse move data to and from text, but not every value survives the trip.",
+    definition:
+      "JSON.stringify turns a JavaScript value into a JSON text string, and JSON.parse turns that text back into a value. The round trip is lossy in specific, predictable ways. Inside an object, a property whose value is undefined, a function, or a symbol is dropped entirely from the output; the same values inside an array are not dropped but replaced with null, because arrays must keep their length and index positions. Numbers that JSON cannot represent, NaN and Infinity, also serialize to null.\n\nDates get special handling: JSON.stringify calls a Date's toJSON method, which returns an ISO string, so a Date becomes a plain string in the JSON text. Parsing that string back with JSON.parse does not turn it back into a Date; it stays a string unless you convert it yourself. Circular references, where an object points back to itself through some chain of properties, throw a TypeError instead of producing output, since there is no way to represent an infinite structure as finite text.",
+    examples: [
+      {
+        code: "const data = {\n  name: \"Ada\",\n  score: undefined,\n  greet: function () {},\n  joined: new Date(\"2024-01-01\"),\n};\nJSON.stringify(data);\n// '{\"name\":\"Ada\",\"joined\":\"2024-01-01T00:00:00.000Z\"}'",
+        explanation: "score and greet are dropped because undefined and functions are not valid JSON values. joined survives, but only as the ISO string its toJSON method returns.",
+      },
+      {
+        code: "JSON.stringify([1, undefined, function () {}, NaN]);\n// '[1,null,null,null]'",
+        explanation: "Inside an array, values that would be dropped from an object become null instead, so the array keeps its original length.",
+      },
+      {
+        code: "const restored = JSON.parse(JSON.stringify({ joined: new Date() }));\ntypeof restored.joined; // \"string\", not a Date",
+        explanation: "Parsing never re-creates a Date automatically; the round trip leaves you with the ISO string you serialized.",
+      },
+    ],
+    realWorldUseCases: [
+      "Sending a JavaScript object to a server as the body of a fetch request.",
+      "Saving structured data to localStorage, which only stores strings.",
+      "Deep-cloning a plain object or array with JSON.parse(JSON.stringify(x)), knowing it drops functions and undefined.",
+      "Debugging why a date field comes back as a string after loading data from an API or storage.",
+    ],
+    relatedProblemIds: ["js-json-001", "js-objects-008", "js-objects-011"],
+    visual: "json-serialization",
+    furtherReading: [
+      { label: "MDN: JSON.stringify", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify" },
+    ],
+    pitfalls: [
+      "Assuming a Date survives JSON.parse(JSON.stringify(x)); it comes back as a plain string, not a Date instance.",
+      "Forgetting that undefined and function properties silently disappear from objects instead of raising an error.",
+      "Serializing an object that contains a circular reference and being surprised by a thrown TypeError instead of truncated output.",
+    ],
+    keyTakeaways: [
+      "undefined, functions, and symbols are dropped from objects but become null inside arrays.",
+      "NaN and Infinity are not valid JSON numbers, so they also serialize to null.",
+      "Dates serialize to ISO strings and do not automatically revive as Dates on parse.",
+      "Circular references throw instead of producing output.",
+    ],
+    check: {
+      question: "What does JSON.stringify({ a: undefined, b: [undefined] }) produce?",
+      options: [
+        "'{\"a\":null,\"b\":[null]}'",
+        "'{\"b\":[null]}'",
+        "'{\"a\":undefined,\"b\":[undefined]}'",
+        "'{\"b\":[]}'",
+      ],
+      answerIndex: 1,
+      explanation: "undefined properties are dropped from objects entirely, but inside an array undefined is kept as a slot and converted to null so the array's length is preserved.",
+    },
+    related: ["primitives-vs-references", "data-types-and-coercion"],
+  },
+  {
+    slug: "timers-and-scheduling",
+    track: "javascript",
+    topic: "Numbers, Dates & Timers",
+    title: "Timers and Scheduling",
+    oneLiner: "setTimeout and setInterval schedule work for later, but the delay you give them is a minimum, not a promise.",
+    definition:
+      "setTimeout(fn, delay) schedules fn to run once, after at least delay milliseconds. setInterval(fn, delay) does the same thing repeatedly, firing fn again and again every delay milliseconds, until something stops it. Both hand their callback to the browser or runtime, which waits out the delay and then places the callback in the macrotask queue. It only actually runs once the call stack is completely empty and the event loop reaches it, so a delay of 0 does not mean immediately; it means as soon as everything already queued to run has finished.\n\nThis is why the delay is described as a minimum. If the main thread is busy running other synchronous code when a timer's moment arrives, the callback waits in the queue until the stack clears, so the real-world gap between ticks can stretch well past the requested delay. clearInterval(id) (and clearTimeout(id) for a single timer) cancels a pending or repeating timer using the id that setInterval or setTimeout returned; once cleared, the callback will not run again, even if it was already due.",
+    examples: [
+      {
+        code: "console.log(\"a\");\nsetTimeout(() => console.log(\"b\"), 0);\nconsole.log(\"c\");\n// logs: a, c, b",
+        explanation: "Even with a 0ms delay, the timer callback is queued as a macrotask and only runs after the synchronous code (a, c) finishes and the stack is empty.",
+      },
+      {
+        code: "let count = 0;\nconst id = setInterval(() => {\n  count++;\n  console.log(count);\n  if (count === 3) clearInterval(id);\n}, 1000);",
+        explanation: "The callback fires roughly every 1000ms until it calls clearInterval, which cancels any future tick using the id setInterval returned.",
+      },
+    ],
+    realWorldUseCases: [
+      "Polling a server for updates every few seconds with setInterval, and stopping the poll with clearInterval when the component unmounts.",
+      "Delaying a UI action, like showing a tooltip, with a short setTimeout so it does not flicker on quick mouse movements.",
+      "Building a countdown or a ticking clock display that updates once per second.",
+      "Debugging a UI update that arrives later than expected because a heavy synchronous task blocked the timer's turn on the stack.",
+    ],
+    relatedProblemIds: ["js-numdate-001", "js-numdate-006", "js-numdate-012"],
+    visual: "timers-and-scheduling",
+    furtherReading: [
+      { label: "MDN: setInterval", url: "https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval" },
+    ],
+    pitfalls: [
+      "Assuming setTimeout(fn, 0) runs fn immediately; it still waits for the current synchronous code and the queue ahead of it.",
+      "Forgetting to store and later clear an interval id, leaving a setInterval running after the component or page no longer needs it.",
+      "Expecting setInterval's delay to be exact over a long run; a busy stack can delay individual ticks, and those delays are not made up later.",
+    ],
+    keyTakeaways: [
+      "setTimeout and setInterval schedule a callback for at least the given delay, never exactly the given delay.",
+      "A queued timer callback only runs once the call stack is empty and its turn comes up.",
+      "setInterval keeps firing on a cadence until clearInterval cancels it using the returned id.",
+      "A busy main thread can push a tick later than requested; the delay is a floor, not a guarantee.",
+    ],
+    check: {
+      question: "Why does setTimeout(() => console.log(\"done\"), 0) not log \"done\" before code that runs right after it?",
+      options: [
+        "setTimeout with 0ms delay is ignored by the engine",
+        "The callback is queued and only runs after the current synchronous code finishes and the stack is empty",
+        "console.log inside a callback always runs slower than a normal console.log",
+        "0ms delay is rounded up to run before any other code",
+      ],
+      answerIndex: 1,
+      explanation: "Even a 0ms delay only queues the callback as a macrotask; it must wait for the stack to empty, so any synchronous code written after the setTimeout call still runs first.",
+    },
+    related: ["the-event-loop", "microtasks-vs-macrotasks"],
+  },
+  {
+    slug: "debounce-and-throttle",
+    track: "javascript",
+    topic: "A Closer Look at Functions",
+    title: "Debounce and Throttle",
+    oneLiner: "Two ways to tame a rapid-fire event: wait for quiet before reacting, or react on a steady schedule no matter how fast events arrive.",
+    definition:
+      "Debounce and throttle both wrap a function so it runs less often than the event that triggers it, but they make different promises. A debounced function waits for a pause: every new call resets a timer, and the wrapped function only actually runs once that timer finishes without being reset again, meaning it fires once, after the burst of calls has gone quiet. A throttled function makes a different promise: it runs at most once per fixed interval, no matter how many times it is called during that interval, so it keeps firing at a steady cadence throughout a burst instead of waiting for it to end.\n\nBoth are typically built with closures over a timer id (or a last-run timestamp) that a rapid stream of calls shares, which is why they are usually implemented as higher-order functions: a function that takes your handler and returns a new, rate-limited version of it. Debounce suits input you only care about once it settles, like a search box waiting for someone to stop typing. Throttle suits input you want to keep responding to steadily even while it keeps happening, like a scroll or resize handler.",
+    examples: [
+      {
+        code: "function debounce(fn, wait) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), wait);\n  };\n}\nconst onSearch = debounce((q) => runSearch(q), 300);\n// typing \"cat\" fast only calls runSearch once, 300ms after the last keystroke",
+        explanation: "Every call clears the previous timer and starts a new one, so only the last call in a burst ever survives long enough to actually run fn.",
+      },
+      {
+        code: "function throttle(fn, wait) {\n  let last = 0;\n  return (...args) => {\n    const now = Date.now();\n    if (now - last >= wait) {\n      last = now;\n      fn(...args);\n    }\n  };\n}\nconst onScroll = throttle(() => updatePosition(), 200);\n// scrolling continuously still calls updatePosition about every 200ms",
+        explanation: "Each call checks how long it has been since the last run; only once wait milliseconds have passed does it run fn again and reset the clock.",
+      },
+    ],
+    realWorldUseCases: [
+      "Debouncing a search input so a network request only fires after the user stops typing.",
+      "Throttling a window scroll or resize listener so layout calculations run on a steady cadence instead of on every pixel of movement.",
+      "Debouncing a save-as-you-type feature so it writes once the user pauses, instead of on every keystroke.",
+      "Throttling a drag handler so position updates happen at a smooth, bounded rate instead of hundreds of times per second.",
+    ],
+    relatedProblemIds: ["js-memoize-001", "js-closures-006", "js-fp-003"],
+    visual: "debounce-and-throttle",
+    furtherReading: [
+      { label: "MDN: setTimeout", url: "https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout" },
+    ],
+    pitfalls: [
+      "Reaching for throttle when you only care about the final state; debounce (fire once, after things settle) is usually the better fit.",
+      "Reaching for debounce on a scroll or drag handler, which then never fires at all while the user keeps moving continuously.",
+      "Forgetting to clear the pending timer when a debounced function's owning component unmounts, letting a stale call fire later.",
+    ],
+    keyTakeaways: [
+      "Debounce fires once, only after calls stop arriving for the configured wait.",
+      "Throttle fires repeatedly, at most once per fixed interval, throughout a burst.",
+      "Both are commonly built as a closure over shared timer or timestamp state, wrapping the original function.",
+      "Choosing between them depends on whether you want the final result only, or steady updates throughout.",
+    ],
+    check: {
+      question: "A user scrolls continuously for 2 seconds. A handler is throttled to run at most once every 500ms. Roughly how many times does the handler run?",
+      options: [
+        "Once, after the scrolling stops",
+        "About 4 times, spread across the 2 seconds",
+        "Hundreds of times, once per scroll event",
+        "Zero times, throttle blocks it entirely",
+      ],
+      answerIndex: 1,
+      explanation: "Throttle runs the handler on a steady cadence during the burst, roughly once per interval, so about 4 runs fit in 2 seconds at a 500ms interval.",
+    },
+    related: ["closures", "higher-order-functions"],
+  },
+  {
+    slug: "dom-events-and-delegation",
+    track: "javascript",
+    topic: "DOM & Events",
+    title: "DOM Events and Delegation",
+    oneLiner: "A click does not just happen on the element you tapped; it bubbles up through every ancestor, and one listener up top can catch it all.",
+    definition:
+      "Most DOM events fire in phases. The event is first dispatched at the target element (the thing the user actually clicked or touched), and then it bubbles: it fires again on that element's parent, then that parent's parent, and so on up to the document. (There is also an earlier capture phase, which travels down from the document to the target before bubbling starts, but most listeners are written for the bubble phase, which is the default.) Because of bubbling, a listener attached to an ancestor still runs for events that originate on any of its descendants, not only on the ancestor itself.\n\nEvent delegation takes advantage of this: instead of attaching a separate listener to every child element (which is wasteful, and misses children added later), you attach a single listener to a stable parent and, inside it, check event.target to see which specific descendant the event actually started on. This is why delegation is common for lists, tables, and any UI where items are added or removed dynamically: the parent's one listener keeps working for every item, old and new, without ever needing to be reattached.",
+    examples: [
+      {
+        code: "list.addEventListener(\"click\", (event) => {\n  if (event.target.matches(\"button.delete\")) {\n    event.target.closest(\"li\").remove();\n  }\n});",
+        explanation: "One listener on the list handles clicks on every delete button inside it, including buttons in list items added after this listener was attached.",
+      },
+      {
+        code: "document.addEventListener(\"click\", (e) => console.log(\"document saw it\"));\nbutton.addEventListener(\"click\", (e) => console.log(\"button saw it\"));\n// clicking the button logs: \"button saw it\", then \"document saw it\"",
+        explanation: "The event fires on the target first, then bubbles upward, so the button's own listener runs before the document's listener sees the same click.",
+      },
+    ],
+    realWorldUseCases: [
+      "Attaching one click listener to a list or table to handle clicks on any row, including rows added dynamically later.",
+      "Handling clicks across a whole app with a single listener on a top-level container, routing based on data attributes on the clicked element.",
+      "Avoiding the memory and performance cost of attaching hundreds of individual listeners to items in a large, changing list.",
+      "Debugging why a click handler never fires on an element that was added to the page after the listeners were originally set up.",
+    ],
+    relatedProblemIds: ["js-dom-004", "js-dom-005", "js-dom-009"],
+    visual: "dom-events-and-delegation",
+    furtherReading: [
+      { label: "MDN: Event bubbling", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling" },
+    ],
+    pitfalls: [
+      "Attaching a listener directly to a dynamically added element and forgetting elements added later have no listener of their own.",
+      "Checking event.currentTarget instead of event.target inside a delegated listener, which always points at the parent, not the actual clicked descendant.",
+      "Forgetting a click can originate on a nested child (like an icon inside a button) so event.target may not be the element you expected; closest() helps find the right ancestor.",
+    ],
+    keyTakeaways: [
+      "Events fire at the target first, then bubble upward through each ancestor in turn.",
+      "Event delegation attaches one listener to a stable parent instead of one listener per child.",
+      "Inside a delegated listener, event.target identifies which descendant the event actually started on.",
+      "Delegation keeps working for elements added to the parent after the listener was attached.",
+    ],
+    check: {
+      question: "A page has a single click listener on document, and a user clicks a button nested inside several divs. In what order do the click listeners run, assuming each ancestor also has one?",
+      options: [
+        "Only the document's listener runs; nested elements do not receive their own event",
+        "From the target outward: the button's own listener first, then each ancestor's, ending at document",
+        "From document inward: document's listener first, then each ancestor's, ending at the button",
+        "All matching listeners run at the exact same time, in no particular order",
+      ],
+      answerIndex: 1,
+      explanation: "After the event fires at the target, it bubbles outward, running each ancestor's listener in order from the innermost element up to document.",
+    },
+    related: ["higher-order-functions", "closures"],
+  },
+  {
+    slug: "immutable-update-patterns",
+    track: "javascript",
+    topic: "Modern JavaScript",
+    title: "Immutable Update Patterns",
+    oneLiner: "To change one nested value without mutating anything, you copy every level on the path down to it, and reuse everything else as-is.",
+    definition:
+      "An immutable update replaces a piece of nested state with a new value without ever mutating the original object or array in place. Because objects and arrays are stored by reference, you cannot just reach into a nested field and assign to it; that would mutate the original object, and anything else still holding a reference to it (another variable, a previous render, an undo history) would see the change too. Instead, you build a new outer object whose properties are copies of the old ones, except the one property on the path to the change, which itself becomes a new object built the same way, recursively, until you reach the value you actually want to change.\n\nThe key insight is that only the objects on the path from the root to the changed value need to be copied. A sibling branch that the update never touches, an object hanging off a property you did not change, can be reused exactly as it was; the new parent object simply keeps the same reference to it. This is called structural sharing: the new and old trees share every part they did not change, and only the path to the actual edit consists of freshly created objects. Spread syntax (...) is the common tool for building each of those shallow copies.",
+    examples: [
+      {
+        code: "const state = { user: { name: \"Ada\", address: { city: \"NYC\" } }, items: [1, 2, 3] };\nconst next = {\n  ...state,\n  user: { ...state.user, address: { ...state.user.address, city: \"Boston\" } },\n};\nnext.items === state.items; // true, untouched branch is reused",
+        explanation: "state, user, and address are all copied because they sit on the path to city, but items was never touched, so next.items is literally the same array reference as state.items.",
+      },
+      {
+        code: "// Mutating instead: breaks sharing assumptions\nstate.user.address.city = \"Boston\"; // avoid: mutates the original object in place",
+        explanation: "This changes state directly, so any other code holding a reference to the old state (or its user or address) sees the mutation too, which is exactly what immutable updates are meant to avoid.",
+      },
+    ],
+    realWorldUseCases: [
+      "Updating nested React or Redux state, where a component only re-renders if it gets a new reference for the data it reads.",
+      "Implementing undo history, where each past state must stay exactly as it was, unaffected by later edits.",
+      "Updating one item inside an array of objects by mapping to a new array with only that one item replaced.",
+      "Debugging why a UI does not re-render even though data changed, usually because it was mutated in place instead of replaced with a new reference.",
+    ],
+    relatedProblemIds: ["js-s17-001", "js-s17-002", "js-es6-009"],
+    visual: "immutable-update-patterns",
+    furtherReading: [
+      { label: "MDN: Spread syntax", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" },
+    ],
+    pitfalls: [
+      "Spreading only the top level and forgetting nested objects still share the old reference, so a deeper mutation slips through unnoticed.",
+      "Mutating a nested field directly because it feels shorter, breaking any code that relies on reference equality to detect changes.",
+      "Assuming an immutable update requires copying the entire tree; only the objects on the path to the change need to be new.",
+    ],
+    keyTakeaways: [
+      "An immutable update copies every object on the path from the root down to the changed value.",
+      "Branches the update never touches keep their original reference; nothing about them needs to be copied.",
+      "This sharing of untouched branches between old and new state is called structural sharing.",
+      "Spread syntax is the common way to build each shallow copy on the path.",
+    ],
+    check: {
+      question: "In an immutable update to state.user.address.city, which parts of state end up as brand new objects?",
+      options: [
+        "Only the city string itself",
+        "state, state.user, and state.user.address, since they are all on the path to the change",
+        "Every property anywhere in state, copied all the way down",
+        "Nothing needs to be new as long as the final value is correct",
+      ],
+      answerIndex: 1,
+      explanation: "Only the objects on the path from the root to the changed value need new copies; sibling branches like state.items keep their original reference.",
+    },
+    related: ["spread-and-rest", "primitives-vs-references"],
+  },
 ];
