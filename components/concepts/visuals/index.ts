@@ -71,6 +71,13 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "iterators-generators": lazy(() =>
     import("./iterators-generators").then((m) => ({ default: m.IteratorsGeneratorsVisual })),
   ),
+  "arrays-two-pointers": lazy(() =>
+    import("./arrays-two-pointers").then((m) => ({ default: m.ArraysTwoPointersVisual })),
+  ),
+  "hash-maps": lazy(() => import("./hash-maps").then((m) => ({ default: m.HashMapsVisual }))),
+  stacks: lazy(() => import("./stacks").then((m) => ({ default: m.StacksVisual }))),
+  queues: lazy(() => import("./queues").then((m) => ({ default: m.QueuesVisual }))),
+  "linked-lists": lazy(() => import("./linked-lists").then((m) => ({ default: m.LinkedListsVisual }))),
 };
 
 export const visualKeys = Object.keys(registry);
