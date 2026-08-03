@@ -108,6 +108,21 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   "bit-manipulation": lazy(() =>
     import("./bit-manipulation").then((m) => ({ default: m.BitManipulationVisual })),
   ),
+  "error-handling": lazy(() =>
+    import("./error-handling").then((m) => ({ default: m.ErrorHandlingVisual })),
+  ),
+  "template-literals-and-strings": lazy(() =>
+    import("./template-literals-and-strings").then((m) => ({ default: m.TemplateLiteralsAndStringsVisual })),
+  ),
+  "short-circuit-and-ternary": lazy(() =>
+    import("./short-circuit-and-ternary").then((m) => ({ default: m.ShortCircuitAndTernaryVisual })),
+  ),
+  "array-search-methods": lazy(() =>
+    import("./array-search-methods").then((m) => ({ default: m.ArraySearchMethodsVisual })),
+  ),
+  "object-keys-values-entries": lazy(() =>
+    import("./object-keys-values-entries").then((m) => ({ default: m.ObjectKeysValuesEntriesVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

@@ -1520,4 +1520,262 @@ export const javascriptConcepts: Concept[] = [
     },
     related: ["higher-order-functions"],
   },
+  {
+    slug: "error-handling",
+    track: "javascript",
+    topic: "Asynchronous JavaScript",
+    title: "Error Handling: try, catch, finally",
+    oneLiner: "try/catch lets your code recover from a thrown error instead of crashing, and finally always cleans up.",
+    definition:
+      "A `try` block runs code that might fail. If any statement inside it throws, execution jumps straight to the matching `catch` block, which receives the thrown value (usually an `Error` object) and can log it, recover, or decide to throw again. Code after the point of failure inside `try` never runs, but code inside `catch` runs in its place, so the program keeps going instead of crashing. You can throw your own errors with the `throw` keyword, using a plain value or, better, an `Error` (or a subclass of it) so callers get a `message` and a stack trace.\n\nA `finally` block, if present, runs after `try`/`catch` no matter what happened: whether the `try` block finished cleanly, threw and was caught, or even threw again from inside `catch`. This makes it the right place for cleanup that must always happen, like closing a connection or hiding a loading spinner. One sharp edge is that a `return` (or `throw`) inside `finally` overrides whatever the `try` or `catch` block was about to return. With `async`/`await`, a rejected promise behaves like a thrown error, so wrapping an `await` in `try`/`catch` catches it the same way a synchronous throw would.",
+    examples: [
+      {
+        code: "function safeParse(json) {\n  try {\n    return JSON.parse(json);\n  } catch (err) {\n    console.error(\"Bad JSON:\", err.message);\n    return null;\n  }\n}\nsafeParse(\"{}\"); // {}\nsafeParse(\"not json\"); // null, error logged",
+        explanation: "JSON.parse throws on invalid input; catch stops that error from crashing the caller and returns a safe fallback instead.",
+      },
+      {
+        code: "function withCleanup() {\n  try {\n    throw new Error(\"failed\");\n  } finally {\n    console.log(\"cleanup runs\");\n  }\n}\n// logs \"cleanup runs\", then the error still propagates",
+        explanation: "finally runs even though there is no catch here; it does not swallow the error, the error still propagates after finally finishes.",
+      },
+      {
+        code: "async function loadUser(id) {\n  try {\n    const res = await fetch(`/users/${id}`);\n    if (!res.ok) throw new Error(\"request failed\");\n    return await res.json();\n  } catch (err) {\n    console.error(err.message);\n    return null;\n  }\n}",
+        explanation: "await rejects like a synchronous throw, so the same try/catch that handles thrown errors also catches a failed fetch or a manually thrown error.",
+      },
+    ],
+    realWorldUseCases: [
+      "Parsing JSON or other user-supplied data without letting a malformed payload crash the app.",
+      "Wrapping a network request so a failed fetch shows an error message instead of an unhandled rejection.",
+      "Validating input by throwing a descriptive error and catching it at a boundary to show one friendly message.",
+      "Guaranteeing cleanup code (closing a file, clearing a timer, hiding a spinner) runs whether or not the operation succeeded.",
+    ],
+    relatedProblemIds: ["js-errors-001", "js-errors-002", "js-errors-004", "js-errors-005"],
+    visual: "error-handling",
+    furtherReading: [
+      { label: "MDN: try...catch", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch" },
+    ],
+    pitfalls: [
+      "Catching every error the same way and swallowing it silently, which hides real bugs instead of fixing them.",
+      "Forgetting that a return or throw inside finally overrides any return or throw from try or catch.",
+      "Awaiting a promise outside of a try/catch (and with no .catch), which leaves a rejection unhandled instead of caught.",
+    ],
+    keyTakeaways: [
+      "try/catch stops a thrown error from crashing the program and lets you handle it in one place.",
+      "finally always runs, whether the try block succeeded, threw, or was caught, making it the spot for required cleanup.",
+      "A return or throw inside finally overrides an earlier return or throw from try or catch.",
+      "Wrapping an await in try/catch catches a rejected promise the same way it catches a synchronous throw.",
+    ],
+    check: {
+      question: "function run() {\n  try {\n    return \"from try\";\n  } finally {\n    return \"from finally\";\n  }\n}\nrun();",
+      options: ["\"from try\"", "\"from finally\"", "undefined", "It throws an error"],
+      answerIndex: 1,
+      explanation: "A return inside finally always wins, overriding the return that try was about to make, so run() returns \"from finally\".",
+    },
+    related: ["promises", "async-await"],
+  },
+  {
+    slug: "template-literals-and-strings",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Template Literals and Strings",
+    oneLiner: "Backtick strings let you drop expressions right into the text and write real multiline strings.",
+    definition:
+      "A template literal is a string written between backticks (`` ` ``) instead of quotes. Inside it, `${expression}` interpolates the result of any JavaScript expression directly into the string, so `` `Hi, ${name}!` `` builds a string without manual concatenation. Template literals also allow real line breaks typed directly into the source, so multiline text no longer needs `\\n` escapes glued together with `+`. A tagged template goes one step further: writing a function name right before the backticks (like `` tag`Hi, ${name}` ``) calls that function with the literal's text pieces and its interpolated values kept separate, which is how libraries build things like safely-escaped HTML or styled-components CSS.\n\nStrings themselves are immutable: every string method returns a new string rather than changing the original. Common ones include `slice`/`substring` for extracting a piece, `split` for turning a string into an array on a separator, `includes`/`startsWith`/`endsWith` for checks, `trim` for removing surrounding whitespace, `replace`/`replaceAll` for substitution, and `padStart`/`padEnd` for fixed-width formatting. Template literals and these methods are typically used together: build the shape with a template literal, then clean up or inspect the pieces with string methods.",
+    examples: [
+      {
+        code: "const name = \"Ada\";\nconst role = \"engineer\";\nconst msg = `Hello, ${name}! You are an ${role}.`;\n// \"Hello, Ada! You are an engineer.\"",
+        explanation: "Each ${} placeholder is replaced with the result of evaluating the expression inside it, then everything is joined into one string.",
+      },
+      {
+        code: "const block = `Line one\nLine two`;\n// contains a real newline between the two lines",
+        explanation: "A literal line break typed inside the backticks becomes part of the string, with no \\n escape needed.",
+      },
+      {
+        code: "\" Hello World \".trim().toLowerCase().split(\" \");\n// [\"hello\", \"world\"]",
+        explanation: "trim removes the surrounding spaces, toLowerCase normalizes case, and split turns the cleaned string into an array of words; none of these methods change the original string.",
+      },
+    ],
+    realWorldUseCases: [
+      "Building dynamic user-facing messages, like \"3 items in your cart\", without messy string concatenation.",
+      "Formatting log lines or error messages that embed variable values inline.",
+      "Normalizing and validating user input with trim, toLowerCase, and includes before comparing or storing it.",
+      "Generating small HTML or SQL fragments from a template, or building one with a tagged template for safe escaping.",
+    ],
+    relatedProblemIds: ["js-strings-005", "js-strings-006", "js-strings-009", "js-strings-010"],
+    visual: "template-literals-and-strings",
+    furtherReading: [
+      { label: "MDN: Template literals", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals" },
+    ],
+    pitfalls: [
+      "Writing ${name} inside regular quotes instead of backticks; without backticks it is just literal text, not interpolation.",
+      "Assuming a string method like slice or replace mutates the original string; it always returns a new string instead.",
+      "Forgetting that a tagged template's function receives the literal text pieces and the interpolated values as separate arguments, not one combined string.",
+    ],
+    keyTakeaways: [
+      "Backticks enable ${expression} interpolation and let real newlines appear directly in the string.",
+      "String methods never mutate; slice, split, replace, and friends all return a new string or array.",
+      "A tagged template calls a function with the literal's text pieces and its interpolated values kept separate.",
+    ],
+    check: {
+      question: "const x = 2;\nconst y = \"${x + 1}\"; // note: plain quotes, not backticks\n\nWhat is y?",
+      options: ["\"3\"", "The literal text \"${x + 1}\"", "undefined", "It throws a SyntaxError"],
+      answerIndex: 1,
+      explanation: "${} only interpolates inside backtick template literals. With plain double quotes it is just ordinary text, so y is the literal string \"${x + 1}\".",
+    },
+    related: ["short-circuit-and-ternary", "data-types-and-coercion"],
+  },
+  {
+    slug: "short-circuit-and-ternary",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Short-Circuit Evaluation and the Ternary Operator",
+    oneLiner: "&&, ||, and ?? can skip evaluating their right side entirely, and the ternary operator picks exactly one of two values from a single condition.",
+    definition:
+      "`&&` and `||` do not always evaluate both sides. `&&` checks its left operand first: if it is falsy, `&&` returns that value immediately and never evaluates the right side at all; only if the left side is truthy does it evaluate and return the right side. `||` works the opposite way: if the left operand is truthy, it returns that value right away and skips the right side; only when the left side is falsy does it evaluate and return the right side. This is called short-circuiting, and it means the skipped side's expression, including any function call it contains, never runs.\n\n`??` (nullish coalescing) looks similar to `||` but checks a narrower condition: it only falls through to its right side when the left side is `null` or `undefined`, not for any other falsy value. This matters a lot for numbers like `0` or an empty string `\"\"`, which are falsy but often valid, real values: `0 || 5` gives `5` because `0` is falsy, while `0 ?? 5` gives `0` because `0` is neither null nor undefined. The ternary (conditional) operator, written `condition ? ifTrue : ifFalse`, is a separate but related idea: it evaluates the condition once and then evaluates and returns only the branch that matches, so exactly one of `ifTrue`/`ifFalse` ever runs.",
+    examples: [
+      {
+        code: "const user = null;\nuser && user.name; // null, user.name is never read\n\nconst count = 0;\ncount || 10; // 10, because 0 is falsy\ncount ?? 10; // 0, because 0 is not null or undefined",
+        explanation: "&& stops at the falsy user and never touches user.name; || treats 0 as \"missing\" and replaces it, but ?? correctly keeps 0 since it only checks for null/undefined.",
+      },
+      {
+        code: "function log(label, value) {\n  console.log(label, value);\n  return value;\n}\ntrue || log(\"never runs\", 1);\nfalse && log(\"never runs\", 2);\n// neither log() call executes; both calls are skipped",
+        explanation: "The right side of || is skipped once the left side is truthy, and the right side of && is skipped once the left side is falsy, so log() is never called in either line.",
+      },
+      {
+        code: "const age = 20;\nconst label = age >= 18 ? \"adult\" : \"minor\";\n// \"adult\"; the \"minor\" branch is never evaluated",
+        explanation: "The ternary evaluates the condition once, then evaluates and returns only the matching branch, here \"adult\", leaving the other branch untouched.",
+      },
+    ],
+    realWorldUseCases: [
+      "Providing a default value with ?? that still allows 0, an empty string, or false as a real, intentional value.",
+      "Guarding a property access with && before a chain existed, like user && user.profile && user.profile.bio.",
+      "Choosing between two small render values or labels with a ternary instead of a full if/else block.",
+      "Skipping an expensive or side-effecting call on the right of && or || when the left side already decides the outcome.",
+    ],
+    relatedProblemIds: ["js-s9-005", "js-s9-006", "js-s9-007"],
+    visual: "short-circuit-and-ternary",
+    furtherReading: [
+      { label: "MDN: Logical operators", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND" },
+    ],
+    pitfalls: [
+      "Reaching for || to supply a default and accidentally replacing valid falsy values like 0 or \"\"; ?? avoids this by checking only for null/undefined.",
+      "Assuming the right side of && or || always runs; it may be skipped entirely, so it should not be relied on for a required side effect.",
+      "Chaining several ternaries into one dense, hard-to-read line instead of a clearer if/else or a small lookup.",
+    ],
+    keyTakeaways: [
+      "&& returns the first falsy operand it finds, or the last operand if every operand is truthy.",
+      "|| returns the first truthy operand it finds, or the last operand if every operand is falsy.",
+      "?? only falls through on null or undefined, so 0, \"\", and false pass through it untouched.",
+      "The ternary operator evaluates exactly one of its two branches based on a single condition.",
+    ],
+    check: {
+      question: "const count = 0;\nconst a = count || 10;\nconst b = count ?? 10;\n\nWhat are a and b?",
+      options: ["a is 0, b is 10", "a is 10, b is 0", "a is 10, b is 10", "a is 0, b is 0"],
+      answerIndex: 1,
+      explanation: "0 is falsy, so || replaces it and a becomes 10. 0 is not null or undefined, so ?? keeps it and b stays 0.",
+    },
+    related: ["truthy-falsy", "optional-chaining-nullish"],
+  },
+  {
+    slug: "array-search-methods",
+    track: "javascript",
+    topic: "Working With Arrays",
+    title: "Array Search Methods",
+    oneLiner: "find, findIndex, some, every, and includes all scan an array and can stop as soon as they know the answer.",
+    definition:
+      "`find` and `findIndex` both walk an array from the start, calling a callback on each element until the callback returns a truthy value. `find` returns the matching element itself, or `undefined` if nothing matched; `findIndex` returns the matching index instead, or `-1` if nothing matched. Both stop scanning the moment a match is found, so any elements after it are never checked.\n\n`some` and `every` answer yes/no questions about an array and both short-circuit too. `some` returns `true` the moment any element makes the callback return truthy, and only returns `false` after checking every element and finding none; `every` returns `false` the moment any element makes the callback return falsy, and only returns `true` after every element passes. `includes` checks whether an array directly contains a given value (not a callback result), and unlike the older `indexOf`, `includes` correctly reports `true` for `NaN`, because it uses a comparison that treats `NaN` as equal to itself.",
+    examples: [
+      {
+        code: "const users = [{ id: 1 }, { id: 2 }, { id: 3 }];\nusers.find(u => u.id === 2); // { id: 2 }\nusers.findIndex(u => u.id === 2); // 1\nusers.find(u => u.id === 99); // undefined",
+        explanation: "find returns the matching object itself, findIndex returns its position, and both return the \"not found\" value (undefined or -1) if nothing matches.",
+      },
+      {
+        code: "const scores = [72, 88, 91, 60];\nscores.every(s => s >= 60); // true, every score passes\nscores.some(s => s >= 90); // true, stops at 91\nscores.every(s => s >= 70); // false, stops at 60",
+        explanation: "every keeps checking until it finds one score below 70 and stops there; some stops as soon as it finds one score of 90 or higher.",
+      },
+      {
+        code: "[1, 2, NaN].includes(NaN); // true\n[1, 2, NaN].indexOf(NaN); // -1",
+        explanation: "includes finds NaN correctly, but indexOf cannot, because indexOf compares with === and NaN === NaN is false.",
+      },
+    ],
+    realWorldUseCases: [
+      "Looking up a single record by id in a small in-memory list with find, without writing a manual loop.",
+      "Validating that every field in a form passes its rule with every, stopping at the first failure.",
+      "Checking whether a shopping cart contains at least one out-of-stock item with some.",
+      "Testing membership of a value, including NaN, with includes instead of a manual comparison loop.",
+    ],
+    relatedProblemIds: ["js-arrays-004", "js-arraymethods-009", "js-arraymethods-008", "js-arraymethods-005"],
+    visual: "array-search-methods",
+    furtherReading: [
+      { label: "MDN: Array.prototype.find", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find" },
+    ],
+    pitfalls: [
+      "Confusing find, which returns the matching value, with findIndex, which returns the matching position.",
+      "Assuming every returns false for an empty array; it actually returns true, since there is no element to fail the check.",
+      "Reaching for indexOf to search for NaN, which never finds it, instead of includes, which does.",
+    ],
+    keyTakeaways: [
+      "find and findIndex stop scanning as soon as the callback returns true for one element.",
+      "some short-circuits on the first truthy result, every short-circuits on the first falsy result.",
+      "includes checks for a value directly and, unlike indexOf, correctly matches NaN.",
+    ],
+    check: {
+      question: "[3, 7, 12, 5].find(x => x > 10)",
+      options: ["12", "2", "true", "undefined"],
+      answerIndex: 0,
+      explanation: "find scans left to right and returns the first element itself where the callback is true; 12 is the first value greater than 10.",
+    },
+    related: ["map-filter-reduce", "higher-order-functions"],
+  },
+  {
+    slug: "object-keys-values-entries",
+    track: "javascript",
+    topic: "Data Structures, Operators & Strings",
+    title: "Object.keys, Object.values, and Object.entries",
+    oneLiner: "These three methods turn an object's own properties into arrays you can loop, map, or filter like any other array.",
+    definition:
+      "`Object.keys(obj)` returns an array of an object's own enumerable string keys. `Object.values(obj)` returns the corresponding values, in the same order as `Object.keys`. `Object.entries(obj)` returns an array of `[key, value]` pairs, one per property, which pairs naturally with destructuring in a loop: `for (const [key, value] of Object.entries(obj))`. All three only look at the object's own properties, not ones inherited through its prototype chain.\n\nThe order these methods use is not simply insertion order: any key that looks like a non-negative integer (like `\"0\"` or `\"2\"`) is listed first, sorted numerically ascending, and only after those do the remaining string keys appear, in the order they were added. Because `Object.entries` produces plain arrays, the full array toolkit (`map`, `filter`, `reduce`) becomes available for working with an object's data, and `Object.fromEntries(pairs)` reverses the process, turning an array of `[key, value]` pairs back into an object.",
+    examples: [
+      {
+        code: "const user = { name: \"Ada\", age: 30, active: true };\nObject.keys(user); // [\"name\", \"age\", \"active\"]\nObject.values(user); // [\"Ada\", 30, true]\nObject.entries(user); // [[\"name\",\"Ada\"], [\"age\",30], [\"active\",true]]",
+        explanation: "keys, values, and entries all walk the same own properties in the same order, just packaged differently.",
+      },
+      {
+        code: "const prices = { apple: 2, banana: 1, cherry: 5 };\nfor (const [name, price] of Object.entries(prices)) {\n  console.log(`${name}: $${price}`);\n}",
+        explanation: "Destructuring each [key, value] pair straight in the for...of header reads cleanly, without indexing into the pair manually.",
+      },
+      {
+        code: "const doubled = Object.fromEntries(\n  Object.entries(prices).map(([name, price]) => [name, price * 2]),\n);\n// { apple: 4, banana: 2, cherry: 10 }",
+        explanation: "entries turns the object into an array of pairs, map transforms each pair, and fromEntries builds a new object back out of the results.",
+      },
+    ],
+    realWorldUseCases: [
+      "Rendering a list of form fields or settings by mapping over Object.entries of a config object.",
+      "Converting an object into query-string pairs or a table of rows for display.",
+      "Filtering or transforming an object's properties with Object.entries plus filter/map, then rebuilding it with Object.fromEntries.",
+      "Summing or counting values in a plain object without a for...in loop, using Object.values with reduce.",
+    ],
+    relatedProblemIds: ["js-objects-003", "js-objects-004", "js-objects-005", "js-objects-009"],
+    visual: "object-keys-values-entries",
+    furtherReading: [
+      { label: "MDN: Object.entries", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries" },
+    ],
+    pitfalls: [
+      "Expecting these methods to include inherited properties from the prototype chain; they only see the object's own properties.",
+      "Assuming key order always matches the order properties were written; integer-like keys are always sorted numerically first.",
+      "Trying to for...of directly over an object instead of over Object.entries(obj); a plain object is not iterable by itself.",
+    ],
+    keyTakeaways: [
+      "Object.keys, Object.values, and Object.entries all iterate the same own enumerable properties, in the same order as each other.",
+      "Object.entries pairs each key with its value as a two-item array, ready for array methods or destructuring.",
+      "Object.fromEntries reverses Object.entries, turning [key, value] pairs back into an object.",
+      "Integer-like keys are always listed first and sorted numerically, ahead of string keys in insertion order.",
+    ],
+    check: {
+      question: "const obj = { 2: \"b\", 1: \"a\", z: \"c\" };\nObject.keys(obj)",
+      options: ["[\"2\", \"1\", \"z\"]", "[\"1\", \"2\", \"z\"]", "[\"z\", \"1\", \"2\"]", "[\"z\", \"2\", \"1\"]"],
+      answerIndex: 1,
+      explanation: "Integer-like keys are always listed first, sorted numerically ascending (\"1\" before \"2\"), and only then does the string key \"z\" appear.",
+    },
+    related: ["destructuring", "maps-and-sets"],
+  },
 ];
