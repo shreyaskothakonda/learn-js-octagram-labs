@@ -78,6 +78,15 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   stacks: lazy(() => import("./stacks").then((m) => ({ default: m.StacksVisual }))),
   queues: lazy(() => import("./queues").then((m) => ({ default: m.QueuesVisual }))),
   "linked-lists": lazy(() => import("./linked-lists").then((m) => ({ default: m.LinkedListsVisual }))),
+  trees: lazy(() => import("./trees").then((m) => ({ default: m.TreesVisual }))),
+  "binary-search-trees": lazy(() =>
+    import("./binary-search-trees").then((m) => ({ default: m.BinarySearchTreesVisual })),
+  ),
+  "graph-traversal": lazy(() =>
+    import("./graph-traversal").then((m) => ({ default: m.GraphTraversalVisual })),
+  ),
+  heaps: lazy(() => import("./heaps").then((m) => ({ default: m.HeapsVisual }))),
+  tries: lazy(() => import("./tries").then((m) => ({ default: m.TriesVisual }))),
 };
 
 export const visualKeys = Object.keys(registry);
