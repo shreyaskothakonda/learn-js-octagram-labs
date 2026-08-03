@@ -109,6 +109,22 @@ export function Frame({
   );
 }
 
+/**
+ * True when a style places the element on the stage. Chip and Eyebrow render
+ * inline by default so they can sit in a flex row, but a scene that gives them
+ * a coordinate means them to be placed absolutely. Without this, left and top
+ * are silently ignored and the element flows into the wrong place.
+ */
+function isPlaced(style?: CSSProperties): boolean {
+  if (!style) return false;
+  return (
+    style.left !== undefined ||
+    style.top !== undefined ||
+    style.right !== undefined ||
+    style.bottom !== undefined
+  );
+}
+
 /** A small accent token (a queued task, a variable binding, an output value). */
 export function Chip({
   id,
@@ -121,10 +137,11 @@ export function Chip({
   className?: string;
   children: ReactNode;
 }) {
+  const placed = isPlaced(style) && !className.includes("absolute") ? "absolute " : "";
   return (
     <span
       id={id}
-      className={`inline-flex items-center justify-center rounded-md bg-[var(--color-primary)]/10 px-2 py-1 font-mono text-[12px] font-semibold text-[var(--color-primary)] ${className}`}
+      className={`${placed}inline-flex items-center justify-center rounded-md bg-[var(--color-primary)]/10 px-2 py-1 font-mono text-[12px] font-semibold text-[var(--color-primary)] ${className}`}
       style={style}
     >
       {children}
@@ -144,10 +161,11 @@ export function Eyebrow({
   style?: CSSProperties;
   className?: string;
 }) {
+  const placed = isPlaced(style) && !className.includes("absolute") ? "absolute " : "";
   return (
     <span
       id={id}
-      className={`font-sans text-[10px] font-medium uppercase tracking-wide text-muted-foreground ${className}`}
+      className={`${placed}font-sans text-[10px] font-medium uppercase tracking-wide text-muted-foreground ${className}`}
       style={style}
     >
       {children}
