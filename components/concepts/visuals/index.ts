@@ -87,6 +87,27 @@ const registry: Record<string, ComponentType<ConceptVisualProps>> = {
   ),
   heaps: lazy(() => import("./heaps").then((m) => ({ default: m.HeapsVisual }))),
   tries: lazy(() => import("./tries").then((m) => ({ default: m.TriesVisual }))),
+  "sorting-algorithms": lazy(() =>
+    import("./sorting-algorithms").then((m) => ({ default: m.SortingAlgorithmsVisual })),
+  ),
+  "binary-search": lazy(() =>
+    import("./binary-search").then((m) => ({ default: m.BinarySearchVisual })),
+  ),
+  "sliding-window": lazy(() =>
+    import("./sliding-window").then((m) => ({ default: m.SlidingWindowVisual })),
+  ),
+  "dynamic-programming": lazy(() =>
+    import("./dynamic-programming").then((m) => ({ default: m.DynamicProgrammingVisual })),
+  ),
+  "recursion-and-backtracking": lazy(() =>
+    import("./recursion-and-backtracking").then((m) => ({ default: m.RecursionAndBacktrackingVisual })),
+  ),
+  "greedy-algorithms": lazy(() =>
+    import("./greedy-algorithms").then((m) => ({ default: m.GreedyAlgorithmsVisual })),
+  ),
+  "bit-manipulation": lazy(() =>
+    import("./bit-manipulation").then((m) => ({ default: m.BitManipulationVisual })),
+  ),
 };
 
 export const visualKeys = Object.keys(registry);

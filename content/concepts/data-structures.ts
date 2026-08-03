@@ -599,4 +599,439 @@ export const dataStructureConcepts: Concept[] = [
     },
     related: ["hash-maps", "trees", "regular-expressions"],
   },
+  {
+    slug: "sorting-algorithms",
+    track: "data-structures",
+    topic: "Sorting",
+    title: "Sorting Algorithms",
+    oneLiner:
+      "Comparison sorts put data in order by repeatedly comparing and rearranging elements, trading O(n squared) simplicity against O(n log n) efficiency.",
+    definition:
+      "A sorting algorithm rearranges the elements of a collection into an order defined by a comparison rule, usually smallest to largest. Simple sorts such as bubble sort and insertion sort repeatedly compare neighboring elements and swap the ones that are out of order; each full pass moves at least one element into its final position, so sorting n elements takes roughly n times n comparisons in the worst case, an O(n squared) algorithm. These sorts are easy to reason about and work well on small or nearly sorted inputs, but the cost grows quickly as the input grows.\n\nDivide and conquer sorts such as merge sort instead split the input in half, sort each half recursively, and then merge the two sorted halves back together in a single linear pass. Because the input is halved at every level and each level only does O(n) work to merge, the total cost is O(n log n), which is the best any comparison based sort can do: no algorithm that only compares pairs of elements can sort in fewer than roughly n log n comparisons in the worst case. Quicksort follows a similar divide and conquer shape but partitions around a pivot instead of merging, averaging O(n log n) time with no extra memory, at the cost of an O(n squared) worst case on unlucky pivots.\n\nJavaScript's built in Array.prototype.sort mutates the array in place and, without a comparator function, converts every element to a string and sorts lexicographically, so [10, 2, 1].sort() produces [1, 10, 2] instead of numeric order. Passing a comparator such as (a, b) => a - b restores numeric ordering, and modern engines guarantee the sort is stable, meaning elements that compare equal keep their original relative order.",
+    examples: [
+      {
+        code: "function bubbleSort(arr) {\n  for (let i = 0; i < arr.length - 1; i++) {\n    for (let j = 0; j < arr.length - 1 - i; j++) {\n      if (arr[j] > arr[j + 1]) {\n        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];\n      }\n    }\n  }\n  return arr;\n}\nbubbleSort([5, 2, 4, 1]); // [1, 2, 4, 5]",
+        explanation:
+          "Each inner pass compares neighbors and swaps the larger one rightward, so after i passes the i largest values have bubbled to the end; the nested loops make this O(n squared).",
+      },
+      {
+        code: "function mergeSort(arr) {\n  if (arr.length <= 1) return arr;\n  const mid = Math.floor(arr.length / 2);\n  const left = mergeSort(arr.slice(0, mid));\n  const right = mergeSort(arr.slice(mid));\n  const merged = [];\n  let i = 0, j = 0;\n  while (i < left.length && j < right.length) {\n    merged.push(left[i] <= right[j] ? left[i++] : right[j++]);\n  }\n  return [...merged, ...left.slice(i), ...right.slice(j)];\n}\nmergeSort([5, 2, 4, 1]); // [1, 2, 4, 5]",
+        explanation:
+          "The array splits in half recursively until each piece has one element, then merge combines pairs of already sorted pieces by comparing their fronts, giving O(n log n) time overall.",
+      },
+      {
+        code: "[10, 2, 1].sort(); // ['1', '10', '2'], lexicographic\n[10, 2, 1].sort((a, b) => a - b); // [1, 2, 10], numeric",
+        explanation:
+          "Without a comparator, sort converts values to strings and compares them character by character; supplying (a, b) => a - b tells it to compare numerically instead.",
+      },
+    ],
+    realWorldUseCases: [
+      "Ordering search results or leaderboard entries by score before displaying them.",
+      "Preparing a dataset for binary search, which only works correctly on sorted input.",
+      "Grouping or deduplicating records by sorting on a key first so equal keys sit next to each other.",
+      "Sorting log entries by timestamp to reconstruct the order events occurred.",
+    ],
+    relatedProblemIds: ["ds-sorting-001", "ds-sorting-002", "ds-sorting-003", "ds-sorting-004"],
+    visual: "sorting-algorithms",
+    furtherReading: [
+      { label: "Wikipedia: Sorting algorithm", url: "https://en.wikipedia.org/wiki/Sorting_algorithm" },
+    ],
+    pitfalls: [
+      "Assuming Array.prototype.sort() sorts numbers correctly without a comparator; by default it sorts lexicographically as strings.",
+      "Reaching for a nested loop sort on large inputs when an O(n log n) sort would finish far sooner.",
+      "Forgetting that Array.prototype.sort() mutates the original array in place, which can surprise code that expected a new array.",
+    ],
+    keyTakeaways: [
+      "Comparison sorts cannot beat O(n log n) in the worst case; O(n squared) sorts trade speed for simplicity.",
+      "Divide and conquer sorts like merge sort split the problem in half and combine sorted pieces in linear time.",
+      "JavaScript's sort needs an explicit comparator for numeric or custom ordering.",
+      "A stable sort preserves the relative order of elements that compare equal.",
+    ],
+    check: {
+      question:
+        "Why can no comparison based sorting algorithm do better than O(n log n) in the worst case?",
+      options: [
+        "Because computers can only compare two numbers at a time",
+        "Because distinguishing between all n! possible orderings using only pairwise comparisons requires at least about n log n comparisons",
+        "Because arrays in JavaScript have a fixed maximum length",
+        "Because sorting always requires creating a second array",
+      ],
+      answerIndex: 1,
+      explanation:
+        "There are n factorial possible orderings of n elements, and each comparison can rule out at most half of the remaining possibilities, so distinguishing them all needs on the order of log2(n!), which is about n log n, comparisons.",
+    },
+    related: ["binary-search", "sorting-arrays", "arrays-two-pointers"],
+  },
+  {
+    slug: "binary-search",
+    track: "data-structures",
+    topic: "Searching",
+    title: "Binary Search",
+    oneLiner:
+      "Repeatedly halving a sorted range finds a target in O(log n) steps instead of scanning every element.",
+    definition:
+      "Binary search finds a value inside a sorted array by comparing the target to the middle element and discarding the half of the array that cannot contain it. Each step computes mid as the midpoint between the current low and high bounds, using Math.floor((lo + hi) / 2) so the index stays a whole number, and compares arr[mid] to the target: if they match the search is done, if the target is smaller the search continues in the left half, and if it is larger the search continues in the right half. Because the search range is cut in half every step, binary search needs only about log2(n) comparisons to search n elements, which is dramatically faster than a linear scan for large arrays.\n\nBinary search only works correctly when the array is sorted with respect to the same order the comparison uses; running it on unsorted data can silently return a wrong index instead of failing loudly, since each step still trusts an ordering assumption that no longer holds. Every iteration must also shrink the range, moving lo to mid + 1 or hi to mid - 1 rather than leaving either bound unchanged, or the loop can spin forever on the same middle index. In languages with fixed width integers, computing (lo + hi) / 2 can overflow when lo and hi are both large; a safer formula is lo + Math.floor((hi - lo) / 2), though JavaScript's numbers do not overflow the way 32-bit integers in other languages do.",
+    examples: [
+      {
+        code: "function binarySearch(arr, target) {\n  let lo = 0, hi = arr.length - 1;\n  while (lo <= hi) {\n    const mid = lo + Math.floor((hi - lo) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) lo = mid + 1;\n    else hi = mid - 1;\n  }\n  return -1;\n}\nbinarySearch([2, 5, 8, 12, 16, 23, 38, 45], 38); // 6",
+        explanation:
+          "Each iteration narrows the range to whichever half could still contain the target, using Math.floor so mid is always a valid array index, and stops as soon as lo passes hi.",
+      },
+      {
+        code: "function binarySearchRec(arr, target, lo = 0, hi = arr.length - 1) {\n  if (lo > hi) return -1;\n  const mid = lo + Math.floor((hi - lo) / 2);\n  if (arr[mid] === target) return mid;\n  return arr[mid] < target\n    ? binarySearchRec(arr, target, mid + 1, hi)\n    : binarySearchRec(arr, target, lo, mid - 1);\n}\nbinarySearchRec([2, 5, 8, 12, 16, 23, 38, 45], 12); // 3",
+        explanation:
+          "The recursive form makes the halving explicit: every call searches a strictly smaller lo-to-hi range until it finds the target or the range is empty.",
+      },
+      {
+        code: "function firstTrue(n, isTarget) {\n  let lo = 0, hi = n - 1, ans = -1;\n  while (lo <= hi) {\n    const mid = lo + Math.floor((hi - lo) / 2);\n    if (isTarget(mid)) { ans = mid; hi = mid - 1; }\n    else lo = mid + 1;\n  }\n  return ans;\n}",
+        explanation:
+          "Binary search generalizes beyond exact match lookups: this version finds the first index where a monotonic predicate becomes true, still halving the range each step.",
+      },
+    ],
+    realWorldUseCases: [
+      "Looking up a value in a sorted array or database index without scanning every entry.",
+      "Finding the insertion point for a new value to keep an array sorted.",
+      "Searching a monotonic answer space, such as finding the smallest value that satisfies a condition.",
+      "Implementing autocomplete or range queries over pre-sorted data.",
+    ],
+    relatedProblemIds: ["ds-searching-001", "ds-searching-002", "ds-searching-003", "ds-searching-004"],
+    visual: "binary-search",
+    furtherReading: [
+      { label: "Wikipedia: Binary search algorithm", url: "https://en.wikipedia.org/wiki/Binary_search_algorithm" },
+    ],
+    pitfalls: [
+      "Running binary search on an array that is not sorted, which can return a wrong index without any error.",
+      "Forgetting Math.floor when computing mid, leaving a fractional index that cannot be used to access the array.",
+      "Writing a bound update that never shrinks the range, such as setting hi = mid instead of hi = mid - 1, which can loop forever.",
+    ],
+    keyTakeaways: [
+      "Binary search requires a sorted range and runs in O(log n) time by halving the search space each step.",
+      "Always use Math.floor when computing the midpoint so it stays a valid integer index.",
+      "Every step must move lo or hi so the range strictly shrinks, or the search can loop forever.",
+      "The same halving idea generalizes to finding boundaries in any monotonic condition, not just exact matches.",
+    ],
+    check: {
+      question: "What is the minimum requirement for binary search to return correct results?",
+      options: [
+        "The array must contain only numbers",
+        "The array must be sorted with respect to the comparison being used",
+        "The array must have an even number of elements",
+        "The array must be smaller than 1000 elements",
+      ],
+      answerIndex: 1,
+      explanation:
+        "Binary search decides which half to discard based on comparing the target to the middle element; that decision is only valid if the array is sorted, since it assumes everything on one side is smaller and everything on the other side is larger.",
+    },
+    related: ["sorting-algorithms", "binary-search-trees", "sliding-window"],
+  },
+  {
+    slug: "sliding-window",
+    track: "data-structures",
+    topic: "Sliding Window",
+    title: "Sliding Window",
+    oneLiner:
+      "A window of elements expands and contracts as it moves across a sequence, reusing work instead of rescanning from scratch.",
+    definition:
+      "The sliding window technique tracks a contiguous range, or window, over an array or string and updates it incrementally as it moves, instead of recomputing a result from scratch for every possible range. A fixed-size window slides one step at a time: when it moves forward, the value leaving the window is subtracted from a running total, or otherwise removed from whatever state is being tracked, and the value entering the window is added, so each step does a constant amount of work rather than re-summing the whole window.\n\nA variable-size window instead grows by moving a right edge forward to include more elements, and shrinks by moving a left edge forward whenever some condition is violated, such as a running sum exceeding a limit or a substring containing a repeated character. Because both edges only ever move forward and each element enters and leaves the window at most once, the whole scan still costs O(n) time even though it explores many different window sizes, turning what looks like an O(n squared) problem, checking every subarray or substring, into a single linear pass.",
+    examples: [
+      {
+        code: "function maxSumWindow(nums, k) {\n  let windowSum = 0;\n  for (let i = 0; i < k; i++) windowSum += nums[i];\n  let best = windowSum;\n  for (let i = k; i < nums.length; i++) {\n    windowSum += nums[i] - nums[i - k];\n    best = Math.max(best, windowSum);\n  }\n  return best;\n}\nmaxSumWindow([2, 1, 5, 1, 3, 2], 3); // 9",
+        explanation:
+          "The window sum updates by adding the incoming value and subtracting the outgoing one, so sliding across the array costs O(1) per step instead of re-adding all k values.",
+      },
+      {
+        code: "function longestUnique(s) {\n  const seen = new Set();\n  let left = 0, best = 0;\n  for (let right = 0; right < s.length; right++) {\n    while (seen.has(s[right])) {\n      seen.delete(s[left]);\n      left++;\n    }\n    seen.add(s[right]);\n    best = Math.max(best, right - left + 1);\n  }\n  return best;\n}\nlongestUnique('abcabcbb'); // 3",
+        explanation:
+          "right expands the window to include new characters; whenever a repeat is found, left shrinks the window from the front until the repeat is gone, keeping every character in the window unique.",
+      },
+      {
+        code: "function minSubarrayLen(target, nums) {\n  let left = 0, sum = 0, best = Infinity;\n  for (let right = 0; right < nums.length; right++) {\n    sum += nums[right];\n    while (sum >= target) {\n      best = Math.min(best, right - left + 1);\n      sum -= nums[left];\n      left++;\n    }\n  }\n  return best === Infinity ? 0 : best;\n}\nminSubarrayLen(7, [2, 3, 1, 2, 4, 3]); // 2",
+        explanation:
+          "The window grows until its sum reaches the target, then shrinks from the left as far as possible while still meeting it, tracking the smallest window found along the way.",
+      },
+    ],
+    realWorldUseCases: [
+      "Finding the maximum or average value over a fixed-size trailing window, such as a moving average of recent measurements.",
+      "Finding the longest substring or subarray that satisfies a condition, like no repeated characters.",
+      "Rate limiting, where a window of recent requests is tracked and old requests age out as new ones arrive.",
+      "Network protocols that track an acknowledged range of packets in a sliding window of sequence numbers.",
+    ],
+    relatedProblemIds: ["ds-slidingwindow-001", "ds-slidingwindow-002", "ds-slidingwindow-003", "ds-slidingwindow-004"],
+    visual: "sliding-window",
+    furtherReading: [
+      { label: "GeeksforGeeks: Window Sliding Technique", url: "https://www.geeksforgeeks.org/window-sliding-technique/" },
+    ],
+    pitfalls: [
+      "Recomputing the window's sum or state from scratch on every slide instead of adjusting it incrementally, which throws away the technique's O(n) advantage.",
+      "Forgetting to shrink the left edge when a variable window's condition is violated, so the window grows without bound.",
+      "Off by one errors in the window size, such as using right - left instead of right - left + 1 when counting an inclusive window.",
+    ],
+    keyTakeaways: [
+      "A sliding window updates its running state by adding what enters and removing what leaves, avoiding a full rescan on every step.",
+      "Fixed windows always have the same size; variable windows grow and shrink based on a condition.",
+      "Both edges only move forward, so the whole scan stays O(n) even though it checks many window positions.",
+      "The technique replaces a naive O(n squared) check of every subarray or substring with a single linear pass.",
+    ],
+    check: {
+      question: "When a fixed-size window slides one step to the right, what is the cheapest way to update a running sum?",
+      options: [
+        "Recompute the sum of all elements currently in the window",
+        "Add the new element entering the window and subtract the element leaving it",
+        "Sort the window and take the average",
+        "Restart the scan from the beginning of the array",
+      ],
+      answerIndex: 1,
+      explanation:
+        "Since only one element enters and one element leaves as the window slides by one, adjusting the running sum by that difference is O(1); recomputing the full sum would be O(k) per step and lose the technique's advantage.",
+    },
+    related: ["arrays-two-pointers", "hash-maps", "dynamic-programming"],
+  },
+  {
+    slug: "dynamic-programming",
+    track: "data-structures",
+    topic: "Dynamic Programming",
+    title: "Dynamic Programming",
+    oneLiner:
+      "Break a problem into overlapping subproblems, solve each one once, and reuse the answers instead of recomputing them.",
+    definition:
+      "Dynamic programming solves a problem by breaking it into smaller subproblems, solving each subproblem once, and storing its answer so it never has to be recomputed. It applies when a problem has two properties: overlapping subproblems, meaning the same smaller subproblem is needed multiple times, as in naive recursive Fibonacci, where fib(3) is computed repeatedly while computing fib(6), and optimal substructure, meaning an optimal solution to the whole problem can be built from optimal solutions to its subproblems. Without both properties, memoizing answers either does nothing useful because subproblems never repeat, or gives an incorrect result because subproblem answers cannot be combined into the overall answer.\n\nThere are two common ways to implement dynamic programming. Top-down, or memoization, keeps the natural recursive structure of the problem but caches each subproblem's result the first time it is computed, typically in an object, Map, or array, and returns the cached value immediately on later calls instead of recursing again. Bottom-up, or tabulation, instead builds a table of subproblem answers iteratively, usually starting from the smallest subproblems, the base cases, and filling in larger ones in order, so that every value the table needs already exists by the time it is used. Tabulation avoids recursion overhead and stack depth limits, while memoization is often more direct to write since it mirrors the recursive definition of the problem.",
+    examples: [
+      {
+        code: "function fibMemo(n, memo = new Map()) {\n  if (n <= 1) return n;\n  if (memo.has(n)) return memo.get(n);\n  const result = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);\n  memo.set(n, result);\n  return result;\n}\nfibMemo(30); // 832040, computed in O(n) calls instead of exponentially many",
+        explanation:
+          "Without memo, fib(n - 1) and fib(n - 2) both recompute overlapping subproblems like fib(n - 3) many times over; caching each n the first time it is solved turns an exponential number of calls into a linear one.",
+      },
+      {
+        code: "function fibTable(n) {\n  const table = [0, 1];\n  for (let i = 2; i <= n; i++) {\n    table[i] = table[i - 1] + table[i - 2];\n  }\n  return table[n];\n}\nfibTable(10); // 55",
+        explanation:
+          "Instead of recursing, the table fills in from the base cases upward, so fib(i) is always available in the array by the time fib(i + 1) needs it.",
+      },
+      {
+        code: "function minCoins(coins, amount) {\n  const dp = new Array(amount + 1).fill(Infinity);\n  dp[0] = 0;\n  for (let a = 1; a <= amount; a++) {\n    for (const c of coins) {\n      if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);\n    }\n  }\n  return dp[amount] === Infinity ? -1 : dp[amount];\n}\nminCoins([1, 3, 4], 6); // 2 (3 + 3)",
+        explanation:
+          "dp[a] reuses the already-solved answers for every smaller amount, so each amount is computed once and combined with a single coin choice, unlike greedy, which can be led astray by picking the biggest coin first.",
+      },
+    ],
+    realWorldUseCases: [
+      "Computing edit distance or similarity between two strings, as used in spell checkers and diff tools.",
+      "Finding the optimal way to cut a resource, such as minimum coins for change or maximum value in a knapsack of limited capacity.",
+      "Sequence alignment problems in bioinformatics that compare DNA or protein sequences.",
+      "Caching expensive pure function results in application code so repeated calls with the same arguments are instant.",
+    ],
+    relatedProblemIds: ["ds-dp-001", "ds-dp-002", "ds-dp-003", "ds-dp-004"],
+    visual: "dynamic-programming",
+    furtherReading: [
+      { label: "Wikipedia: Dynamic programming", url: "https://en.wikipedia.org/wiki/Dynamic_programming" },
+    ],
+    pitfalls: [
+      "Applying memoization to a problem whose subproblems never actually repeat, which adds bookkeeping overhead without any speedup.",
+      "Assuming a problem has optimal substructure when it does not, so combining subproblem answers produces the wrong overall result.",
+      "Choosing the wrong cache key, such as memoizing on the wrong subset of parameters, so two different subproblems collide and return each other's cached answer.",
+    ],
+    keyTakeaways: [
+      "Dynamic programming needs overlapping subproblems and optimal substructure; both must hold.",
+      "Top-down memoization keeps the recursive shape of the problem and caches results as they are computed.",
+      "Bottom-up tabulation fills in a table iteratively from base cases up, avoiding recursion.",
+      "A cache hit reuses an already-solved subproblem instead of recomputing it, which is what turns exponential recursion into polynomial time.",
+    ],
+    check: {
+      question: "A recursive solution recomputes fib(2) dozens of times while computing fib(10). What property of the problem does this reveal?",
+      options: [
+        "Optimal substructure",
+        "Overlapping subproblems",
+        "A greedy-choice property",
+        "An unsorted input",
+      ],
+      answerIndex: 1,
+      explanation:
+        "The same smaller subproblem, fib(2), is being solved again and again inside the larger computation; that repetition is exactly what overlapping subproblems means, and it is what memoization or tabulation eliminates by solving each subproblem once.",
+    },
+    related: ["recursion-and-backtracking", "hash-maps", "greedy-algorithms"],
+  },
+  {
+    slug: "recursion-and-backtracking",
+    track: "data-structures",
+    topic: "Recursion & Backtracking",
+    title: "Recursion & Backtracking",
+    oneLiner:
+      "Backtracking explores a choice by recursing into it, and undoes that choice the moment it leads nowhere, so it can try the next one.",
+    definition:
+      "Recursion solves a problem by having a function call itself on a smaller version of the same problem, with a base case that stops the recursion once the problem is small enough to answer directly. Backtracking builds on recursion to search through a space of choices: at each step it picks one option, recurses to explore the consequences of that choice, and if the recursive call reaches a dead end, a state that cannot possibly lead to a valid solution, it undoes the choice and tries the next option instead. That undo step, often as simple as popping the last choice off an array or clearing a visited flag, is what separates backtracking from plain recursion: without it, the state from an abandoned branch would leak into the sibling branches tried afterward.\n\nBecause each call frame captures the state made at that decision point, the call stack naturally tracks the sequence of choices made so far and unwinds it automatically when a function returns, so returning from a recursive call is often exactly the undo step a backtracking algorithm needs. Backtracking is used to enumerate or search a solution space that is too large to check exhaustively in advance, such as all permutations of a list, all ways to place non-attacking queens on a board, or all paths through a maze, and it prunes branches early whenever it can prove a partial choice cannot possibly succeed, which avoids wasting time exploring the rest of a doomed branch.",
+    examples: [
+      {
+        code: "function subsets(nums) {\n  const result = [];\n  function backtrack(start, current) {\n    result.push([...current]);\n    for (let i = start; i < nums.length; i++) {\n      current.push(nums[i]);\n      backtrack(i + 1, current);\n      current.pop(); // undo the choice\n    }\n  }\n  backtrack(0, []);\n  return result;\n}\nsubsets([1, 2]); // [[], [1], [1, 2], [2]]",
+        explanation:
+          "current.push adds a choice and recurses to explore it; current.pop right after is the backtrack step, removing that choice so the next iteration of the loop starts from a clean state.",
+      },
+      {
+        code: "function permute(nums) {\n  const result = [], used = new Set();\n  function backtrack(path) {\n    if (path.length === nums.length) { result.push([...path]); return; }\n    for (const n of nums) {\n      if (used.has(n)) continue;\n      used.add(n);\n      path.push(n);\n      backtrack(path);\n      path.pop();\n      used.delete(n); // undo before trying the next candidate\n    }\n  }\n  backtrack([]);\n  return result;\n}\npermute([1, 2, 3]).length; // 6",
+        explanation:
+          "Marking a number used lets the recursion skip it in deeper calls; deleting it again after the recursive call returns undoes that mark so a sibling branch can use the same number.",
+      },
+      {
+        code: "function hasPath(grid, r, c, visited = new Set()) {\n  const key = `${r},${c}`;\n  if (r < 0 || c < 0 || r >= grid.length || c >= grid[0].length) return false;\n  if (grid[r][c] === 1 || visited.has(key)) return false; // dead end\n  if (r === grid.length - 1 && c === grid[0].length - 1) return true;\n  visited.add(key);\n  const found = hasPath(grid, r + 1, c, visited) || hasPath(grid, r, c + 1, visited);\n  visited.delete(key); // backtrack so other paths can revisit this cell\n  return found;\n}",
+        explanation:
+          "A wall or an already-visited cell is treated as a dead end and returns false immediately; visited.delete undoes marking the cell once this branch's exploration is finished, so a different path is free to consider it again.",
+      },
+    ],
+    realWorldUseCases: [
+      "Generating all permutations, subsets, or combinations of a set of items.",
+      "Solving constraint satisfaction puzzles such as Sudoku or the N-Queens problem.",
+      "Searching a maze or grid for a path, undoing a step whenever it leads to a dead end.",
+      "Parsing or compiling, where a parser tries one grammar rule, backs out if it fails, and tries another.",
+    ],
+    relatedProblemIds: ["ds-backtracking-001", "ds-backtracking-002", "ds-backtracking-003", "ds-backtracking-004"],
+    visual: "recursion-and-backtracking",
+    furtherReading: [
+      { label: "Wikipedia: Backtracking", url: "https://en.wikipedia.org/wiki/Backtracking" },
+    ],
+    pitfalls: [
+      "Forgetting the undo step, such as leaving a value pushed onto an array or a flag marked used, so state from an abandoned branch leaks into the next branch tried.",
+      "Missing or incorrect base case, causing recursion to continue past a valid dead end or solution instead of stopping.",
+      "Not pruning early enough, exploring an entire doomed branch to its end before checking a condition that could have ruled it out immediately.",
+    ],
+    keyTakeaways: [
+      "Backtracking is recursion plus an explicit undo step for whichever choice was just tried.",
+      "A dead end should stop the current branch immediately and trigger backtracking, not continue exploring further.",
+      "The call stack unwinding on return often performs the undo automatically, but any state mutated outside the call, like an array or set, must be undone manually.",
+      "Pruning a branch as soon as it can be proven invalid avoids wasted work exploring the rest of it.",
+    ],
+    check: {
+      question: "In a backtracking subset search, current.push(nums[i]) is followed later by current.pop(). What would happen if the pop() were removed?",
+      options: [
+        "The recursion would run faster with no other effect",
+        "Every subsequent branch explored in the loop would incorrectly still include nums[i], since it was never removed",
+        "The base case would never be reached",
+        "It would throw a stack overflow immediately",
+      ],
+      answerIndex: 1,
+      explanation:
+        "The pop is the undo step; without it, the value added by an earlier iteration of the loop stays in current for every later iteration, so all following branches are explored with stale, incorrect state.",
+    },
+    related: ["execution-context-call-stack", "dynamic-programming", "graph-traversal"],
+  },
+  {
+    slug: "greedy-algorithms",
+    track: "data-structures",
+    topic: "Greedy",
+    title: "Greedy Algorithms",
+    oneLiner:
+      "A greedy algorithm takes the locally best choice at every step, which only produces the globally best answer when the problem has the greedy-choice property.",
+    definition:
+      "A greedy algorithm builds a solution one decision at a time, at each step choosing whatever option looks best right now, and never reconsidering that choice later. It never backtracks and never explores alternatives once a choice is made, which makes greedy algorithms simple to implement and often very fast, typically O(n log n) or O(n), since each step just picks the best available option, often after a single sort.\n\nGreedy only produces a truly optimal answer when the problem has the greedy-choice property: making the locally best choice at every step must be provably part of some globally optimal solution. Many classic problems do have this property, such as picking the activity that finishes earliest first when scheduling non-overlapping intervals, or Huffman coding, which repeatedly merges the two least frequent symbols. Many others do not. The classic counterexample is coin change with arbitrary denominations: with coins of 4, 3, and 1 to make 6, greedy takes the biggest coin that fits at each step, 4 then 1 then 1, using 3 coins, but the optimal answer, 3 plus 3, only needs 2. Because greedy commits to 4 immediately without checking whether a different first choice could lead to a better total, it never even considers picking 3 twice.",
+    examples: [
+      {
+        code: "function maxActivities(intervals) {\n  const sorted = [...intervals].sort((a, b) => a[1] - b[1]);\n  let count = 0, lastEnd = -Infinity;\n  for (const [start, end] of sorted) {\n    if (start >= lastEnd) { count++; lastEnd = end; }\n  }\n  return count;\n}\nmaxActivities([[1, 3], [2, 4], [3, 5], [6, 7]]); // 3",
+        explanation:
+          "Sorting by end time and always picking the next activity that starts after the last one finished is provably optimal here: finishing as early as possible leaves the most room for later activities.",
+      },
+      {
+        code: "function greedyChange(coins, amount) {\n  const sorted = [...coins].sort((a, b) => b - a);\n  const used = [];\n  let remaining = amount;\n  for (const c of sorted) {\n    while (c <= remaining) { used.push(c); remaining -= c; }\n  }\n  return used;\n}\ngreedyChange([4, 3, 1], 6); // [4, 1, 1], 3 coins; optimal is [3, 3], 2 coins",
+        explanation:
+          "Greedy always grabs the biggest coin that still fits, which works for denominations like 1, 5, 10, 25 but is provably suboptimal for arbitrary denominations like 4, 3, 1, since the biggest-first choice can block a better combination.",
+      },
+      {
+        code: "function fractionalKnapsack(items, capacity) {\n  const sorted = [...items].sort((a, b) => b.value / b.weight - a.value / a.weight);\n  let total = 0, left = capacity;\n  for (const item of sorted) {\n    if (left <= 0) break;\n    const take = Math.min(item.weight, left);\n    total += take * (item.value / item.weight);\n    left -= take;\n  }\n  return total;\n}",
+        explanation:
+          "Taking items with the best value-per-weight ratio first is optimal when items can be split into fractions; this greedy choice is provably safe because any better solution could be rearranged to also take the best ratio first.",
+      },
+    ],
+    realWorldUseCases: [
+      "Scheduling the maximum number of non-overlapping meetings or activities in a shared room.",
+      "Building a Huffman coding tree for lossless data compression.",
+      "Making change with well-behaved currency denominations, like US coins, where greedy happens to be optimal.",
+      "Minimum spanning tree algorithms such as Kruskal's and Prim's, which greedily add the cheapest edge that keeps the tree valid.",
+    ],
+    relatedProblemIds: ["ds-greedy-001", "ds-greedy-002", "ds-greedy-003", "ds-greedy-004"],
+    visual: "greedy-algorithms",
+    furtherReading: [
+      { label: "Wikipedia: Greedy algorithm", url: "https://en.wikipedia.org/wiki/Greedy_algorithm" },
+    ],
+    pitfalls: [
+      "Assuming greedy is always optimal; it only is when the problem has a provable greedy-choice property, and coin change with arbitrary denominations is the classic case where it fails.",
+      "Skipping the proof that the locally best choice cannot hurt the final answer, and just assuming it because the algorithm is simple to write.",
+      "Confusing a greedy heuristic that gives a good approximate answer with an algorithm that is guaranteed to give the optimal one.",
+    ],
+    keyTakeaways: [
+      "Greedy algorithms commit to the best-looking choice at each step and never reconsider it.",
+      "They are only guaranteed optimal when the problem has the greedy-choice property, proven for that specific problem.",
+      "Coin change with arbitrary denominations like 4, 3, 1 is the classic counterexample: greedy can use more coins than necessary.",
+      "Activity selection, Huffman coding, and minimum spanning trees are classic problems where greedy is provably optimal.",
+    ],
+    check: {
+      question: "With coin denominations 4, 3, and 1, why does a greedy algorithm fail to find the minimum number of coins to make 6?",
+      options: [
+        "Because 6 cannot be made with those denominations at all",
+        "Because greedy picks 4 first since it is the biggest coin that fits, then needs 1 and 1, using 3 coins, while 3 plus 3 only needs 2",
+        "Because JavaScript cannot represent the number 6 exactly",
+        "Because the coins array was not sorted before the algorithm ran",
+      ],
+      answerIndex: 1,
+      explanation:
+        "Greedy never reconsiders the choice of 4 once it is made, so it cannot discover that skipping 4 in favor of 3 plus 3 uses fewer coins overall; this is exactly the case where the greedy-choice property does not hold.",
+    },
+    related: ["dynamic-programming", "recursion-and-backtracking", "sorting-algorithms"],
+  },
+  {
+    slug: "bit-manipulation",
+    track: "data-structures",
+    topic: "Bit Manipulation",
+    title: "Bit Manipulation",
+    oneLiner:
+      "Bitwise operators read and change the individual binary digits of a number directly, which is often far faster than arithmetic on the whole value.",
+    definition:
+      "Every number is stored as a sequence of binary digits, or bits, and bitwise operators act on those bits directly instead of treating the number as a single arithmetic value. AND (&) keeps only the bits that are 1 in both operands, OR (|) keeps a bit that is 1 in either operand, and XOR (^) keeps a bit that is 1 in exactly one of the two operands, so XORing a value with itself always clears every bit to 0, and XORing a value with 0 leaves it unchanged. The shift operators move bits left or right: x << 1 shifts every bit one place left, which doubles x, and x >> 1 shifts every bit one place right, discarding the lowest bit, which halves x by dropping any fraction.\n\nThese operators support a handful of common, fast tricks: x & 1 tests whether x is odd, since that expression is 1 only when the lowest bit of x is set; x & (x - 1) clears the lowest set bit of x, because subtracting 1 flips every bit up to and including that lowest set bit, and ANDing with the original value keeps only the bits above it; and toggling a specific bit, checking whether it is set, or building a compact set of flags out of a single integer are all done by combining AND, OR, XOR, and shifts with the right mask. In JavaScript, bitwise operators convert their operands to 32-bit signed integers before operating and convert the result back to a regular number, so bitwise operations on values outside that 32-bit range can behave unexpectedly.",
+    examples: [
+      {
+        code: "const a = 0b1010; // 10\nconst b = 0b0110; // 6\n(a ^ b).toString(2); // '1100', 12\n(a ^ a); // 0, XOR of a value with itself is always 0",
+        explanation:
+          "Each bit of the result is 1 exactly where a and b disagree: bit 3 (1 vs 0) and bit 2 (0 vs 1), giving 1100, which is 12; XORing any value with itself cancels every bit to 0, a trick used to swap variables or clear a value without a temporary.",
+      },
+      {
+        code: "function isOdd(x) { return (x & 1) === 1; }\nisOdd(7); // true\nisOdd(8); // false\n\nfunction clearLowestSetBit(x) { return x & (x - 1); }\nclearLowestSetBit(0b1010); // 0b1000, 8\nclearLowestSetBit(0b1000); // 0, used to count set bits by repeating until 0",
+        explanation:
+          "x & 1 isolates the lowest bit to check odd or even; x & (x - 1) removes exactly the lowest 1 bit, a building block for efficiently counting how many bits are set in a number.",
+      },
+      {
+        code: "const READ = 1 << 0;  // 0b001\nconst WRITE = 1 << 1; // 0b010\nconst EXEC = 1 << 2;  // 0b100\nlet perms = READ | WRITE;      // 0b011\nconst canWrite = (perms & WRITE) !== 0; // true\nperms = perms & ~WRITE;        // clear WRITE, back to 0b001",
+        explanation:
+          "Left-shifting 1 by different amounts builds distinct single-bit flags; OR combines flags into one integer, AND checks whether a flag is set, and AND with the bitwise NOT of a flag clears it, a compact way to store several booleans in one number.",
+      },
+    ],
+    realWorldUseCases: [
+      "Packing multiple boolean flags or permissions into a single integer to save memory and allow fast checks.",
+      "Fast parity, power-of-two, and set-bit-counting checks used in low-level or performance-critical code.",
+      "Hashing and checksum algorithms that mix bits with XOR and shifts.",
+      "Working with binary protocols, packed color values, or file formats that store data at the bit level.",
+    ],
+    relatedProblemIds: ["ds-bits-001", "ds-bits-002", "ds-bits-003", "ds-bits-004"],
+    visual: "bit-manipulation",
+    furtherReading: [
+      { label: "Wikipedia: Bitwise operation", url: "https://en.wikipedia.org/wiki/Bitwise_operation" },
+    ],
+    pitfalls: [
+      "Forgetting that JavaScript's bitwise operators convert numbers to 32-bit signed integers first, so bitwise operations on very large numbers can give surprising results.",
+      "Confusing >> (sign-propagating right shift) with >>> (zero-fill right shift), which matters for negative numbers.",
+      "Reaching for bit tricks like x & (x - 1) without a comment explaining what they do, making the code hard for others, or future you, to read.",
+    ],
+    keyTakeaways: [
+      "AND, OR, and XOR combine bits according to simple rules, and XOR of a value with itself is always 0.",
+      "Left shift multiplies by powers of two, and right shift divides by powers of two, discarding any remainder.",
+      "x & 1 tests for odd, and x & (x - 1) clears the lowest set bit, two common building blocks for bit tricks.",
+      "JavaScript's bitwise operators work on 32-bit signed integers internally, not arbitrary precision numbers.",
+    ],
+    check: {
+      question: "What does x & (x - 1) do to the binary representation of x?",
+      options: [
+        "Sets every bit of x to 1",
+        "Clears the lowest set bit of x, leaving every bit above it unchanged",
+        "Reverses the order of the bits in x",
+        "Doubles the value of x",
+      ],
+      answerIndex: 1,
+      explanation:
+        "Subtracting 1 from x flips all the bits from the lowest set bit downward, turning that bit off and every 0 below it into 1, so ANDing with the original x keeps only the bits above the lowest set bit, clearing that one bit.",
+    },
+    related: ["data-types-and-coercion", "operators-precedence", "hash-maps"],
+  },
 ];
